@@ -1,0 +1,56 @@
+---
+description: Conventions for contributing to the dd-se-cursor-toolkit itself
+alwaysApply: true
+---
+
+# Toolkit Conventions
+
+This is a **distribution toolkit**, not an application. It ships Cursor rules, skills, agents, and commands that get installed into `~/.cursor/` for use in other projects. There is no build step, no runtime, and no dependencies. Content is Markdown, YAML templates, and one shell script (`install.sh`).
+
+Do not add package managers, build scripts, test frameworks, or CI pipelines to this repo.
+
+## Component Types
+
+### Rules (`rules/*.mdc`)
+
+`.mdc` files with YAML frontmatter. These are templates copied into demo projects by the scaffold skill; they are not applied to this repo.
+
+```yaml
+---
+description: What the rule enforces
+alwaysApply: true          # or false with a globs field
+globs: "**/*.yml"           # optional, only when alwaysApply is false
+---
+```
+
+### Skills (`skills/<name>/SKILL.md`)
+
+A directory containing `SKILL.md` with YAML frontmatter and an optional `templates/` subdirectory for reference files.
+
+```yaml
+---
+name: dd-<name>
+description: One-line description used by Cursor to match the skill to user intent
+---
+```
+
+### Agents (`agents/<name>.md`)
+
+A single Markdown file with YAML frontmatter.
+
+```yaml
+---
+name: dd-<name>
+description: One-line description
+model: inherit
+readonly: true              # optional, omit if the agent needs write access
+---
+```
+
+### Commands (`commands/<name>.md`)
+
+A single Markdown file, **no frontmatter**. Keep under 20 lines. The body should briefly describe intent and delegate to a skill or agent.
+
+## Naming
+
+All artifacts use a `dd-` prefix.
