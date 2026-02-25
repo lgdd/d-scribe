@@ -1,0 +1,17 @@
+---
+description: Reminds to keep install.sh, uninstall.sh, and README.md in sync when components are added, removed, or renamed
+globs: skills/**/SKILL.md, agents/*.md, commands/*.md, rules/*.mdc, install.sh, uninstall.sh, README.md
+alwaysApply: false
+---
+
+# Component Sync
+
+When a component is added, removed, or renamed, update `README.md`:
+
+- Add or remove the row in the matching table (Rules, Skills, Subagents, or Commands).
+
+## `install.sh` and `uninstall.sh`
+
+Both scripts iterate over each component directory with `for` loops, so **adding a new file inside an existing directory type requires no script change**. Only edit them when introducing a new directory type or changing the symlink strategy.
+
+Rules are **not** symlinked — they are copied into demo projects by the scaffold skill. Do not add rules to `install.sh` or `uninstall.sh`.
