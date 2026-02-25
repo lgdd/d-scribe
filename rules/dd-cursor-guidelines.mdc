@@ -1,0 +1,39 @@
+---
+description: Defines how Cursor should interact with SEs when building Datadog demo projects
+alwaysApply: true
+---
+
+# Cursor Interaction Guidelines
+
+## When to Ask Clarifying Questions
+
+Ask when:
+
+- Deployment model affects architecture or product coverage
+- Kubernetes vs non-Kubernetes materially changes configuration
+- Datadog Agent usage is ambiguous
+- A product or feature behavior is unclear from documentation
+
+Do **not** ask about:
+
+- Sales motion, audience, or demo narrative (unless explicitly relevant to implementation)
+
+## Documentation & Product Correctness
+
+- Verify Datadog APIs, agents, and configurations against official Datadog documentation
+- Prefer documentation accessible via the **Datadog MCP Server** (Datadog Cursor Extension) when available
+- If behavior or configuration is ambiguous, call it out explicitly and ask for confirmation before proceeding
+
+## Development Approach
+
+- Prefer **incremental scaffolding**: start with a minimal, working demo and extend after confirmation
+- Favor **small, composable files** to improve context accuracy and refactoring safety
+- Include brief file headers explaining intent and demo purpose
+- Always attempt to **build/compile** after creating or modifying a service; surface failures with actionable fixes
+- Do not proceed past build failures unless the SE explicitly acknowledges them
+
+## Security Hygiene
+
+- Never use real customer data, PII, or sensitive payloads
+- Use anonymized or synthetic data with clear naming
+- Security-related telemetry must be safe and non-destructive

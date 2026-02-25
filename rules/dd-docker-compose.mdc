@@ -1,0 +1,137 @@
+---
+description: Datadog Agent and service configuration standards for Docker Compose demo projects
+globs: "**/docker-compose*.y*ml"
+alwaysApply: false
+---
+
+# Docker Compose — Datadog Standards
+
+## Datadog Agent Service
+
+Include a `datadog-agent` service with:
+
+```yaml
+datadog-agent:
+  image: gcr.io/datadoghq/agent:latest
+  environment:
+    - DD_API_KEY=${DD_API_KEY}
+    - DD_SITE=${DD_SITE}
+    - DD_APM_ENABLED=true
+    - DD_LOGS_ENABLED=true
+    - DD_LOGS_CONFIG_CONTAINER_COLLECT_ALL=true
+    - DD_PROCESS_AGENT_ENABLED=true
+    - DD_DOGSTATSD_NON_LOCAL_TRAFFIC=true
+    - DD_RUNTIME_SECURITY_CONFIG_ENABLED=true    # Workload Protection
+    - DD_RUNTIME_SECURITY_CONFIG_NETWORK_ENABLED=true
+    - DD_SYSTEM_PROBE_NETWORK_ENABLED=true
+  volumes:
+    - /var/run/docker.sock:/var/run/docker.sock:ro
+    - /proc/:/host/proc/:ro
+    - /sys/fs/cgroup/:/host/sys/fs/cgroup:ro
+    - /etc/os-release:/host/etc/os-release:ro
+```
+
+## Service Labels
+
+Every application service must include Unified Service Tagging labels:
+
+```yaml
+labels:
+  com.datadoghq.tags.env: "${DD_ENV:-demo}"
+  com.datadoghq.tags.service: "<service-name>"
+  com.datadoghq.tags.version: "${DD_VERSION:-1.0.0}"
+```
+
+## Networking
+
+- All services must share a network with the `datadog-agent` so they can reach it via hostname `datadog-agent`
+- Set `DD_AGENT_HOST=datadog-agent` in each application service's environment
+
+## Logging
+
+- Use the default `json-file` or `local` log driver — do not use `none`
+- The Agent collects logs via the Docker socket; no sidecar needed
+- **Application log format**: services must emit JSON-formatted logs to stdout — this lets the Agent forward pre-parsed events to Datadog with no custom pipeline (see the `dd-logging` rule for format details)
+
+## PostgreSQL — Database Monitoring (DBM)
+
+Every stack includes a PostgreSQL database with DBM enabled.
+
+Add the following to the Agent environment:
+
+```yaml
+- DD_DBM_ENABLED=true
+```
+
+The PostgreSQL container must:
+
+1. **Create a `datadog` monitoring user** via an init script mounted at `docker-entrypoint-initdb.d/`:
+
+```sql
+CREATE USER datadog WITH PASSWORD 'datadog';
+GRANT pg_monitor TO datadog;
+CREATE EXTENSION IF NOT EXISTS pg_stat_statements;
+```
+
+2. **Expose Autodiscovery labels** so the Agent auto-detects the integration:
+
+```yaml
+postgres:
+  image: postgres:16
+  environment:
+    - POSTGRES_USER=app
+    - POSTGRES_PASSWORD=app
+    - POSTGRES_DB=app
+  volumes:
+    - ./scripts/postgres-init:/docker-entrypoint-initdb.d
+  labels:
+    com.datadoghq.tags.env: "${DD_ENV:-demo}"
+    com.datadoghq.tags.service: "postgres"
+    com.datadoghq.tags.version: "${DD_VERSION:-1.0.0}"
+    com.datadoghq.ad.check_names: '["postgres"]'
+    com.datadoghq.ad.init_configs: "[{}]"
+    com.datadoghq.ad.instances: >-
+      [{
+        "dbm": true,
+        "host": "%%host%%",
+        "port": 5432,
+        "username": "datadog",
+        "password": "datadog"
+      }]
+```
+
+Reference: [Setting Up DBM for self-hosted Postgres](https://docs.datadoghq.com/database_monitoring/setup_postgres/selfhosted/)
+
+## Redis — Integration
+
+Every stack includes a Redis cache with the Datadog Redis integration enabled.
+
+The Redis container must expose Autodiscovery labels:
+
+```yaml
+redis:
+  image: redis:7
+  labels:
+    com.datadoghq.tags.env: "${DD_ENV:-demo}"
+    com.datadoghq.tags.service: "redis"
+    com.datadoghq.tags.version: "${DD_VERSION:-1.0.0}"
+    com.datadoghq.ad.check_names: '["redisdb"]'
+    com.datadoghq.ad.init_configs: "[{}]"
+    com.datadoghq.ad.instances: '[{"host":"%%host%%","port":"6379"}]'
+```
+
+Reference: [Redis Integration — Docker](https://docs.datadoghq.com/integrations/redis/?tab=docker#configuration)
+
+## Excluding Non-Demo Services
+
+Services that should not appear in Datadog telemetry (e.g., the traffic generator) must be excluded:
+
+- Do **not** add Unified Service Tagging labels (`com.datadoghq.tags.*`)
+- Add a log exclusion label to suppress log collection:
+
+```yaml
+labels:
+  com.datadoghq.ad.logs: '[{"source":"<service>","log_processing_rules":[{"type":"exclude_at_match","name":"exclude_all","pattern":".*"}]}]'
+```
+
+- Do **not** set `DD_AGENT_HOST` or any `DD_` tracing environment variables on the excluded service

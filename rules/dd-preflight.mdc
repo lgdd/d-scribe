@@ -1,0 +1,35 @@
+---
+description: Triggers automatic preflight validation after project file changes
+alwaysApply: true
+---
+
+# Automatic Preflight Validation
+
+## When to Run
+
+After **adding, updating, or deleting** any project file (application code, configuration, Dockerfiles, manifests, etc.), run the `dd-demo-preflight` subagent to validate the project still works end-to-end.
+
+This applies to changes made by Cursor during scaffolding, product additions, refactoring, or any other modification to the project.
+
+## Behavior
+
+- Preflight is a **non-blocking validation**: if it fails, report the failure clearly but do not revert the changes that were made
+- Preflight must **always clean up** after itself — all containers, processes, and resources started during validation must be stopped and removed before the preflight report is delivered
+- The stack must not be left running after preflight completes
+
+## Scope
+
+Skip preflight for changes that cannot affect runtime behavior:
+
+- README or documentation-only edits
+- Comment-only changes
+- `.gitignore` updates
+
+Run preflight for everything else, including changes to:
+
+- Application source code
+- Dockerfiles
+- `docker-compose.yml` or Kubernetes manifests
+- Environment variable templates (`.env.example`)
+- Dependency files (`requirements.txt`, `package.json`, `go.mod`, etc.)
+- Makefiles or build scripts

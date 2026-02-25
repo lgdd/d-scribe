@@ -1,0 +1,46 @@
+---
+description: Enforces microservice architecture and topology standards for Datadog demo projects
+alwaysApply: true
+---
+
+# Demo Architecture Requirements
+
+## Microservices Only
+
+Demo projects must be implemented as microservice applications, never single-process monoliths.
+
+### Minimum Structure
+
+- At least **2 independently deployable services** (separate processes/containers)
+- **2 backing dependencies**:
+  - **PostgreSQL** — primary database (enables Database Monitoring / DBM)
+  - **Redis** — cache layer (enables the Redis integration)
+- Each service must use a **distinct `service` tag** for Unified Service Tagging
+
+### Default Reference Topology
+
+Use this topology unless the SE specifies otherwise:
+
+- `api-gateway` — routing/auth simulation, creates clear trace roots
+- `service-a` — core business logic, calls `service-b`
+- `service-b` — downstream service, reads/writes PostgreSQL and uses Redis as a cache
+- `frontend` (optional) — generates real user + synthetic traffic (RUM if present)
+- `worker` (optional) — background jobs for async traces, retries, error scenarios
+
+### Prohibited Patterns
+
+- Single-service apps with only in-process "modules"
+- One container that runs everything
+- All telemetry sharing the same `service` value
+
+### Required Failure Path
+
+Include at least one intentional failure scenario caused by inter-service interaction:
+
+- Downstream timeout
+- Retry storm
+- Queue backlog
+- Circuit-breaker open
+- Cache stampede
+
+The failure must have a clear, explainable root cause visible in Datadog (Service Map, traces, logs).
