@@ -64,10 +64,10 @@ For each service, generate:
 4. At least one business-logic endpoint
 5. Dockerfile with multi-stage build
 
-**Important**: Do not rely on memorized or cached instrumentation snippets. Before generating DD instrumentation code for any language/framework, consult the **current official Datadog documentation** to ensure library names, APIs, and configuration options are up to date. Use web search or the Datadog MCP Server (if documentation tools are available) to look up:
+**Important**: Do not rely on memorized or cached instrumentation snippets. Before generating DD instrumentation code for any language/framework, consult the **current official Datadog documentation** to ensure library names, APIs, and configuration options are up to date. Use web search scoped to `docs.datadoghq.com`, or use the [Datadog docs search](https://docs.datadoghq.com/search/) to look up:
 
-- The correct tracing library and initialization for the chosen language
-- JSON logging setup with trace-log correlation (see `dd-logging` rule for format requirements)
+- The correct tracing library and initialization for the chosen language (start from the [Tracing Setup](https://docs.datadoghq.com/tracing/trace_collection/) page)
+- JSON logging setup with trace-log correlation (see `dd-logging` rule for format requirements; see also [Correlate Logs and Traces](https://docs.datadoghq.com/tracing/other_telemetry/connect_logs_and_traces/))
 - Any required environment variables or Agent configuration for the selected DD products
 
 ### Step 5: Wire Service Topology
