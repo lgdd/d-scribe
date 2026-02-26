@@ -10,7 +10,7 @@ Cursor toolkit for Datadog Sales Engineers. Provides rules, skills, subagents, a
 
 ```bash
 git clone <repo-url>
-cd dd-se-cursor-toolkit
+cd d-sect
 chmod +x install.sh
 ./install.sh
 ```
@@ -90,7 +90,7 @@ Preflight runs **automatically** after Cursor adds, updates, or deletes project 
 ## Repository Structure
 
 ```
-dd-se-cursor-toolkit/
+d-sect/
 ├── README.md
 ├── install.sh
 ├── uninstall.sh
@@ -113,6 +113,6 @@ dd-se-cursor-toolkit/
 ## Uninstall
 
 ```bash
-cd dd-se-cursor-toolkit
+cd d-sect
 ./uninstall.sh
 ```
