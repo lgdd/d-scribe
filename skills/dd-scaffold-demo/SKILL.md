@@ -102,14 +102,6 @@ Generate deployment config for the chosen model:
 - Surface any failures with actionable fixes
 - Do not consider scaffolding complete until all services build successfully
 
-### Step 9: CI Workflow
-
-Generate `.github/workflows/ci.yml` with:
-
-- Build all services
-- Run smoke test
-- Use the same Makefile targets as local development
-
 ## Post-Scaffold Checklist
 
 - [ ] All services have distinct `service` tags
