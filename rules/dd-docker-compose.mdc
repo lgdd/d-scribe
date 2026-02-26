@@ -258,6 +258,26 @@ redis:
 
 Reference: [Redis Integration — Docker](https://docs.datadoghq.com/integrations/redis/?tab=docker#configuration). If the link is unavailable, [search docs](https://docs.datadoghq.com/search/?s=redis%20integration%20docker).
 
+## Keycloak — Identity Provider (Optional)
+
+When the demo includes authenticated user flows or Cloud SIEM, add a Keycloak service. See the `dd-auth-sso` rule for the full service definition, realm bootstrap, and OIDC integration patterns.
+
+The Keycloak container must expose Autodiscovery labels for log collection:
+
+```yaml
+keycloak:
+  image: quay.io/keycloak/keycloak:latest
+  labels:
+    com.datadoghq.tags.env: "${DD_ENV:-demo}"
+    com.datadoghq.tags.service: "keycloak"
+    com.datadoghq.tags.version: "${DD_VERSION:-1.0.0}"
+    com.datadoghq.ad.check_names: '["keycloak"]'
+    com.datadoghq.ad.init_configs: "[{}]"
+    com.datadoghq.ad.logs: '[{"source":"keycloak","service":"keycloak"}]'
+```
+
+Set `KC_LOG_CONSOLE_OUTPUT=json` so the Agent collects structured JSON logs without custom parsing. These logs are the primary event source for Cloud SIEM auth detection rules.
+
 ## Excluding Non-Demo Services
 
 Services that should not appear in Datadog telemetry (e.g., the traffic generator) must be excluded:

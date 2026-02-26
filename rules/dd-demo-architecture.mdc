@@ -21,11 +21,12 @@ Demo projects must be implemented as microservice applications, never single-pro
 
 Use this topology unless the SE specifies otherwise:
 
-- `api-gateway` — routing/auth simulation, creates clear trace roots
+- `api-gateway` — routing and auth (OIDC token validation when Keycloak is present, otherwise auth simulation), creates clear trace roots
 - `service-a` — core business logic, calls `service-b`
 - `service-b` — downstream service, reads/writes PostgreSQL and uses Redis as a cache
 - `frontend` (optional) — generates real user + synthetic traffic (RUM if present)
 - `worker` (optional) — background jobs for async traces, retries, error scenarios
+- `keycloak` (optional) — OIDC identity provider for authenticated flows, Cloud SIEM auth event logs, and RUM user identity (see `dd-auth-sso` rule)
 
 ### Prohibited Patterns
 

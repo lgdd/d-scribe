@@ -67,6 +67,36 @@ Adds asynchronous processing. Use when demonstrating queue-based architectures, 
 
 ---
 
+## Extended: With Identity Provider (Auth + SIEM)
+
+Adds Keycloak as an OIDC identity provider. Use when demonstrating Cloud SIEM, authenticated user flows, or RUM with real user identity.
+
+```
+[Browser/RUM] → [frontend] → [api-gateway] → [service-a] → [service-b] → [PostgreSQL]
+                                    ↕                                ↓
+                               [Keycloak]                         [Redis]
+```
+
+- **Keycloak**: OIDC provider — issues JWTs, produces structured security event logs (login, logout, failed attempts)
+- **api-gateway**: validates tokens via OIDC middleware, extracts user identity from JWT claims, creates auth-enriched trace roots
+- Composable with all other extensions (frontend, worker)
+- Keycloak bootstraps from a realm export file (`keycloak/realm-export.json`) with a pre-configured demo realm, client, and test users
+
+### Datadog Products Enabled
+
+- **Cloud SIEM**: Keycloak auth event logs — failed logins, brute force, credential stuffing, impossible travel
+- **RUM**: Real user identity on sessions (`usr.id`, `usr.email`) from OIDC claims
+- **APM**: Auth middleware spans (token validation latency), 401/403 error traces
+- **Log Management**: Structured auth event logs correlated to traces
+
+### Additional Failure Scenarios
+
+- Token expired → 401 cascade visible in traces and logs
+- Brute-force login attempts → burst of failed-auth events detectable via SIEM detection rules
+- IdP latency spike → auth middleware slows all downstream requests
+
+---
+
 ## Minimal: 2 Services
 
 Use for quick, focused demos where a smaller topology is sufficient.
@@ -87,5 +117,6 @@ Use for quick, focused demos where a smaller topology is sufficient.
 - **Standard demo**: Default (gateway + 2 services)
 - **RUM / frontend focus**: Extended with frontend
 - **Event-driven / async**: Extended with worker
+- **Auth / SIEM / user identity**: Extended with identity provider (Keycloak)
 - **Quick proof-of-concept**: Minimal (2 services)
-- **Full platform showcase**: Extended with frontend + worker (all components)
+- **Full platform showcase**: Extended with frontend + identity provider + worker (all components)
