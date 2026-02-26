@@ -1,4 +1,8 @@
-# Datadog SE Cursor Toolkit
+<p align="center">
+  <img src="https://github.com/lgdd/doc-assets/blob/main/d-sect/d-sect.png?raw=true" alt="d-sect" width="400">
+</p>
+
+<h1 align="center">Datadog Sales Engineer Cursor Toolkit</h1>
 
 Cursor toolkit for Datadog Sales Engineers. Provides rules, skills, subagents, and commands to rapidly scaffold, validate, and present demo projects that send telemetry to a Datadog sandbox organization.
 
