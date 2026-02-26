@@ -6,6 +6,12 @@
 
 Cursor toolkit for Datadog Sales Engineers. Provides rules, skills, subagents, and commands to rapidly scaffold, validate, and present demo projects that send telemetry to a Datadog sandbox organization.
 
+## Prerequisites
+
+- [Cursor](https://cursor.com/) with the [Datadog Extension](https://marketplace.visualstudio.com/items?itemName=Datadog.datadog-vscode) installed
+- Access to the [Datadog MCP Server](https://docs.datadoghq.com/bits_ai/mcp_server/) for your sandbox organization
+- [Docker](https://docs.docker.com/get-started/get-docker/) installed
+
 ## Quick Start
 
 ```bash
@@ -80,12 +86,6 @@ With the stack already running, type `/dd-validate` to check that all services a
 ### Pre-demo check
 
 Preflight runs **automatically** after Cursor adds, updates, or deletes project files. It builds, deploys, smoke-tests, delegates telemetry validation to `dd-validate-telemetry`, and then **always cleans up** all containers and processes it started. Use `/dd-preflight` to trigger it manually when you want a full end-to-end cycle.
-
-## Prerequisites
-
-- [Cursor](https://cursor.com/) with the [Datadog Extension](https://marketplace.visualstudio.com/items?itemName=Datadog.datadog-vscode) installed
-- Access to the [Datadog MCP Server](https://docs.datadoghq.com/bits_ai/mcp_server/) for your organization
-- [Docker](https://docs.docker.com/get-started/get-docker/) installed
 
 ## Repository Structure
 
