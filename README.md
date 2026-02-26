@@ -15,7 +15,7 @@ Cursor toolkit for Datadog Sales Engineers. Provides rules, skills, subagents, a
 ## Quick Start
 
 ```bash
-git clone <repo-url>
+git clone https://github.com/lgdd/d-sect.git
 cd d-sect
 chmod +x install.sh
 ./install.sh
