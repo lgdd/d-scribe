@@ -61,6 +61,7 @@ Deploy:       [PASS/FAIL]
 Health:       [PASS/FAIL] (X/Y services healthy)
 Smoke Test:   [PASS/FAIL]
 Telemetry:    [PASS/FAIL] (X/Y checks passed)
+DBM:          [PASS/FAIL] (X/Y checks passed, if applicable)
 Correlation:  [PASS/FAIL] (X/Y checks passed)
 
 Overall: READY / NOT READY
