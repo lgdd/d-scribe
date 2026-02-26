@@ -46,8 +46,8 @@ Context-isolated workflows. Installed to `~/.cursor/agents/`.
 
 | Subagent | Trigger | Description |
 |----------|---------|-------------|
-| `dd-validate-telemetry` | "validate telemetry" | Checks telemetry flow via Datadog MCP (readonly) |
-| `dd-demo-preflight` | "preflight check" | Full build/deploy/test/validate cycle (auto-runs on file changes, always cleans up) |
+| `dd-validate-telemetry` | "validate telemetry" | Readonly check that telemetry is flowing — use on an already-running stack |
+| `dd-demo-preflight` | "preflight check" | Full build/deploy/test/validate cycle that always tears down after (delegates telemetry checks to `dd-validate-telemetry`) |
 
 ### Commands (5)
 
@@ -69,11 +69,11 @@ Type `/dd-scaffold` in Cursor chat (or just say "scaffold a new Datadog demo"). 
 
 ### Validate your setup
 
-After deploying, type `/dd-validate` to check that all services are sending telemetry to Datadog. Requires the Datadog MCP Server (Datadog Cursor Extension) to be enabled.
+With the stack already running, type `/dd-validate` to check that all services are sending telemetry to Datadog. This is readonly and non-destructive — it queries the Datadog API without starting or stopping anything. Requires the Datadog MCP Server (Datadog Cursor Extension) to be enabled.
 
 ### Pre-demo check
 
-Preflight runs **automatically** after Cursor adds, updates, or deletes project files. It builds, deploys, smoke-tests, validates telemetry, and then **always cleans up** all containers and processes it started. You can also trigger it manually with `/dd-preflight`.
+Preflight runs **automatically** after Cursor adds, updates, or deletes project files. It builds, deploys, smoke-tests, delegates telemetry validation to `dd-validate-telemetry`, and then **always cleans up** all containers and processes it started. Use `/dd-preflight` to trigger it manually when you want a full end-to-end cycle.
 
 ## Prerequisites
 

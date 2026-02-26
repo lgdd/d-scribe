@@ -45,12 +45,8 @@ You are a pre-demo readiness checker for Datadog demo projects. Your job is to v
 ### Phase 6: Telemetry Validation
 
 1. Wait 30 seconds after the smoke test for telemetry to propagate
-2. Perform the same checks as the `dd-validate-telemetry` subagent:
-   - Services registered in Datadog
-   - Logs flowing per service
-   - Traces flowing with multi-service propagation
-   - Correlation: log-trace roundtrip, trace-to-log roundtrip, distributed trace integrity, unified tagging consistency, and RUM-backend linkage (if a frontend exists)
-   - Infrastructure metrics reporting
+2. Delegate to the `dd-validate-telemetry` subagent to run the full telemetry and correlation check suite
+3. Include the subagent's pass/fail results in the final report
 
 ### Phase 7: Report
 
