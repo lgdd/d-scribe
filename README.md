@@ -15,7 +15,7 @@ The installer symlinks skills, subagents, and commands into `~/.cursor/` so they
 
 ## What's Included
 
-### Rules (9 templates)
+### Rules (10 templates)
 
 Project-scoped guardrails copied into each demo project by the scaffold skill. Not installed globally.
 
@@ -28,6 +28,7 @@ Project-scoped guardrails copied into each demo project by the scaffold skill. N
 | `dd-cursor-guidelines` | Always apply | Cursor interaction behavior, incremental scaffolding |
 | `dd-preflight` | Always apply | Automatic preflight validation after file changes |
 | `dd-telemetry-correlation` | docker-compose + service source | Correlation wiring for all signal pairs (Logs+Traces, DBM+Traces, RUM+Traces, Profiles+Traces) |
+| `dd-auth-sso` | docker-compose + api-gateway + keycloak | Keycloak OIDC identity provider, auth event logs for Cloud SIEM, RUM user identity |
 | `dd-docker-compose` | docker-compose files | Agent container config, service labels, networking, exclusions |
 | `dd-kubernetes` | K8s manifests | DaemonSet/Helm Agent, pod annotations, audit logs, exclusions |
 

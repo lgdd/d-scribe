@@ -34,6 +34,8 @@ Create the project root with:
 │   ├── service-b/
 │   └── worker/             # Optional
 ├── frontend/               # Optional
+├── keycloak/               # Optional — OIDC identity provider
+│   └── realm-export.json
 ├── traffic/
 │   └── locustfile.py       # Locust traffic generator
 └── scripts/
@@ -78,6 +80,7 @@ Use the reference topology from [topologies.md](topologies.md):
 - `service-a` calls `service-b`
 - `service-b` reads/writes **PostgreSQL** and uses **Redis** as a cache
 - **Database Monitoring** and the **Redis integration** are always enabled — see the `dd-docker-compose` rule for Agent and container configuration
+- When the SE requests authentication, user sessions, or Cloud SIEM: add **Keycloak** as the identity provider — see the `dd-auth-sso` rule and the identity provider topology in [topologies.md](topologies.md)
 - Include one **golden path** (successful end-to-end request)
 - Include one **failure path** (inter-service failure with clear root cause)
 
