@@ -36,7 +36,7 @@ link_item() {
   installed=$((installed + 1))
 }
 
-echo "dd-se-cursor-toolkit installer"
+echo "d-sect installer"
 echo "==============================="
 echo ""
 echo "Source: ${TOOLKIT_DIR}"

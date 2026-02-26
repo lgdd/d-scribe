@@ -36,7 +36,7 @@ unlink_item() {
   fi
 }
 
-echo "dd-se-cursor-toolkit uninstaller"
+echo "d-sect uninstaller"
 echo "================================="
 echo ""
 echo "Source: ${TOOLKIT_DIR}"
