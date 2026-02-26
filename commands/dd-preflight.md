@@ -1,6 +1,6 @@
 # Pre-demo readiness check
 
-Run a full preflight validation for the demo project.
+Run a full end-to-end preflight validation for the demo project. Unlike `/dd-validate` (which only checks telemetry on an already-running stack), preflight builds, deploys, tests, validates, and **tears everything down** when done.
 
 Preflight also runs **automatically** after Cursor adds, updates, or deletes project files (see the `dd-preflight` rule). This command is available for manual triggering when needed.
 
