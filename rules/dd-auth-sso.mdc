@@ -1,0 +1,120 @@
+---
+description: Keycloak OIDC identity provider configuration for authenticated demo projects with Cloud SIEM support
+globs: "**/docker-compose*.y*ml,**/services/api-gateway/**,**/keycloak/**"
+alwaysApply: false
+---
+
+# Identity Provider — Keycloak SSO
+
+## When to Include
+
+Add Keycloak when the demo requires any of:
+
+- Authenticated user flows (login/logout, protected endpoints)
+- Cloud SIEM with auth event detection (brute force, impossible travel, credential stuffing)
+- RUM sessions with real user identity (`usr.id`, `usr.email`)
+- Auth middleware spans in APM traces (token validation latency)
+
+## Keycloak Service — Docker Compose
+
+```yaml
+keycloak:
+  image: quay.io/keycloak/keycloak:latest
+  command: start-dev --import-realm
+  environment:
+    - KC_BOOTSTRAP_ADMIN_USERNAME=admin
+    - KC_BOOTSTRAP_ADMIN_PASSWORD=admin
+    - KC_LOG=console
+    - KC_LOG_CONSOLE_OUTPUT=json
+    - KC_HEALTH_ENABLED=true
+    - KC_HTTP_PORT=8080
+  ports:
+    - "8080:8080"
+  volumes:
+    - ./keycloak/realm-export.json:/opt/keycloak/data/import/realm-export.json:ro
+  healthcheck:
+    test: ["CMD-SHELL", "exec 3<>/dev/tcp/localhost/8080 && echo -e 'GET /health/ready HTTP/1.1\\r\\nHost: localhost\\r\\nConnection: close\\r\\n\\r\\n' >&3 && grep -q '200' <&3"]
+    interval: 10s
+    timeout: 5s
+    retries: 12
+  labels:
+    com.datadoghq.tags.env: "${DD_ENV:-demo}"
+    com.datadoghq.tags.service: "keycloak"
+    com.datadoghq.tags.version: "${DD_VERSION:-1.0.0}"
+    com.datadoghq.ad.check_names: '["keycloak"]'
+    com.datadoghq.ad.init_configs: "[{}]"
+    com.datadoghq.ad.logs: '[{"source":"keycloak","service":"keycloak"}]'
+```
+
+`KC_LOG_CONSOLE_OUTPUT=json` ensures Keycloak emits structured JSON logs that the Agent collects for Log Management and SIEM without custom parsing.
+
+## Realm Bootstrap
+
+Place a realm export file at `keycloak/realm-export.json` containing:
+
+- A **demo realm** (e.g., `demo-realm`)
+- A **public OIDC client** for the api-gateway (e.g., `demo-app` with `standardFlowEnabled` and `directAccessGrantEnabled`)
+- At least **2 test users** with passwords (e.g., `demo-user` / `demo-pass`, `demo-admin` / `demo-pass`) for traffic simulation and SIEM event generation
+- **Realm event logging enabled** (`eventsEnabled: true`, `adminEventsEnabled: true`) — required for Cloud SIEM detection
+
+## API Gateway — OIDC Integration
+
+The `api-gateway` service must:
+
+1. **Validate tokens** — verify JWTs against Keycloak's OIDC discovery endpoint (`http://keycloak:8080/realms/<realm>/.well-known/openid-configuration`)
+2. **Extract user identity** — read `sub`, `email`, and `preferred_username` from the JWT payload
+3. **Set trace tags** — attach `usr.id`, `usr.email`, and `usr.name` as span tags on the root span for correlation in APM
+4. **Propagate user context** — pass user identity downstream in request headers so child services can include it in logs and traces
+5. **Return proper HTTP status codes** — `401` for missing/expired tokens, `403` for insufficient roles
+
+### Environment Variables
+
+Add these to the `api-gateway` service:
+
+```yaml
+environment:
+  - OIDC_ISSUER_URL=http://keycloak:8080/realms/demo-realm
+  - OIDC_CLIENT_ID=demo-app
+```
+
+And to `.env.example`:
+
+```bash
+# Identity Provider (Keycloak OIDC)
+OIDC_ISSUER_URL=http://keycloak:8080/realms/demo-realm
+OIDC_CLIENT_ID=demo-app
+KEYCLOAK_ADMIN_USER=admin
+KEYCLOAK_ADMIN_PASSWORD=admin
+```
+
+## RUM — User Identity
+
+When RUM is present, set user identity on the RUM session after OIDC login. The frontend should call `datadogRum.setUser()` with claims from the ID token:
+
+```javascript
+datadogRum.setUser({
+  id: idToken.sub,
+  email: idToken.email,
+  name: idToken.preferred_username,
+});
+```
+
+This surfaces real user identity in Session Replay, Error Tracking, and RUM Explorer.
+
+## Traffic Generator — Auth Flows
+
+The Locust traffic generator should include tasks that:
+
+- Authenticate via Keycloak's direct access grant (resource owner password) to obtain tokens
+- Send requests to protected endpoints with `Authorization: Bearer <token>`
+- Periodically send requests with expired or missing tokens to generate 401 errors
+- Attempt logins with invalid credentials to produce failed-auth events for SIEM
+
+## Failure Scenarios
+
+| Scenario | Datadog Signal |
+|----------|----------------|
+| Token expired | 401 errors in APM traces and logs |
+| Invalid credentials (brute force) | Burst of `LOGIN_ERROR` events in Keycloak logs → SIEM detection |
+| IdP latency spike | Auth middleware span duration increases → APM latency alert |
+| Token with wrong audience | 403 errors in traces, security event in logs |
