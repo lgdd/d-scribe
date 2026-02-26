@@ -7,17 +7,32 @@ description: Creates configurable traffic simulators for Datadog demo projects. 
 
 ## Before You Begin
 
+### Step 0: Auto-Update Toolkit
+
+Before doing anything else, silently check for d-sect updates:
+
+1. Resolve this skill's source repo: run `readlink ~/.cursor/skills/dd-generate-traffic` to get the symlink target, then navigate up two levels to the repo root
+2. Run `git -C <repo> fetch --quiet`
+3. Run `git -C <repo> rev-list HEAD..origin/main --count`
+4. If count > 0, run `git -C <repo> pull --ff-only --quiet` and tell the user: _"d-sect updated (was N commits behind)."_
+5. If count is 0, say nothing
+6. If the pull fails (e.g., local changes), warn the user and continue
+
+This step is non-blocking — always proceed to the next step regardless of the outcome.
+
+### Step 1: Assess the Project
+
 1. Detect the project's services and their exposed endpoints
 2. Determine if a frontend exists (prefer routing traffic through it for RUM + APM correlation)
 3. Check the deployment model (Docker Compose or Kubernetes) to decide how to define the traffic service
 
 ## Traffic Generator Workflow
 
-### Step 1: Create the Locustfile
+### Step 2: Create the Locustfile
 
 Use [templates/locustfile.py](templates/locustfile.py) as the starting point. Adapt the endpoints and scenarios to match the project's actual API surface.
 
-### Step 2: Define Scenarios
+### Step 3: Define Scenarios
 
 Every traffic generator must include at minimum:
 
@@ -34,7 +49,7 @@ Every traffic generator must include at minimum:
 - Produces error spans, error logs, and potentially alerts
 - Must be explainable in a demo narrative
 
-### Step 3: Configure Parameters
+### Step 4: Configure Parameters
 
 All parameters must be configurable via environment variables:
 
@@ -46,7 +61,7 @@ All parameters must be configurable via environment variables:
 | `TRAFFIC_DURATION` | `0` | Duration in seconds (0 = run forever) |
 | `TRAFFIC_TARGET` | (auto-detect) | Base URL of the entry point |
 
-### Step 4: Traffic Patterns
+### Step 5: Traffic Patterns
 
 When applicable, implement patterns that produce interesting Datadog visualizations:
 
@@ -54,7 +69,7 @@ When applicable, implement patterns that produce interesting Datadog visualizati
 - **Seasonal wave** — sinusoidal request rate. Supports Watchdog anomaly detection.
 - **Burst spike** — sudden 10x traffic increase for 30 seconds. Demonstrates auto-scaling or saturation.
 
-### Step 5: Deploy as a Service
+### Step 6: Deploy as a Service
 
 The traffic generator must be deployed as a service alongside the application stack so it produces consistent traffic for the entire lifetime of the deployment.
 
@@ -62,7 +77,7 @@ The traffic generator must be deployed as a service alongside the application st
 
 **Kubernetes** — add a `traffic` Deployment to the K8s manifests. See [templates/k8s-traffic.yml](templates/k8s-traffic.yml) for the reference manifest.
 
-### Step 6: Exclude from Datadog Monitoring
+### Step 7: Exclude from Datadog Monitoring
 
 The traffic service must be explicitly excluded from Datadog monitoring so it does not add noise to demo telemetry.
 
@@ -79,7 +94,7 @@ The traffic service must be explicitly excluded from Datadog monitoring so it do
 - Add a log exclusion annotation to suppress log collection
 - See the template for the exact annotation syntax
 
-### Step 7: Makefile & Documentation
+### Step 8: Makefile & Documentation
 
 - Add `make traffic-up` and `make traffic-down` targets to the Makefile (or include the traffic service in the default `make up` / `make down` targets)
 - Document traffic configuration in the project README

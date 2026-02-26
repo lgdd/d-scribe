@@ -7,6 +7,21 @@ description: Scaffolds a new Datadog demo project with microservice architecture
 
 ## Before You Begin
 
+### Step 0: Auto-Update Toolkit
+
+Before doing anything else, silently check for d-sect updates:
+
+1. Resolve this skill's source repo: run `readlink ~/.cursor/skills/dd-scaffold-demo` to get the symlink target, then navigate up two levels to the repo root
+2. Run `git -C <repo> fetch --quiet`
+3. Run `git -C <repo> rev-list HEAD..origin/main --count`
+4. If count > 0, run `git -C <repo> pull --ff-only --quiet` and tell the user: _"d-sect updated (was N commits behind)."_
+5. If count is 0, say nothing
+6. If the pull fails (e.g., local changes), warn the user and continue
+
+This step is non-blocking — always proceed to the next step regardless of the outcome.
+
+### Step 1: Gather Requirements
+
 Gather the following from the SE (ask if not provided):
 
 1. **Language/framework** for services (e.g., Python/Flask, Go/Gin, Node/Express, Java/Spring Boot)
@@ -16,7 +31,7 @@ Gather the following from the SE (ask if not provided):
 
 ## Scaffolding Workflow
 
-### Step 1: Project Structure
+### Step 2: Project Structure
 
 Create the project root with:
 
@@ -42,11 +57,11 @@ Create the project root with:
     └── smoke-test.sh
 ```
 
-### Step 2: Copy Rule Templates
+### Step 3: Copy Rule Templates
 
 Copy all `.mdc` files from the toolkit's `rules/` directory into the new project's `.cursor/rules/`. The toolkit is located at the path stored in the skill's installation source (the symlink target of `~/.cursor/skills/dd-scaffold-demo/`). Navigate up two levels from the SKILL.md location to find the `rules/` directory.
 
-### Step 3: Generate Core Files
+### Step 4: Generate Core Files
 
 Generate these files in order:
 
@@ -56,7 +71,7 @@ Generate these files in order:
 4. `Makefile` — use the [Makefile template](templates/Makefile) as the starting point. It contains all canonical targets: `build`, `up`, `down`, `logs`, `smoke-test`, `traffic`, `clean`
 5. `README.md` — use the [README template](templates/README.md) as the starting point and fill in all `{{PLACEHOLDER}}` values. The README must include: project description, architecture diagram (Mermaid), services table (name, language/framework, address), prerequisites, getting-started snippet, and Makefile targets table
 
-### Step 4: Scaffold Services
+### Step 5: Scaffold Services
 
 For each service, generate:
 
@@ -72,7 +87,7 @@ For each service, generate:
 - JSON logging setup with trace-log correlation (see `dd-logging` rule for format requirements; see also [Correlate Logs and Traces](https://docs.datadoghq.com/tracing/other_telemetry/connect_logs_and_traces/))
 - Any required environment variables or Agent configuration for the selected DD products
 
-### Step 5: Wire Service Topology
+### Step 6: Wire Service Topology
 
 Use the reference topology from [topologies.md](topologies.md):
 
@@ -84,7 +99,7 @@ Use the reference topology from [topologies.md](topologies.md):
 - Include one **golden path** (successful end-to-end request)
 - Include one **failure path** (inter-service failure with clear root cause)
 
-### Step 6: Deployment Configuration
+### Step 7: Deployment Configuration
 
 Generate deployment config for the chosen model:
 
@@ -92,14 +107,14 @@ Generate deployment config for the chosen model:
 - **Kubernetes**: follow the `dd-kubernetes` rule
 - **AWS**: generate Terraform or CloudFormation with project-managed Agent
 
-### Step 7: Traffic & Smoke Test
+### Step 8: Traffic & Smoke Test
 
 - Generate a Locust traffic generator in `traffic/locustfile.py` using the `dd-generate-traffic` skill
 - Add a `traffic` service to the deployment config (Docker Compose or K8s) that runs Locust in headless mode alongside the application stack — the traffic service must be excluded from Datadog monitoring (see the `dd-generate-traffic` skill templates for the exact configuration)
 - Generate `scripts/smoke-test.sh` that starts services, waits for health, makes one request, verifies success
 - Make traffic parameters configurable via environment variables (rate, error %, latency)
 
-### Step 8: Build & Validate
+### Step 9: Build & Validate
 
 - Run the build/compile step for every service
 - Surface any failures with actionable fixes
