@@ -25,7 +25,7 @@ description: Adds a Datadog product integration to an existing demo project. Use
 - **Data Streams Monitoring** — Kafka/RabbitMQ/SQS pipeline visibility
 - **Data Jobs Monitoring** — Spark/Airflow/dbt job observability
 - **Feature Flags** — feature flag tracking integration
-- **Cloud SIEM** — security event correlation (e.g. K8s Audit Logs, Nginx, Keycloak)
+- **Cloud SIEM** — security event correlation (e.g. K8s Audit Logs, Nginx, Keycloak). If the demo already includes Keycloak (see `dd-auth-sso` rule), configure its log collection as a SIEM source — Keycloak auth events enable detection rules for brute force, impossible travel, and credential stuffing. If Keycloak is not present, consider adding it first via the identity provider topology extension to maximize SIEM demo value
 - **Code Security** — static and runtime analysis (SAST/SCA/IAST)
 - **Workload Protection** — runtime threat detection
 - **Cloud Network Monitoring** — aggregate traffic by meaningful entities
