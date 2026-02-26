@@ -1,6 +1,6 @@
 ---
 name: dd-add-product
-description: Adds a Datadog product integration to an existing demo project. Use when the user asks to add RUM, SIEM, Workload Protection, Continuous Profiler, or any other DD product to an already-scaffolded demo.
+description: Adds a Datadog product integration to an existing demo project. Use when the user asks to add APM, RUM, Log Management, SIEM, Profiler, DBM, or any other DD product to an already-scaffolded demo.
 ---
 
 # Add Datadog Product to Demo
@@ -15,16 +15,20 @@ description: Adds a Datadog product integration to an existing demo project. Use
 
 ## Supported Products
 
-- **APM** — distributed tracing
-- **Log Management** — structured log collection and correlation
 - **Infrastructure Monitoring** — host/container metrics, live processes
-- **RUM** — Real User Monitoring (requires a frontend)
-- **Continuous Profiler** — code-level performance profiling
-- **Cloud SIEM** — security event correlation (requires audit logs)
-- **Workload Protection / CSM** — runtime threat detection
-- **Network Performance Monitoring** — network flow visibility
-- **Error Tracking** — automatic error grouping and alerting
+- **Log Management** — structured log collection and correlation
+- **Observability Pipelines** — install and configure the OPW worker
+- **Application Performance Monitoring** — distributed tracing
+- **Real User Monitoring** — browser/mobile SDK (requires a frontend)
 - **Database Monitoring** — query-level database insights
+- **Continuous Profiler** — code-level performance profiling
+- **Data Streams Monitoring** — Kafka/RabbitMQ/SQS pipeline visibility
+- **Data Jobs Monitoring** — Spark/Airflow/dbt job observability
+- **Feature Flags** — feature flag tracking integration
+- **Cloud SIEM** — security event correlation (e.g. K8s Audit Logs, Nginx, Keycloak)
+- **Code Security** — static and runtime analysis (SAST/SCA/IAST)
+- **Workload Protection** — runtime threat detection
+- **Cloud Network Monitoring** — aggregate traffic by meaningful entities
 
 ## Workflow
 
