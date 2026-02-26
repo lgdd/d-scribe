@@ -21,7 +21,8 @@ Do **not** ask about:
 ## Documentation & Product Correctness
 
 - Verify Datadog APIs, agents, and configurations against official Datadog documentation
-- Prefer documentation accessible via the **Datadog MCP Server** (Datadog Cursor Extension) when available
+- Use official Datadog documentation links when available; fall back to the [Datadog docs search](https://docs.datadoghq.com/search/) if a link is broken
+- The **Datadog MCP Server** (Datadog Cursor Extension) provides platform query tools (logs, spans, metrics, RUM events) for runtime validation — it does not provide documentation search
 - If behavior or configuration is ambiguous, call it out explicitly and ask for confirmation before proceeding
 
 ## Development Approach

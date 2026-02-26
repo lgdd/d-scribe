@@ -30,7 +30,7 @@ description: Adds a Datadog product integration to an existing demo project. Use
 
 ### Step 1: Consult Datadog Documentation
 
-Before making any changes, look up the **current official Datadog documentation** for the requested product. Use web search or the Datadog MCP Server (if documentation tools are available) to determine:
+Before making any changes, look up the **current official Datadog documentation** for the requested product. Use web search scoped to `docs.datadoghq.com`, or use the [Datadog docs search](https://docs.datadoghq.com/search/) to determine:
 
 - Which Agent features or environment variables need to be enabled
 - Whether application-level changes are required (SDK, library, annotations)
