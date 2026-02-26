@@ -100,7 +100,143 @@ postgres:
       }]
 ```
 
-Reference: [Setting Up DBM for self-hosted Postgres](https://docs.datadoghq.com/database_monitoring/setup_postgres/selfhosted/)
+Reference: [Setting Up DBM for self-hosted Postgres](https://docs.datadoghq.com/database_monitoring/setup_postgres/selfhosted/). If the link is unavailable, [search docs](https://docs.datadoghq.com/search/?s=database%20monitoring%20setup%20postgres%20self-hosted).
+
+## MySQL — Database Monitoring (DBM)
+
+When a stack uses MySQL instead of or in addition to PostgreSQL, enable DBM for MySQL.
+
+Ensure `DD_DBM_ENABLED=true` is set in the Agent environment (same as for PostgreSQL).
+
+The MySQL container must:
+
+1. **Enable Performance Schema and configure query settings** via a custom config file mounted at `/etc/mysql/conf.d/`:
+
+```ini
+[mysqld]
+performance_schema = ON
+max_digest_length = 4096
+performance_schema_max_digest_length = 4096
+performance_schema_max_sql_text_length = 4096
+performance-schema-consumer-events-statements-current = ON
+performance-schema-consumer-events-waits-current = ON
+performance-schema-consumer-events-statements-history-long = ON
+performance-schema-consumer-events-statements-history = ON
+```
+
+2. **Create a `datadog` monitoring user** via an init script mounted at `docker-entrypoint-initdb.d/`:
+
+```sql
+CREATE USER datadog@'%' IDENTIFIED BY 'datadog';
+GRANT REPLICATION CLIENT ON *.* TO datadog@'%';
+GRANT PROCESS ON *.* TO datadog@'%';
+GRANT SELECT ON performance_schema.* TO datadog@'%';
+CREATE SCHEMA IF NOT EXISTS datadog;
+GRANT EXECUTE ON datadog.* TO datadog@'%';
+
+DELIMITER $$
+CREATE PROCEDURE datadog.explain_statement(IN query TEXT)
+    SQL SECURITY DEFINER
+BEGIN
+    SET @explain := CONCAT('EXPLAIN FORMAT=json ', query);
+    PREPARE stmt FROM @explain;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END $$
+DELIMITER ;
+
+DELIMITER $$
+CREATE PROCEDURE datadog.enable_events_statements_consumers()
+    SQL SECURITY DEFINER
+BEGIN
+    UPDATE performance_schema.setup_consumers SET enabled='YES' WHERE name LIKE 'events_statements_%';
+    UPDATE performance_schema.setup_consumers SET enabled='YES' WHERE name = 'events_waits_current';
+END $$
+DELIMITER ;
+GRANT EXECUTE ON PROCEDURE datadog.enable_events_statements_consumers TO datadog@'%';
+```
+
+3. **Expose Autodiscovery labels** so the Agent auto-detects the integration:
+
+```yaml
+mysql:
+  image: mysql:8.0
+  environment:
+    - MYSQL_ROOT_PASSWORD=root
+    - MYSQL_DATABASE=app
+    - MYSQL_USER=app
+    - MYSQL_PASSWORD=app
+  volumes:
+    - ./scripts/mysql-init:/docker-entrypoint-initdb.d
+    - ./scripts/mysql-conf:/etc/mysql/conf.d
+  labels:
+    com.datadoghq.tags.env: "${DD_ENV:-demo}"
+    com.datadoghq.tags.service: "mysql"
+    com.datadoghq.tags.version: "${DD_VERSION:-1.0.0}"
+    com.datadoghq.ad.check_names: '["mysql"]'
+    com.datadoghq.ad.init_configs: "[{}]"
+    com.datadoghq.ad.instances: >-
+      [{
+        "dbm": true,
+        "host": "%%host%%",
+        "port": 3306,
+        "username": "datadog",
+        "password": "datadog"
+      }]
+```
+
+Reference: [Setting Up DBM for self-hosted MySQL](https://docs.datadoghq.com/database_monitoring/setup_mysql/selfhosted/). If the link is unavailable, [search docs](https://docs.datadoghq.com/search/?s=database%20monitoring%20setup%20mysql%20self-hosted).
+
+## MongoDB — Database Monitoring (DBM)
+
+When a stack uses MongoDB, enable DBM for MongoDB.
+
+Ensure `DD_DBM_ENABLED=true` is set in the Agent environment.
+
+The MongoDB container must:
+
+1. **Create a `datadog` monitoring user** via an init script mounted at `docker-entrypoint-initdb.d/`:
+
+```javascript
+db.getSiblingDB("admin").createUser({
+  user: "datadog",
+  pwd: "datadog",
+  roles: [
+    { role: "clusterMonitor", db: "admin" },
+    { role: "read", db: "admin" },
+    { role: "read", db: "local" }
+  ]
+});
+```
+
+2. **Expose Autodiscovery labels** so the Agent auto-detects the integration:
+
+```yaml
+mongo:
+  image: mongo:7
+  environment:
+    - MONGO_INITDB_ROOT_USERNAME=root
+    - MONGO_INITDB_ROOT_PASSWORD=root
+    - MONGO_INITDB_DATABASE=app
+  volumes:
+    - ./scripts/mongo-init:/docker-entrypoint-initdb.d
+  labels:
+    com.datadoghq.tags.env: "${DD_ENV:-demo}"
+    com.datadoghq.tags.service: "mongo"
+    com.datadoghq.tags.version: "${DD_VERSION:-1.0.0}"
+    com.datadoghq.ad.check_names: '["mongo"]'
+    com.datadoghq.ad.init_configs: "[{}]"
+    com.datadoghq.ad.instances: >-
+      [{
+        "dbm": true,
+        "hosts": ["%%host%%:27017"],
+        "username": "datadog",
+        "password": "datadog",
+        "database": "admin"
+      }]
+```
+
+Reference: [Setting Up DBM for self-hosted MongoDB](https://docs.datadoghq.com/database_monitoring/setup_mongodb/selfhosted/). If the link is unavailable, [search docs](https://docs.datadoghq.com/search/?s=database%20monitoring%20setup%20mongodb%20self-hosted).
 
 ## Redis — Integration
 
@@ -120,7 +256,7 @@ redis:
     com.datadoghq.ad.instances: '[{"host":"%%host%%","port":"6379"}]'
 ```
 
-Reference: [Redis Integration — Docker](https://docs.datadoghq.com/integrations/redis/?tab=docker#configuration)
+Reference: [Redis Integration — Docker](https://docs.datadoghq.com/integrations/redis/?tab=docker#configuration). If the link is unavailable, [search docs](https://docs.datadoghq.com/search/?s=redis%20integration%20docker).
 
 ## Excluding Non-Demo Services
 
