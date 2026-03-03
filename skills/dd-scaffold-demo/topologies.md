@@ -97,6 +97,35 @@ Adds Keycloak as an OIDC identity provider. Use when demonstrating Cloud SIEM, a
 
 ---
 
+## Extended: With LLM Service (AI / LLM Observability)
+
+Adds an LLM-powered service. Use when demonstrating AI applications, chatbots, or any service that calls an LLM provider.
+
+```
+[Client] → [api-gateway] → [llm-service] → [LLM Provider (OpenAI / Bedrock / Anthropic)]
+                                 ↓
+                            [PostgreSQL]
+                                 ↓
+                              [Redis]
+```
+
+- **llm-service**: Application that calls an LLM provider (via OpenAI SDK, Anthropic SDK, Bedrock SDK, or LangChain). Instrumented with `ddtrace` LLM Observability (`LLMObs.enable()` or equivalent)
+- LLM provider is an external API call — no container needed in the stack
+- Composable with all other extensions (frontend for RUM, worker for async, Keycloak for auth)
+
+### Datadog Products Enabled
+
+- **LLM Observability**: LLM call traces — input/output messages, token usage, latency, model parameters
+- **APM**: Distributed traces include LLM spans alongside HTTP and database spans
+- **Log Management**: LLM call logs correlated to traces
+
+### Additional Failure Scenarios
+
+- LLM provider rate-limited (429) → visible in LLM Obs traces and error tracking
+- LLM provider timeout → cascading latency visible in APM trace waterfall
+
+---
+
 ## Minimal: 2 Services
 
 Use for quick, focused demos where a smaller topology is sufficient.
@@ -118,5 +147,6 @@ Use for quick, focused demos where a smaller topology is sufficient.
 - **RUM / frontend focus**: Extended with frontend
 - **Event-driven / async**: Extended with worker
 - **Auth / SIEM / user identity**: Extended with identity provider (Keycloak)
+- **AI / LLM focus**: Extended with LLM service
 - **Quick proof-of-concept**: Minimal (2 services)
 - **Full platform showcase**: Extended with frontend + identity provider + worker (all components)

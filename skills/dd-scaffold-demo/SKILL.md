@@ -9,16 +9,7 @@ description: Scaffolds a new Datadog demo project with microservice architecture
 
 ### Step 0: Auto-Update Toolkit
 
-Before doing anything else, silently check for d-sect updates:
-
-1. Resolve this skill's source repo: run `readlink ~/.cursor/skills/dd-scaffold-demo` to get the symlink target, then navigate up two levels to the repo root
-2. Run `git -C <repo> fetch --quiet`
-3. Run `git -C <repo> rev-list HEAD..origin/main --count`
-4. If count > 0, run `git -C <repo> pull --ff-only --quiet` and tell the user: _"d-sect updated (was N commits behind)."_
-5. If count is 0, say nothing
-6. If the pull fails (e.g., local changes), warn the user and continue
-
-This step is non-blocking — always proceed to the next step regardless of the outcome.
+Follow the procedure in [_auto-update.md](../_auto-update.md).
 
 ### Step 1: Gather Requirements
 
@@ -26,7 +17,7 @@ Gather the following from the SE (ask if not provided):
 
 1. **Language/framework** for services (e.g., Python/Flask, Go/Gin, Node/Express, Java/Spring Boot)
 2. **Deployment model**: Docker Compose (default), Kubernetes, or AWS
-3. **Datadog products** to include (default: APM, Logs, Infrastructure Monitoring, Database Monitoring, Redis integration)
+3. **Datadog products** to include (default: APM, Logs, Infrastructure Monitoring, Database Monitoring, Redis integration). When the user mentions an AI app, LLM-powered service, or chatbot, include **LLM Observability**
 4. **Optional**: narrative context, audience, or specific use case
 
 ## Scaffolding Workflow
@@ -69,7 +60,7 @@ Generate these files in order:
 2. `.env.example` with placeholder values and comments explaining each variable — **must be created before `.env`** so it serves as the canonical variable manifest
 3. `.env` — generated from `.env.example` using a shell command (see [dd-secrets-env rule](../../rules/dd-secrets-env.mdc)). Use `.env.example` as the template so every declared variable is present. Substitute host environment values for secrets; keep defaults for non-secret vars. Validate that `DD_API_KEY` and `DD_SITE` are non-empty; if missing, ask the SE to export them and re-run.
 4. `Makefile` — use the [Makefile template](templates/Makefile) as the starting point. It contains all canonical targets: `build`, `up`, `down`, `logs`, `smoke-test`, `traffic`, `clean`
-5. `README.md` — use the [README template](templates/README.md) as the starting point and fill in all `{{PLACEHOLDER}}` values. The README must include: project description, architecture diagram (Mermaid), services table (name, language/framework, address), prerequisites, getting-started snippet, and Makefile targets table
+5. `README.md` — use the [README template](templates/README.md) as the starting point and fill in all `{{PLACEHOLDER}}` values. The README must include: project description, architecture diagram (Mermaid), services table (name, language/framework, address), **demo scenarios** (golden path steps and failure paths with triggers and Datadog signals), prerequisites, getting-started snippet, and Makefile targets table. When Keycloak is present, include the **Authentication** section with credentials, auth endpoints, and persona mappings; otherwise remove the `AUTH:START`/`AUTH:END` block
 
 ### Step 5: Scaffold Services
 
@@ -81,7 +72,7 @@ For each service, generate:
 4. At least one business-logic endpoint
 5. Dockerfile with multi-stage build
 
-**Important**: Do not rely on memorized or cached instrumentation snippets. Before generating DD instrumentation code for any language/framework, consult the **current official Datadog documentation** to ensure library names, APIs, and configuration options are up to date. Use web search scoped to `docs.datadoghq.com`, or use the [Datadog docs search](https://docs.datadoghq.com/search/) to look up:
+**Important**: Do not rely on memorized or cached instrumentation snippets. Before generating DD instrumentation code for any language/framework, consult the **current official Datadog documentation** to ensure library names, APIs, and configuration options are up to date. Follow the [documentation lookup procedure](../_doc-lookup.md) to look up:
 
 - The correct tracing library and initialization for the chosen language (start from the [Tracing Setup](https://docs.datadoghq.com/tracing/trace_collection/) page)
 - JSON logging setup with trace-log correlation (see `dd-logging` rule for format requirements; see also [Correlate Logs and Traces](https://docs.datadoghq.com/tracing/other_telemetry/connect_logs_and_traces/))
@@ -96,6 +87,7 @@ Use the reference topology from [topologies.md](topologies.md):
 - `service-b` reads/writes **PostgreSQL** and uses **Redis** as a cache
 - **Database Monitoring** and the **Redis integration** are always enabled — see the `dd-docker-compose` rule for Agent and container configuration
 - When the SE requests authentication, user sessions, or Cloud SIEM: add **Keycloak** as the identity provider — see the `dd-auth-sso` rule and the identity provider topology in [topologies.md](topologies.md)
+- When the SE requests an AI app, LLM-powered service, or chatbot: add an **LLM service** calling an LLM provider — see the AI/LLM topology in [topologies.md](topologies.md)
 - Include one **golden path** (successful end-to-end request)
 - Include one **failure path** (inter-service failure with clear root cause)
 
@@ -114,11 +106,9 @@ Generate deployment config for the chosen model:
 - Generate `scripts/smoke-test.sh` that starts services, waits for health, makes one request, verifies success
 - Make traffic parameters configurable via environment variables (rate, error %, latency)
 
-### Step 9: Build & Validate
+### Step 9: Preflight
 
-- Run the build/compile step for every service
-- Surface any failures with actionable fixes
-- Do not consider scaffolding complete until all services build successfully
+After all files are generated, run the `dd-demo-preflight` subagent to validate the project end-to-end (build, deploy, health checks, smoke test, telemetry validation, and teardown). Do not consider scaffolding complete until preflight passes or the SE acknowledges the failures.
 
 ## Post-Scaffold Checklist
 
@@ -126,9 +116,11 @@ Generate deployment config for the chosen model:
 - [ ] `.env.example` contains all required DD variables
 - [ ] `.env` is in `.gitignore`
 - [ ] At least one golden path and one failure path exist
+- [ ] README documents demo scenarios (golden path steps, failure paths with triggers and Datadog signals)
+- [ ] If Keycloak is present: README includes credentials, auth endpoints, and persona mappings
 - [ ] All services build successfully
 - [ ] `make up` starts the full stack including DD Agent
 - [ ] Traffic generator is functional
 - [ ] DBM is enabled for PostgreSQL
 - [ ] Redis integration is enabled
-- [ ] README contains architecture diagram, services table, and Makefile targets
+- [ ] README contains architecture diagram, services table, demo scenarios, and Makefile targets

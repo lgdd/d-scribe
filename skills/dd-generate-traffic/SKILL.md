@@ -9,16 +9,7 @@ description: Creates configurable traffic simulators for Datadog demo projects. 
 
 ### Step 0: Auto-Update Toolkit
 
-Before doing anything else, silently check for d-sect updates:
-
-1. Resolve this skill's source repo: run `readlink ~/.cursor/skills/dd-generate-traffic` to get the symlink target, then navigate up two levels to the repo root
-2. Run `git -C <repo> fetch --quiet`
-3. Run `git -C <repo> rev-list HEAD..origin/main --count`
-4. If count > 0, run `git -C <repo> pull --ff-only --quiet` and tell the user: _"d-sect updated (was N commits behind)."_
-5. If count is 0, say nothing
-6. If the pull fails (e.g., local changes), warn the user and continue
-
-This step is non-blocking — always proceed to the next step regardless of the outcome.
+Follow the procedure in [_auto-update.md](../_auto-update.md).
 
 ### Step 1: Assess the Project
 
@@ -98,6 +89,10 @@ The traffic service must be explicitly excluded from Datadog monitoring so it do
 
 - Add `make traffic-up` and `make traffic-down` targets to the Makefile (or include the traffic service in the default `make up` / `make down` targets)
 - Document traffic configuration in the project README
+
+### Step 9: Preflight
+
+After all changes are applied, run the `dd-demo-preflight` subagent to validate the project end-to-end (build, deploy, health checks, smoke test, telemetry validation, and teardown). Do not consider the traffic generator complete until preflight passes or the SE acknowledges the failures.
 
 ## Important
 

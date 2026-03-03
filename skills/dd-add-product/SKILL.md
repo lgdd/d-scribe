@@ -1,6 +1,6 @@
 ---
 name: dd-add-product
-description: Adds a Datadog product integration to an existing demo project. Use when the user asks to add APM, RUM, Log Management, SIEM, Profiler, DBM, or any other DD product to an already-scaffolded demo.
+description: Adds a Datadog product integration to an existing demo project. Use when the user asks to add APM, RUM, Log Management, SIEM, Profiler, DBM, LLM Observability, or any other DD product to an already-scaffolded demo.
 ---
 
 # Add Datadog Product to Demo
@@ -9,16 +9,7 @@ description: Adds a Datadog product integration to an existing demo project. Use
 
 ### Step 0: Auto-Update Toolkit
 
-Before doing anything else, silently check for d-sect updates:
-
-1. Resolve this skill's source repo: run `readlink ~/.cursor/skills/dd-add-product` to get the symlink target, then navigate up two levels to the repo root
-2. Run `git -C <repo> fetch --quiet`
-3. Run `git -C <repo> rev-list HEAD..origin/main --count`
-4. If count > 0, run `git -C <repo> pull --ff-only --quiet` and tell the user: _"d-sect updated (was N commits behind)."_
-5. If count is 0, say nothing
-6. If the pull fails (e.g., local changes), warn the user and continue
-
-This step is non-blocking — always proceed to the next step regardless of the outcome.
+Follow the procedure in [_auto-update.md](../_auto-update.md).
 
 ### Step 1: Assess the Project
 
@@ -44,12 +35,19 @@ This step is non-blocking — always proceed to the next step regardless of the 
 - **Code Security** — static and runtime analysis (SAST/SCA/IAST)
 - **Workload Protection** — runtime threat detection
 - **Cloud Network Monitoring** — aggregate traffic by meaningful entities
+- **LLM Observability** — automatic tracing of LLM calls (Python/Node.js: OpenAI, Anthropic, Bedrock, LangChain; Java: OpenAI). Requires `ddtrace` (Python), `dd-trace` (Node.js), or `dd-trace-java` (Java) with `LLMObs.enable()` or equivalent SDK setup
 
 ## Workflow
 
-### Step 2: Consult Datadog Documentation
+### Step 2: Load Product Template
 
-Before making any changes, look up the **current official Datadog documentation** for the requested product. Use web search scoped to `docs.datadoghq.com`, or use the [Datadog docs search](https://docs.datadoghq.com/search/) to determine:
+Check if a product-specific template exists in [templates/](templates/) (e.g., `templates/apm.md`, `templates/rum.md`). If one exists, read it — it contains prerequisites, Agent configuration, application changes, deployment fragments, and failure scenarios specific to that product.
+
+If no template exists for the requested product, proceed directly to Step 3.
+
+### Step 3: Consult Datadog Documentation
+
+Look up the **current official Datadog documentation** for the requested product. Follow the [documentation lookup procedure](../_doc-lookup.md) to verify and supplement the template (if one was loaded) or to determine from scratch:
 
 - Which Agent features or environment variables need to be enabled
 - Whether application-level changes are required (SDK, library, annotations)
@@ -58,13 +56,13 @@ Before making any changes, look up the **current official Datadog documentation*
 
 Do not rely on memorized or cached configuration snippets — Datadog products evolve frequently.
 
-### Step 3: Assess Compatibility
+### Step 4: Assess Compatibility
 
 - Check if the product requires an Agent feature not yet enabled
 - Check if the product requires application-level changes (e.g., RUM SDK, profiler init)
 - Check if the product requires additional infrastructure (e.g., audit log pipeline for SIEM)
 
-### Step 4: Update Configuration
+### Step 5: Update Configuration
 
 Apply changes in this order:
 
@@ -74,10 +72,9 @@ Apply changes in this order:
 4. **Environment variables** — add any new required variables to `.env.example`
 5. **Sync `.env`** — append any variables from `.env.example` that are missing in `.env`, substituting host environment values for secrets. Do not overwrite existing values in `.env`.
 
-### Step 5: Build & Validate
+### Step 6: Preflight
 
-- Rebuild affected services
-- Verify the new product telemetry appears in Datadog (use the `dd-validate-telemetry` subagent or manual MCP queries)
+After all changes are applied, run the `dd-demo-preflight` subagent to validate the project end-to-end (build, deploy, health checks, smoke test, telemetry validation, and teardown). Do not consider the addition complete until preflight passes or the SE acknowledges the failures.
 
 ## Post-Addition Checklist
 
