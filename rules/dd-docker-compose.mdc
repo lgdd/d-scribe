@@ -100,7 +100,7 @@ postgres:
       }]
 ```
 
-Reference: [Setting Up DBM for self-hosted Postgres](https://docs.datadoghq.com/database_monitoring/setup_postgres/selfhosted/). If the link is unavailable, [search docs](https://docs.datadoghq.com/search/?s=database%20monitoring%20setup%20postgres%20self-hosted).
+Reference: [Setting Up DBM for self-hosted Postgres](https://docs.datadoghq.com/database_monitoring/setup_postgres/selfhosted/). If unavailable, follow the [documentation lookup procedure](../skills/_doc-lookup.md) to find the current page.
 
 ## MySQL — Database Monitoring (DBM)
 
@@ -185,7 +185,7 @@ mysql:
       }]
 ```
 
-Reference: [Setting Up DBM for self-hosted MySQL](https://docs.datadoghq.com/database_monitoring/setup_mysql/selfhosted/). If the link is unavailable, [search docs](https://docs.datadoghq.com/search/?s=database%20monitoring%20setup%20mysql%20self-hosted).
+Reference: [Setting Up DBM for self-hosted MySQL](https://docs.datadoghq.com/database_monitoring/setup_mysql/selfhosted/). If unavailable, follow the [documentation lookup procedure](../skills/_doc-lookup.md) to find the current page.
 
 ## MongoDB — Database Monitoring (DBM)
 
@@ -236,7 +236,7 @@ mongo:
       }]
 ```
 
-Reference: [Setting Up DBM for self-hosted MongoDB](https://docs.datadoghq.com/database_monitoring/setup_mongodb/selfhosted/). If the link is unavailable, [search docs](https://docs.datadoghq.com/search/?s=database%20monitoring%20setup%20mongodb%20self-hosted).
+Reference: [Setting Up DBM for self-hosted MongoDB](https://docs.datadoghq.com/database_monitoring/setup_mongodb/selfhosted/). If unavailable, follow the [documentation lookup procedure](../skills/_doc-lookup.md) to find the current page.
 
 ## Redis — Integration
 
@@ -256,7 +256,7 @@ redis:
     com.datadoghq.ad.instances: '[{"host":"%%host%%","port":"6379"}]'
 ```
 
-Reference: [Redis Integration — Docker](https://docs.datadoghq.com/integrations/redis/?tab=docker#configuration). If the link is unavailable, [search docs](https://docs.datadoghq.com/search/?s=redis%20integration%20docker).
+Reference: [Redis Integration — Docker](https://docs.datadoghq.com/integrations/redis/?tab=docker#configuration). If unavailable, follow the [documentation lookup procedure](../skills/_doc-lookup.md) to find the current page.
 
 ## Keycloak — Identity Provider (Optional)
 
