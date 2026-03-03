@@ -28,6 +28,61 @@ graph LR
 <!-- Add or remove rows to match the actual services. Include datastores and
      other infrastructure only if they expose a port to the host. -->
 
+## Demo Scenarios
+
+### Golden Path
+
+<!-- Describe the successful end-to-end request flow that the SE should walk
+     through during a demo. Include the endpoints hit, the services traversed,
+     and what to look for in Datadog (distributed trace, service map, logs). -->
+
+| Step | Request | Expected Result | Datadog Signal |
+| ---- | ------- | --------------- | -------------- |
+| 1 | `{{METHOD}} {{ENDPOINT}}` | {{EXPECTED_RESULT}} | {{DD_SIGNAL}} |
+
+<!-- Add rows for each step of the golden path. -->
+
+### Failure Paths
+
+<!-- List each intentional failure scenario built into the demo. Explain how to
+     trigger it and what the SE should point out in Datadog. -->
+
+| Scenario | Trigger | Expected Behavior | Datadog Signal |
+| -------- | ------- | ----------------- | -------------- |
+| {{SCENARIO_NAME}} | {{TRIGGER}} | {{BEHAVIOR}} | {{DD_SIGNAL}} |
+
+<!-- Add rows for each failure scenario. -->
+
+<!-- AUTH:START — Include this section only when Keycloak is present. Remove
+     the AUTH:START / AUTH:END markers and this comment in the final README. -->
+
+## Authentication
+
+### Credentials
+
+| Username | Password | Role | Persona |
+| -------- | -------- | ---- | ------- |
+| `admin` | `admin` | Keycloak admin | Keycloak administration — not used in demo flows |
+| `{{USER_1}}` | `{{PASSWORD}}` | {{ROLE}} | {{PERSONA_DESCRIPTION}} |
+| `{{USER_2}}` | `{{PASSWORD}}` | {{ROLE}} | {{PERSONA_DESCRIPTION}} |
+
+<!-- Add or remove rows to match the users in keycloak/realm-export.json.
+     Map each user to the demo persona/narrative they represent
+     (e.g., "normal customer flow", "admin/power-user flow"). -->
+
+### Auth Endpoints
+
+| Endpoint | URL |
+| -------- | --- |
+| Keycloak admin console | `http://localhost:8080/admin` |
+| OIDC discovery | `http://localhost:8080/realms/{{REALM}}/.well-known/openid-configuration` |
+| Token endpoint | `http://localhost:8080/realms/{{REALM}}/protocol/openid-connect/token` |
+| Login page | `http://localhost:8080/realms/{{REALM}}/protocol/openid-connect/auth` |
+
+<!-- Adjust the realm name and ports to match the project configuration. -->
+
+<!-- AUTH:END -->
+
 ## Prerequisites
 
 - [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/) v2+
