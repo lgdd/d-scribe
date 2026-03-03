@@ -21,7 +21,7 @@ Do **not** ask about:
 ## Documentation & Product Correctness
 
 - Verify Datadog APIs, agents, and configurations against official Datadog documentation
-- Use official Datadog documentation links when available; fall back to the [Datadog docs search](https://docs.datadoghq.com/search/) if a link is broken
+- Use official Datadog documentation links when available; if a link is broken or a topic needs to be discovered, follow the [documentation lookup procedure](../skills/_doc-lookup.md) (`docs.datadoghq.com/llms.txt`)
 - The **Datadog MCP Server** (Datadog Cursor Extension) provides platform query tools (logs, spans, metrics, RUM events) for runtime validation — it does not provide documentation search
 - If behavior or configuration is ambiguous, call it out explicitly and ask for confirmation before proceeding
 
@@ -30,8 +30,17 @@ Do **not** ask about:
 - Prefer **incremental scaffolding**: start with a minimal, working demo and extend after confirmation
 - Favor **small, composable files** to improve context accuracy and refactoring safety
 - Include brief file headers explaining intent and demo purpose
-- Always attempt to **build/compile** after creating or modifying a service; surface failures with actionable fixes
 - Do not proceed past build failures unless the SE explicitly acknowledges them
+
+## Validation Model
+
+Two tiers of validation apply depending on the scope of the change:
+
+**During editing** — after creating or modifying a service's source code, Dockerfile, dependencies, or deployment config, run the build step (`docker compose build <service>` or equivalent) and surface any failures with actionable fixes. Skip the build for changes that cannot affect runtime behavior: README or documentation edits, comment-only changes, `.gitignore` updates, or `.cursor/rules/` modifications.
+
+**At skill completion** — when a skill workflow finishes (scaffolding, product addition, traffic generation), the skill's final step runs the `dd-demo-preflight` subagent for full end-to-end validation (build, deploy, health checks, smoke test, telemetry validation, and teardown). Do not trigger preflight during the skill workflow — only at the end.
+
+The user can also trigger preflight manually at any time with `/dd-preflight`.
 
 ## Security Hygiene
 

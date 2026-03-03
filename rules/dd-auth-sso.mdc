@@ -20,7 +20,7 @@ Add Keycloak when the demo requires any of:
 ```yaml
 keycloak:
   image: quay.io/keycloak/keycloak:latest
-  command: start-dev --import-realm
+  command: start-dev --import-realm --health-enabled=true
   environment:
     - KC_BOOTSTRAP_ADMIN_USERNAME=admin
     - KC_BOOTSTRAP_ADMIN_PASSWORD=admin
@@ -118,3 +118,13 @@ The Locust traffic generator should include tasks that:
 | Invalid credentials (brute force) | Burst of `LOGIN_ERROR` events in Keycloak logs → SIEM detection |
 | IdP latency spike | Auth middleware span duration increases → APM latency alert |
 | Token with wrong audience | 403 errors in traces, security event in logs |
+
+## README Documentation
+
+When Keycloak is added to a demo project, the project README must include an **Authentication** section containing:
+
+1. **Credentials table** — username, password, role, and persona description for every user in `keycloak/realm-export.json`, plus the Keycloak admin account
+2. **Auth endpoints table** — Keycloak admin console, OIDC discovery, token endpoint, and login page URLs
+3. **Persona mappings** — which test user represents which demo narrative (e.g., `demo-user` for normal customer flows, `demo-admin` for elevated-privilege flows)
+
+The README template in the scaffold skill contains an `AUTH:START`/`AUTH:END` block with placeholder tables for this purpose.

@@ -22,7 +22,7 @@ Each log line must include at minimum:
 
 ## Trace Correlation
 
-When a Datadog tracer is active, logs must include `dd.trace_id` and `dd.span_id` for trace-log correlation. Most DD tracing libraries inject these automatically when their log integration is enabled — see [Correlate Logs and Traces](https://docs.datadoghq.com/tracing/other_telemetry/connect_logs_and_traces/) for language-specific setup. If the link is unavailable, [search docs](https://docs.datadoghq.com/search/?s=correlate%20logs%20and%20traces).
+When a Datadog tracer is active, logs must include `dd.trace_id` and `dd.span_id` for trace-log correlation. Most DD tracing libraries inject these automatically when their log integration is enabled — see [Correlate Logs and Traces](https://docs.datadoghq.com/tracing/other_telemetry/connect_logs_and_traces/) for language-specific setup. If unavailable, follow the [documentation lookup procedure](../skills/_doc-lookup.md) to find the current page.
 
 ## Unified Service Tagging
 
@@ -30,7 +30,7 @@ The `service`, `env`, and `version` fields should be set via the `DD_SERVICE`, `
 
 ## Language-Specific Guidance
 
-Before configuring logging, consult the **current Datadog documentation** for the chosen language — see [Log Collection](https://docs.datadoghq.com/logs/log_collection/) for available integrations. If the link is unavailable, [search docs](https://docs.datadoghq.com/search/?s=log%20collection). The libraries below are recommended starting points:
+Before configuring logging, consult the **current Datadog documentation** for the chosen language — see [Log Collection](https://docs.datadoghq.com/logs/log_collection/) for available integrations. If unavailable, follow the [documentation lookup procedure](../skills/_doc-lookup.md) to find the current page. The libraries below are recommended starting points:
 
 - **Python** — `python-json-logger` or `structlog` with a JSON renderer
 - **Go** — standard library `log/slog` with `slog.NewJSONHandler(os.Stdout, nil)`
