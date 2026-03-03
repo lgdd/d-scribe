@@ -35,8 +35,8 @@ Project-scoped guardrails copied into each demo project by the scaffold skill. N
 | `dd-unified-tagging` | Always apply | Unified Service Tagging (env, service, version) |
 | `dd-secrets-env` | Always apply | .env handling, credential safety, DD_SITE awareness |
 | `dd-deployment` | Always apply | Deployment model selection, Agent ownership |
-| `dd-cursor-guidelines` | Always apply | Cursor interaction behavior, incremental scaffolding |
-| `dd-preflight` | Always apply | Automatic preflight validation after file changes |
+| `dd-cursor-guidelines` | Always apply | Cursor interaction behavior, incremental scaffolding, build-after-change |
+| `dd-preflight` | docker-compose + k8s + services + Makefile | Preflight validation rules (on-demand via `/dd-preflight`) |
 | `dd-telemetry-correlation` | docker-compose + service source | Correlation wiring for all signal pairs (Logs+Traces, DBM+Traces, RUM+Traces, Profiles+Traces) |
 | `dd-auth-sso` | docker-compose + api-gateway + keycloak | Keycloak OIDC identity provider, auth event logs for Cloud SIEM, RUM user identity |
 | `dd-docker-compose` | docker-compose files | Agent container config, service labels, networking, exclusions |
@@ -59,7 +59,7 @@ Context-isolated workflows. Installed to `~/.cursor/agents/`.
 | Subagent | Trigger | Description |
 |----------|---------|-------------|
 | `dd-validate-telemetry` | "validate telemetry" | Readonly check that telemetry is flowing — use on an already-running stack |
-| `dd-demo-preflight` | "preflight check" | Full build/deploy/test/validate cycle that always tears down after (delegates telemetry checks to `dd-validate-telemetry`) |
+| `dd-demo-preflight` | "preflight check" | Full build/deploy/test/validate cycle that always tears down after |
 
 ### Commands (5)
 
@@ -85,7 +85,7 @@ With the stack already running, type `/dd-validate` to check that all services a
 
 ### Pre-demo check
 
-Preflight runs **automatically** after Cursor adds, updates, or deletes project files. It builds, deploys, smoke-tests, delegates telemetry validation to `dd-validate-telemetry`, and then **always cleans up** all containers and processes it started. Use `/dd-preflight` to trigger it manually when you want a full end-to-end cycle.
+Preflight runs automatically at the end of each skill workflow (scaffolding, product addition, traffic generation). It builds, deploys, smoke-tests, validates telemetry, and **always cleans up** all containers and processes it started. It does not run after individual file edits — only when a skill completes its work. Type `/dd-preflight` to trigger it manually at any time.
 
 ## Repository Structure
 
@@ -96,8 +96,11 @@ d-sect/
 ├── uninstall.sh
 ├── rules/              # Rule templates (copied into demo projects)
 ├── skills/             # Skills (symlinked to ~/.cursor/skills/)
+│   ├── _auto-update.md # Shared auto-update procedure
+│   ├── _doc-lookup.md  # Shared documentation lookup procedure
 │   ├── dd-scaffold-demo/
 │   ├── dd-add-product/
+│   │   └── templates/  # Per-product reference templates
 │   └── dd-generate-traffic/
 ├── agents/             # Subagents (symlinked to ~/.cursor/agents/)
 │   ├── dd-validate-telemetry.md
