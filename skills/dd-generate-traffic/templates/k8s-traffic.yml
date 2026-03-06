@@ -39,8 +39,6 @@ spec:
               value: "http://api-gateway:8080"
             - name: TRAFFIC_RATE
               value: "10"
-            - name: TRAFFIC_ERROR_RATE
-              value: "0.1"
             - name: TRAFFIC_LATENCY_MS
               value: "0"
           volumeMounts:

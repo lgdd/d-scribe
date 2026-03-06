@@ -20,8 +20,10 @@ The standard topology for most demos. Produces a clear service map with trace pr
 
 ### Failure Scenarios
 
-- `service-b` returns 500 → `service-a` retries 3x → visible retry storm in traces
-- `service-b` latency spikes to 5s → `api-gateway` times out → cascading failure
+- **Retry Storm**: `service-b` returns 500 → `service-a` retries 3× → visible retry storm in traces
+  - **Trigger**: primary endpoint with entity ID `<prefix>-fail-500` (e.g., `sku-fail-500`, `shipment-fail-500`, `txn-fail-500`)
+- **Cascading Timeout**: `service-b` latency spikes to 30 s → `service-a` times out → `api-gateway` returns 504
+  - **Trigger**: primary endpoint with parameter value `TIMEOUT_30S` in any free-text field
 
 ---
 
@@ -40,8 +42,10 @@ Adds browser-based RUM telemetry. Use when demonstrating end-to-end user experie
 
 ### Additional Failure Scenarios
 
-- Frontend JS error → visible in RUM Error Tracking
-- Slow API response → visible in RUM Resource timing + APM trace waterfall
+- **Frontend JS Error**: unhandled exception on detail page → visible in RUM Error Tracking
+  - **Trigger**: navigate to entity with ID `<prefix>-fail-js` (e.g., click *Glitch Gadget*, *Broken Parcel*, *Error Invoice*)
+- **Slow API Degradation**: slow API response → visible in RUM Resource timing + APM trace waterfall
+  - **Trigger**: filter or search with a slow-path parameter (e.g., `category=slow`, `region=slow`)
 
 ---
 
@@ -62,8 +66,10 @@ Adds asynchronous processing. Use when demonstrating queue-based architectures, 
 
 ### Additional Failure Scenarios
 
-- Queue backlog → worker falls behind → visible in queue lag metrics
-- Worker crashes on poison message → DLQ accumulation → alert trigger
+- **Poison Message**: worker crashes on unprocessable message → DLQ accumulation → alert trigger
+  - **Trigger**: primary endpoint with entity ID `<prefix>-fail-poison` (e.g., *Cursed Crate*, *Toxic Parcel*, *Bad Payload*)
+- **Queue Backlog**: worker falls behind → visible in queue lag metrics
+  - **Trigger**: primary endpoint with quantity/count `9999`
 
 ---
 
@@ -91,8 +97,10 @@ Adds Keycloak as an OIDC identity provider. Use when demonstrating Cloud SIEM, a
 
 ### Additional Failure Scenarios
 
-- Token expired → 401 cascade visible in traces and logs
-- Brute-force login attempts → burst of failed-auth events detectable via SIEM detection rules
+- **Expired Token Cascade**: token expired → 401 cascade visible in traces and logs
+  - **Trigger**: log in as `expired@demo.test` (token TTL set to 1 s in realm export), or send `Authorization: Bearer EXPIRED_TOKEN_DEMO`
+- **Brute-Force Login**: burst of failed-auth events → detectable via SIEM detection rules
+  - **Trigger**: attempt login as `brute@demo.test` with wrong password 10× in a row
 - IdP latency spike → auth middleware slows all downstream requests
 
 ---
@@ -121,8 +129,10 @@ Adds an LLM-powered service. Use when demonstrating AI applications, chatbots, o
 
 ### Additional Failure Scenarios
 
-- LLM provider rate-limited (429) → visible in LLM Obs traces and error tracking
-- LLM provider timeout → cascading latency visible in APM trace waterfall
+- **LLM Rate Limit**: LLM provider returns 429 → visible in LLM Obs traces and error tracking
+  - **Trigger**: `POST /api/chat` with `message: "RATELIMIT_TEST"`
+- **LLM Provider Timeout**: LLM provider timeout → cascading latency visible in APM trace waterfall
+  - **Trigger**: `POST /api/chat` with `message: "TIMEOUT_TEST"`
 
 ---
 

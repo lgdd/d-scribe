@@ -34,7 +34,7 @@ Use this topology unless the SE specifies otherwise:
 - One container that runs everything
 - All telemetry sharing the same `service` value
 
-### Required Failure Path
+### Required Failure Paths
 
 Include at least one intentional failure scenario caused by inter-service interaction:
 
@@ -44,4 +44,18 @@ Include at least one intentional failure scenario caused by inter-service intera
 - Circuit-breaker open
 - Cache stampede
 
-The failure must have a clear, explainable root cause visible in Datadog (Service Map, traces, logs).
+### Deterministic Triggers
+
+Every failure scenario must be activated by a **magic value** — a specific business input (entity ID, parameter value, user email, quantity) that deterministically causes the named failure every time. Do not use random probability, debug headers (`X-Force-Error`), or query flags (`?fail=true`).
+
+Requirements:
+
+- **Business inputs**: triggers flow through normal request fields, not debug plumbing
+- **Deterministic**: same magic value produces the same failure, every invocation
+- **Human-memorable**: magic values use descriptive names (e.g., `<prefix>-fail-500`, `TIMEOUT_30S`, `latency@demo.test`) adapted to the demo's domain
+- **Domain-adaptive**: the entity-ID prefix matches the demo narrative (e.g., `sku-` for e-commerce, `shipment-` for logistics, `txn-` for fintech, `job-` for DevOps)
+- **Documented**: each scenario lists a human action (what the demoer does in the UI or via curl) and the expected Datadog signals
+
+When a frontend exists, magic entities must appear in the UI alongside normal items so the demoer can trigger failures by clicking or typing.
+
+See the [failure scenarios catalog](../skills/dd-scaffold-demo/failure-scenarios.md) for the full list of named scenarios, trigger naming patterns, and implementation guidance.

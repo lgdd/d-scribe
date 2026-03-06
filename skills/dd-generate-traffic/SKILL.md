@@ -34,11 +34,14 @@ Every traffic generator must include at minimum:
 - Returns 2xx
 - Produces a complete distributed trace
 
-**Failure path** — intentional error with clear root cause:
+**Named failure scenarios** — deterministic errors triggered by magic values:
 
-- Triggers the inter-service failure scenario defined in the architecture
-- Produces error spans, error logs, and potentially alerts
-- Must be explainable in a demo narrative
+- Each scenario uses a specific business input (product ID, coupon code, email) that deterministically causes a named failure — never random probability or debug headers
+- The magic values are the same ones a demoer uses manually during a live presentation
+- Each scenario gets its own Locust task with a descriptive name tag (e.g., `[retry-storm]`, `[timeout]`)
+- Failure frequency is controlled by task weights, not an error-rate coin flip
+
+Consult the [failure scenarios catalog](../../skills/dd-scaffold-demo/failure-scenarios.md) for the per-topology list of named scenarios, trigger values, and naming patterns. Adapt the scenarios to match the project's actual topology and endpoints.
 
 ### Step 4: Configure Parameters
 
@@ -47,10 +50,11 @@ All parameters must be configurable via environment variables:
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `TRAFFIC_RATE` | `10` | Requests per second |
-| `TRAFFIC_ERROR_RATE` | `0.1` | Fraction of requests that trigger failure path (0.0-1.0) |
 | `TRAFFIC_LATENCY_MS` | `0` | Additional latency injected per request (ms) |
 | `TRAFFIC_DURATION` | `0` | Duration in seconds (0 = run forever) |
 | `TRAFFIC_TARGET` | (auto-detect) | Base URL of the entry point |
+
+Failure scenario frequency is controlled by Locust task weights in the locustfile, not by an environment variable. Adjust the `@task(N)` weight on each scenario task to control how often it fires relative to the golden path.
 
 ### Step 5: Traffic Patterns
 
@@ -88,7 +92,9 @@ The traffic service must be explicitly excluded from Datadog monitoring so it do
 ### Step 8: Makefile & Documentation
 
 - Add `make traffic-up` and `make traffic-down` targets to the Makefile (or include the traffic service in the default `make up` / `make down` targets)
-- Document traffic configuration in the project README
+- Update the project README:
+  - **Demo Scenarios — Failure Paths** — if the traffic generator introduces failure scenarios not already listed (e.g., burst spike causing saturation, error rate triggering alerts), add them as rows in the Failure Paths table with Trigger, Expected Behavior, and Datadog Signal
+  - **Makefile Targets** — add the new traffic targets to the Makefile Targets table
 
 ### Step 9: Preflight
 

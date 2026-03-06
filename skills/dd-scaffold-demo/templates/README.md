@@ -44,14 +44,18 @@ graph LR
 
 ### Failure Paths
 
-<!-- List each intentional failure scenario built into the demo. Explain how to
-     trigger it and what the SE should point out in Datadog. -->
+<!-- List each intentional failure scenario built into the demo. Each failure is
+     triggered by a deterministic "magic value" (product ID, coupon code, email)
+     that causes the named failure every time. See failure-scenarios.md in the
+     toolkit for the catalog of trigger patterns. -->
 
-| Scenario | Trigger | Expected Behavior | Datadog Signal |
-| -------- | ------- | ----------------- | -------------- |
-| {{SCENARIO_NAME}} | {{TRIGGER}} | {{BEHAVIOR}} | {{DD_SIGNAL}} |
+| Scenario | Trigger (API) | How to Reproduce | Expected Behavior | Datadog Signal |
+| -------- | ------------- | ---------------- | ----------------- | -------------- |
+| {{SCENARIO_NAME}} | {{TRIGGER}} | {{HUMAN_ACTION}} | {{BEHAVIOR}} | {{DD_SIGNAL}} |
 
-<!-- Add rows for each failure scenario. -->
+<!-- Add rows for each failure scenario. The "How to Reproduce" column should
+     describe the human-friendly action (e.g., "Add product Phantom Widget to
+     cart and place the order") so a demoer can trigger it without curl. -->
 
 <!-- AUTH:START — Include this section only when Keycloak is present. Remove
      the AUTH:START / AUTH:END markers and this comment in the final README. -->
