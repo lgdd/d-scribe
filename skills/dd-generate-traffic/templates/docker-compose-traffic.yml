@@ -12,7 +12,6 @@
       --spawn-rate ${TRAFFIC_RATE:-10}
       --run-time ${TRAFFIC_DURATION:-0}
     environment:
-      - TRAFFIC_ERROR_RATE=${TRAFFIC_ERROR_RATE:-0.1}
       - TRAFFIC_LATENCY_MS=${TRAFFIC_LATENCY_MS:-0}
     volumes:
       - ./traffic/locustfile.py:/locust/locustfile.py:ro

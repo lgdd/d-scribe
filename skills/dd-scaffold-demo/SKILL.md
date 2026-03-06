@@ -89,7 +89,7 @@ Use the reference topology from [topologies.md](topologies.md):
 - When the SE requests authentication, user sessions, or Cloud SIEM: add **Keycloak** as the identity provider — see the `dd-auth-sso` rule and the identity provider topology in [topologies.md](topologies.md)
 - When the SE requests an AI app, LLM-powered service, or chatbot: add an **LLM service** calling an LLM provider — see the AI/LLM topology in [topologies.md](topologies.md)
 - Include one **golden path** (successful end-to-end request)
-- Include one **failure path** (inter-service failure with clear root cause)
+- Include at least one **failure scenario** using a deterministic magic-value trigger from the [failure scenarios catalog](failure-scenarios.md). Each failure must be activated by a specific business input (product ID, coupon code, email) — never random probability or debug headers. When a frontend exists, magic products or coupons must appear in the UI so the demoer can trigger failures by clicking or typing
 
 ### Step 7: Deployment Configuration
 
@@ -104,7 +104,7 @@ Generate deployment config for the chosen model:
 - Generate a Locust traffic generator in `traffic/locustfile.py` using the `dd-generate-traffic` skill
 - Add a `traffic` service to the deployment config (Docker Compose or K8s) that runs Locust in headless mode alongside the application stack — the traffic service must be excluded from Datadog monitoring (see the `dd-generate-traffic` skill templates for the exact configuration)
 - Generate `scripts/smoke-test.sh` that starts services, waits for health, makes one request, verifies success
-- Make traffic parameters configurable via environment variables (rate, error %, latency)
+- Make traffic parameters configurable via environment variables (rate, latency) and task weights (failure scenario frequency)
 
 ### Step 9: Preflight
 
@@ -116,7 +116,8 @@ After all files are generated, run the `dd-demo-preflight` subagent to validate 
 - [ ] `.env.example` contains all required DD variables
 - [ ] `.env` is in `.gitignore`
 - [ ] At least one golden path and one failure path exist
-- [ ] README documents demo scenarios (golden path steps, failure paths with triggers and Datadog signals)
+- [ ] Each failure scenario uses a deterministic trigger (magic value), not random probability
+- [ ] README documents demo scenarios (golden path steps, failure paths with triggers, reproduction steps, and Datadog signals)
 - [ ] If Keycloak is present: README includes credentials, auth endpoints, and persona mappings
 - [ ] All services build successfully
 - [ ] `make up` starts the full stack including DD Agent
