@@ -4,7 +4,7 @@
 
 <h1 align="center">Datadog Sales Engineer Cursor Toolkit</h1>
 
-Cursor toolkit for Datadog Sales Engineers. Provides rules, skills, subagents, and commands to rapidly scaffold, validate, and present demo projects that send telemetry to a Datadog sandbox organization.
+Provides rules, skills, subagents, and commands to rapidly scaffold, validate, and present demo projects that send telemetry to a Datadog sandbox organization.
 
 ## Prerequisites
 
@@ -25,13 +25,13 @@ The installer symlinks skills, subagents, and commands into `~/.cursor/` so they
 
 ## What's Included
 
-### Rules (10 templates)
+### Rules (11 templates)
 
 Project-scoped guardrails copied into each demo project by the scaffold skill. Not installed globally.
 
 | Rule | Scope | Purpose |
 |------|-------|---------|
-| `dd-demo-architecture` | Always apply | Microservice topology, prohibited patterns, failure paths |
+| `dd-demo-architecture` | Always apply | Microservice topology, prohibited patterns, deterministic failure triggers |
 | `dd-unified-tagging` | Always apply | Unified Service Tagging (env, service, version) |
 | `dd-secrets-env` | Always apply | .env handling, credential safety, DD_SITE awareness |
 | `dd-deployment` | Always apply | Deployment model selection, Agent ownership |
@@ -41,8 +41,9 @@ Project-scoped guardrails copied into each demo project by the scaffold skill. N
 | `dd-auth-sso` | docker-compose + api-gateway + keycloak | Keycloak OIDC identity provider, auth event logs for Cloud SIEM, RUM user identity |
 | `dd-docker-compose` | docker-compose files | Agent container config, service labels, networking, exclusions |
 | `dd-kubernetes` | K8s manifests | DaemonSet/Helm Agent, pod annotations, audit logs, exclusions |
+| `dd-terraform` | `terraform/**` | Terraform conventions for Datadog dashboards, monitors, and SLOs |
 
-### Skills (3)
+### Skills (4)
 
 Domain knowledge with supporting reference files. Installed to `~/.cursor/skills/`.
 
@@ -50,9 +51,10 @@ Domain knowledge with supporting reference files. Installed to `~/.cursor/skills
 |-------|---------|-------------|
 | `dd-scaffold-demo` | "scaffold a demo" | Creates a full demo project from scratch |
 | `dd-add-product` | "add RUM", "add SIEM" | Adds a DD product to an existing demo |
-| `dd-generate-traffic` | "generate traffic" | Creates Locust traffic service (excluded from DD monitoring) |
+| `dd-generate-traffic` | "generate traffic" | Creates Locust traffic service with named failure scenarios (excluded from DD monitoring) |
+| `dd-terraform` | "add Terraform" | Generates Terraform HCL for Datadog dashboards, monitors, and SLOs |
 
-### Subagents (2)
+### Subagents (3)
 
 Context-isolated workflows. Installed to `~/.cursor/agents/`.
 
@@ -60,8 +62,9 @@ Context-isolated workflows. Installed to `~/.cursor/agents/`.
 |----------|---------|-------------|
 | `dd-validate-telemetry` | "validate telemetry" | Readonly check that telemetry is flowing — use on an already-running stack |
 | `dd-demo-preflight` | "preflight check" | Full build/deploy/test/validate cycle that always tears down after |
+| `dd-demo-narrator` | "generate runbook" | Generates a DEMO-RUNBOOK.md with talking points, DD UI nav, and failure playbooks |
 
-### Commands (5)
+### Commands (7)
 
 Discoverable `/` entry points. Installed to `~/.cursor/commands/`.
 
@@ -72,6 +75,8 @@ Discoverable `/` entry points. Installed to `~/.cursor/commands/`.
 | `/dd-preflight` | Run pre-demo readiness check |
 | `/dd-add-product` | Add a DD product to the demo |
 | `/dd-traffic` | Configure the Locust traffic service |
+| `/dd-narrator` | Generate demo runbook |
+| `/dd-terraform` | Generate Terraform for DD dashboards, monitors, and SLOs |
 
 ## Usage
 
@@ -99,18 +104,25 @@ d-sect/
 │   ├── _auto-update.md # Shared auto-update procedure
 │   ├── _doc-lookup.md  # Shared documentation lookup procedure
 │   ├── dd-scaffold-demo/
+│   │   ├── topologies.md        # Reference topology diagrams
+│   │   └── failure-scenarios.md # Deterministic failure trigger catalog
 │   ├── dd-add-product/
 │   │   └── templates/  # Per-product reference templates
-│   └── dd-generate-traffic/
+│   ├── dd-generate-traffic/
+│   └── dd-terraform/
+│       └── templates/  # Provider, dashboard, monitor, SLO templates
 ├── agents/             # Subagents (symlinked to ~/.cursor/agents/)
 │   ├── dd-validate-telemetry.md
-│   └── dd-demo-preflight.md
+│   ├── dd-demo-preflight.md
+│   └── dd-demo-narrator.md
 └── commands/           # Commands (symlinked to ~/.cursor/commands/)
     ├── dd-scaffold.md
     ├── dd-validate.md
     ├── dd-preflight.md
     ├── dd-add-product.md
-    └── dd-traffic.md
+    ├── dd-traffic.md
+    ├── dd-narrator.md
+    └── dd-terraform.md
 ```
 
 ## Uninstall
