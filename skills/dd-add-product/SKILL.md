@@ -35,7 +35,7 @@ Follow the procedure in [_auto-update.md](../_auto-update.md).
 - **Code Security** — static and runtime analysis (SAST/SCA/IAST)
 - **Workload Protection** — runtime threat detection
 - **Cloud Network Monitoring** — aggregate traffic by meaningful entities
-- **LLM Observability** — automatic tracing of LLM calls (Python/Node.js: OpenAI, Anthropic, Bedrock, LangChain; Java: OpenAI). Requires `ddtrace` (Python), `dd-trace` (Node.js), or `dd-trace-java` (Java) with `LLMObs.enable()` or equivalent SDK setup
+- **LLM Observability** — automatic tracing of LLM calls (Python/Node.js: OpenAI, Anthropic, Bedrock, LangChain; Java: OpenAI). Requires `ddtrace` (Python), `dd-trace` (Node.js), or `dd-trace-java` (Java) with `LLMObs.enable()` or equivalent SDK setup. Auto-instrumentation alone produces flat LLM spans — add custom span kinds (workflow, agent, task, tool, retrieval) for the execution graph and flame graph
 
 ## Workflow
 
@@ -72,7 +72,17 @@ Apply changes in this order:
 4. **Environment variables** — add any new required variables to `.env.example`
 5. **Sync `.env`** — append any variables from `.env.example` that are missing in `.env`, substituting host environment values for secrets. Do not overwrite existing values in `.env`.
 
-### Step 6: Preflight
+### Step 6: Update README
+
+After updating configuration, bring the project `README.md` in sync with the changes just made. Only modify sections affected by the product addition — leave the rest untouched.
+
+1. **Architecture diagram** — if new services were added to the stack (e.g., Keycloak for SIEM, a frontend for RUM, an LLM service), add them to the Mermaid diagram and their connections
+2. **Services table** — add a row for each new service introduced (service name, language/framework, address)
+3. **Demo Scenarios — Failure Paths** — append rows for failure scenarios introduced by the product. The product template (Step 2) and the Datadog documentation (Step 3) describe product-specific failure scenarios — translate them into Trigger / Expected Behavior / Datadog Signal rows
+4. **Authentication section** — if Keycloak was just added, insert the Authentication section (credentials, auth endpoints, persona mappings) using the `AUTH:START`/`AUTH:END` block from the README template as a reference. If Keycloak was already present, leave the section unchanged
+5. **Prerequisites** — if the product requires new environment variables that the SE must export (e.g., `DD_APPLICATION_ID` for RUM, `OPENAI_API_KEY` for LLM Obs), add them to the Prerequisites variables table
+
+### Step 7: Preflight
 
 After all changes are applied, run the `dd-demo-preflight` subagent to validate the project end-to-end (build, deploy, health checks, smoke test, telemetry validation, and teardown). Do not consider the addition complete until preflight passes or the SE acknowledges the failures.
 
@@ -84,3 +94,4 @@ After all changes are applied, run the `dd-demo-preflight` subagent to validate 
 - [ ] `.env` synced with new variables (if any)
 - [ ] Services rebuild successfully
 - [ ] New telemetry is visible in Datadog
+- [ ] README updated (architecture diagram, services table, demo scenarios, auth section as applicable)
