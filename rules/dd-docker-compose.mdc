@@ -262,7 +262,31 @@ Reference: [Redis Integration — Docker](https://docs.datadoghq.com/integration
 
 When the demo includes authenticated user flows or Cloud SIEM, add a Keycloak service. See the `dd-auth-sso` rule for the full service definition, realm bootstrap, and OIDC integration patterns.
 
-The Keycloak container must expose Autodiscovery labels for log collection:
+Keycloak logs are collected via **syslog forwarding** to the Agent (not Docker container logs). This is required for the Keycloak integration pipeline and SIEM Content Pack to parse event data correctly. Minimum Agent version: **7.64.0**.
+
+### Agent Configuration
+
+Mount a `keycloak.d/conf.yaml` into the Agent:
+
+```yaml
+datadog-agent:
+  volumes:
+    - ./datadog/conf.d/keycloak.d/conf.yaml:/etc/datadog-agent/conf.d/keycloak.d/conf.yaml:ro
+```
+
+Create `datadog/conf.d/keycloak.d/conf.yaml` with a TCP syslog listener:
+
+```yaml
+logs:
+  - type: tcp
+    port: 5140
+    source: keycloak
+    service: keycloak
+```
+
+### Keycloak Service Labels
+
+Unified Service Tagging labels plus a log exclusion label are needed. The exclusion prevents the Agent from collecting Keycloak stdout via the Docker socket (which `DD_LOGS_CONFIG_CONTAINER_COLLECT_ALL=true` would otherwise do), since syslog is the intended collection path:
 
 ```yaml
 keycloak:
@@ -271,12 +295,10 @@ keycloak:
     com.datadoghq.tags.env: "${DD_ENV:-demo}"
     com.datadoghq.tags.service: "keycloak"
     com.datadoghq.tags.version: "${DD_VERSION:-1.0.0}"
-    com.datadoghq.ad.check_names: '["keycloak"]'
-    com.datadoghq.ad.init_configs: "[{}]"
-    com.datadoghq.ad.logs: '[{"source":"keycloak","service":"keycloak"}]'
+    com.datadoghq.ad.logs: '[{"source":"keycloak","log_processing_rules":[{"type":"exclude_at_match","name":"exclude_all","pattern":".*"}]}]'
 ```
 
-Set `KC_LOG_CONSOLE_OUTPUT=json` so the Agent collects structured JSON logs without custom parsing. These logs are the primary event source for Cloud SIEM auth detection rules.
+Keycloak's `command` must include `--log=console,syslog --log-level=org.keycloak.events:debug --log-syslog-endpoint=datadog-agent:5140 --log-syslog-output=json`. See the `dd-auth-sso` rule for the complete service definition.
 
 ## Excluding Non-Demo Services
 

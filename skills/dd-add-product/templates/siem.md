@@ -21,22 +21,37 @@ For K8s audit logs, enable the audit log pipeline on the Agent:
 - DD_LOGS_CONFIG_AUDIT_ENABLED=true
 ```
 
+### Keycloak Syslog Listener
+
+When using Keycloak as the SIEM source, the Agent must receive Keycloak logs via syslog — not Docker container logs. Mount a `keycloak.d/conf.yaml` into the Agent (see the `dd-docker-compose` rule for the volume mount):
+
+```yaml
+logs:
+  - type: tcp
+    port: 5140
+    source: keycloak
+    service: keycloak
+```
+
+Minimum Agent version: **7.64.0**.
+
 ## Application Changes
 
 ### Keycloak as SIEM Source (recommended)
 
-Keycloak must emit structured JSON logs with event logging enabled:
+Keycloak must forward structured JSON event logs to the Agent via syslog. The Keycloak `command` must include:
 
-```yaml
-keycloak:
-  environment:
-    - KC_LOG_CONSOLE_OUTPUT=json
-  # Realm export must include:
-  #   eventsEnabled: true
-  #   adminEventsEnabled: true
+```
+--log=console,syslog
+--log-level=org.keycloak.events:debug
+--log-syslog-endpoint=datadog-agent:5140
+--log-syslog-output=json
 ```
 
-The `dd-auth-sso` rule provides the full Keycloak service definition, realm bootstrap, and Autodiscovery labels.
+- `--log-level=org.keycloak.events:debug` is critical — without it, Keycloak suppresses user-event and admin-event logs that the SIEM Content Pack relies on
+- The realm export must include `eventsEnabled: true` and `adminEventsEnabled: true`
+
+The `dd-auth-sso` rule provides the full Keycloak service definition, realm bootstrap, and syslog configuration.
 
 ### Application Auth Logs
 
@@ -49,12 +64,7 @@ If the project has custom auth logic (not Keycloak), ensure auth events are logg
 
 ## Deployment Config — Docker Compose
 
-Ensure log source labels are set on the SIEM event source container so logs are correctly tagged:
-
-```yaml
-labels:
-  com.datadoghq.ad.logs: '[{"source":"keycloak","service":"keycloak"}]'
-```
+For Keycloak, log collection is handled by the Agent's syslog listener, not Docker Autodiscovery labels. Only Unified Service Tagging labels are needed on the Keycloak container. See the `dd-docker-compose` rule for the full Agent and Keycloak configuration.
 
 ## Cross-Product Wiring
 
