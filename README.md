@@ -92,6 +92,10 @@ With the stack already running, type `/dd-validate` to check that all services a
 
 Preflight runs automatically at the end of each skill workflow (scaffolding, product addition, traffic generation). It builds, deploys, smoke-tests, validates telemetry, and **always cleans up** all containers and processes it started. It does not run after individual file edits — only when a skill completes its work. Type `/dd-preflight` to trigger it manually at any time.
 
+### Maintaining the toolkit
+
+When working in the **d-sect repo**, Cursor also loads repo-local agents and commands from `.cursor/agents/` and `.cursor/commands/`. These include `dd-review-templates` — use it (or type `/dd-review-templates`) to review and optionally fix the rules and skill templates for Datadog config correctness and doc alignment. This agent is not installed globally; it only runs in this repository.
+
 ## Repository Structure
 
 ```
@@ -115,14 +119,18 @@ d-sect/
 │   ├── dd-validate-telemetry.md
 │   ├── dd-demo-preflight.md
 │   └── dd-demo-narrator.md
-└── commands/           # Commands (symlinked to ~/.cursor/commands/)
-    ├── dd-scaffold.md
-    ├── dd-validate.md
-    ├── dd-preflight.md
-    ├── dd-add-product.md
-    ├── dd-traffic.md
-    ├── dd-narrator.md
-    └── dd-terraform.md
+├── commands/           # Commands (symlinked to ~/.cursor/commands/)
+│   ├── dd-scaffold.md
+│   ├── dd-validate.md
+│   ├── dd-preflight.md
+│   ├── dd-add-product.md
+│   ├── dd-traffic.md
+│   ├── dd-narrator.md
+│   └── dd-terraform.md
+└── .cursor/            # Repo-local Cursor config (not installed by install.sh)
+    ├── agents/         # Toolkit-only agent: dd-review-templates
+    ├── commands/      # Toolkit-only command: /dd-review-templates
+    └── rules/         # Repo conventions (toolkit-conventions, component-sync, etc.)
 ```
 
 ## Uninstall
