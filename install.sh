@@ -45,7 +45,7 @@ link_item() {
   installed=$((installed + 1))
 }
 
-echo "${C_B}d-sect installer${C_RST}"
+echo "${C_B}d-scribe installer${C_RST}"
 echo "  ${TOOLKIT_DIR} -> ~/.cursor"
 echo ""
 

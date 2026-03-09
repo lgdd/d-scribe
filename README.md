@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://github.com/lgdd/doc-assets/blob/main/d-sect/d-sect.png?raw=true" alt="d-sect" width="400">
+  <img src="https://github.com/lgdd/doc-assets/blob/main/d-scribe/d-scribe.png?raw=true" alt="d-scribe" width="400">
 </p>
 
 <h1 align="center">Datadog Sales Engineer Cursor Toolkit</h1>
@@ -15,8 +15,8 @@ Provides rules, skills, subagents, and commands to rapidly scaffold, validate, a
 ## Quick Start
 
 ```bash
-git clone https://github.com/lgdd/d-sect.git
-cd d-sect
+git clone https://github.com/lgdd/d-scribe.git
+cd d-scribe
 chmod +x install.sh
 ./install.sh
 ```
@@ -94,12 +94,12 @@ Preflight runs automatically at the end of each skill workflow (scaffolding, pro
 
 ### Maintaining the toolkit
 
-When working in the **d-sect repo**, Cursor also loads repo-local agents and commands from `.cursor/agents/` and `.cursor/commands/`. These include `dd-review-templates` — use it (or type `/dd-review-templates`) to review and optionally fix the rules and skill templates for Datadog config correctness and doc alignment. This agent is not installed globally; it only runs in this repository.
+When working in the **d-scribe repo**, Cursor also loads repo-local agents and commands from `.cursor/agents/` and `.cursor/commands/`. These include `dd-review-templates` — use it (or type `/dd-review-templates`) to review and optionally fix the rules and skill templates for Datadog config correctness and doc alignment. This agent is not installed globally; it only runs in this repository.
 
 ## Repository Structure
 
 ```
-d-sect/
+d-scribe/
 ├── README.md
 ├── install.sh
 ├── uninstall.sh
@@ -136,6 +136,6 @@ d-sect/
 ## Uninstall
 
 ```bash
-cd d-sect
+cd d-scribe
 ./uninstall.sh
 ```
