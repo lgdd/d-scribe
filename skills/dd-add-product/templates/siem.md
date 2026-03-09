@@ -15,7 +15,7 @@ environment:
   - DD_LOGS_CONFIG_CONTAINER_COLLECT_ALL=true
 ```
 
-For K8s audit logs, enable the audit log pipeline on the Agent:
+For K8s audit logs, enable the audit log pipeline on the Agent. Confirm the exact environment variable in the [Agent configuration reference](https://docs.datadoghq.com/agent/configuration/agent-configuration-files/) or use the file-based setup described in [Kubernetes Audit Logs](https://docs.datadoghq.com/integrations/kubernetes_audit_logs/):
 
 ```yaml
 - DD_LOGS_CONFIG_AUDIT_ENABLED=true

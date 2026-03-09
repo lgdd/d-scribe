@@ -50,7 +50,7 @@ terraform/
 - Use local backend only — demos are ephemeral
 
 `variables.tf` must:
-- Define `env`, `service_names` (list), and `team` variables
+- Define `env`, `service_names` (list), `team`, `dd_site` (e.g. default `"datadoghq.com"` for provider `api_url`), and `project_name` (for dashboard/monitor/SLO display names)
 - Align values with Unified Service Tagging (`DD_ENV`, `DD_SERVICE`, `DD_VERSION`)
 
 ### Step 4: Generate Dashboards

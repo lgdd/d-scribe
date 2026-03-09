@@ -32,7 +32,7 @@ Keep one file per resource type inside the `terraform/` directory:
 
 ## Unified Service Tagging
 
-- Define `env`, `service_names` (list of strings), and `team` as Terraform variables
+- Define `env`, `service_names` (list of strings), `team`, `dd_site` (e.g. default `"datadoghq.com"` for provider `api_url`), and `project_name` (for dashboard/monitor/SLO display names) as Terraform variables in `variables.tf`
 - Every `datadog_dashboard`, `datadog_monitor`, and `datadog_service_level_objective` must include `tags` with at least `env` and `team`
 - Per-service resources must also include `service:<name>` in their tags
 - Variable values must match the Unified Service Tagging labels used in the deployment config (`DD_ENV`, `DD_SERVICE`)
