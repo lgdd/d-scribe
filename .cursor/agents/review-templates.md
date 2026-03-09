@@ -1,5 +1,5 @@
 ---
-name: dd-review-templates
+name: review-templates
 description: Reviews and fixes Datadog configuration in this toolkit's rules and skill templates for correctness, consistency, and doc alignment.
 model: inherit
 ---

@@ -94,7 +94,7 @@ Preflight runs automatically at the end of each skill workflow (scaffolding, pro
 
 ### Maintaining the toolkit
 
-When working in the **d-scribe repo**, Cursor also loads repo-local agents and commands from `.cursor/agents/` and `.cursor/commands/`. These include `dd-review-templates` — use it (or type `/dd-review-templates`) to review and optionally fix the rules and skill templates for Datadog config correctness and doc alignment. This agent is not installed globally; it only runs in this repository.
+When working in the **d-scribe repo**, Cursor also loads repo-local agents and commands from `.cursor/agents/` and `.cursor/commands/`. These include `review-templates` — use it (or type `/review-templates`) to review and optionally fix the rules and skill templates for Datadog config correctness and doc alignment. This agent is not installed globally; it only runs in this repository.
 
 ## Repository Structure
 
@@ -128,8 +128,8 @@ d-scribe/
 │   ├── dd-narrator.md
 │   └── dd-terraform.md
 └── .cursor/            # Repo-local Cursor config (not installed by install.sh)
-    ├── agents/         # Toolkit-only agent: dd-review-templates
-    ├── commands/      # Toolkit-only command: /dd-review-templates
+    ├── agents/         # Toolkit-only agent: review-templates
+    ├── commands/      # Toolkit-only command: /review-templates
     └── rules/         # Repo conventions (toolkit-conventions, component-sync, etc.)
 ```
 
