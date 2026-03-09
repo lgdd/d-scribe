@@ -2,7 +2,7 @@
 
 Review the toolkit's rules and skill templates for Datadog configuration correctness, consistency with current docs, and drift. Use in the d-scribe repo after iterating on templates or before releasing.
 
-Delegate to the `dd-review-templates` subagent, which will:
+Delegate to the `review-templates` subagent, which will:
 
 1. Enumerate `rules/*.mdc` and `skills/dd-add-product/templates/`, `skills/dd-terraform/templates/`
 2. Check frontmatter, syntax, doc alignment, and consistency across files
