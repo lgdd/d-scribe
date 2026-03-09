@@ -17,6 +17,7 @@ datadog-agent:
     - DD_API_KEY=${DD_API_KEY}
     - DD_SITE=${DD_SITE}
     - DD_APM_ENABLED=true
+    - DD_APM_NON_LOCAL_TRAFFIC=true   # receive traces from other containers
     - DD_LOGS_ENABLED=true
     - DD_LOGS_CONFIG_CONTAINER_COLLECT_ALL=true
     - DD_PROCESS_AGENT_ENABLED=true
