@@ -61,7 +61,7 @@ services:
 
 - **Logs**: Set `DD_LOGS_INJECTION=true` for automatic trace-log correlation (see `dd-telemetry-correlation` rule)
 - **Profiler**: Set `DD_PROFILING_ENABLED=true` for code-level profiling linked to traces
-- **DBM**: Set `DD_DBM_PROPAGATION_MODE=full` for database query correlation
+- **DBM**: Set `DD_DBM_PROPAGATION_MODE=full` for database query correlation. When using a tracer that supports prepared-statement DBM tracing (see [Correlate DBM and Traces](https://docs.datadoghq.com/database_monitoring/connect_dbm_and_apm/) supported tracers table), also set `DD_DBM_TRACE_PREPARED_STATEMENTS=true` (e.g. Java dd-trace-java 1.44+ for Postgres).
 - **RUM**: Configure `allowedTracingUrls` in the RUM SDK to link browser sessions to backend traces
 
 ## Failure Scenarios
