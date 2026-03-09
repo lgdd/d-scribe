@@ -45,7 +45,7 @@ unlink_item() {
   fi
 }
 
-echo "${C_B}d-sect uninstaller${C_RST}"
+echo "${C_B}d-scribe uninstaller${C_RST}"
 echo "  ${TOOLKIT_DIR} -> ~/.cursor"
 echo ""
 

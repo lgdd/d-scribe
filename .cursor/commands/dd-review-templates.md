@@ -1,6 +1,6 @@
 # Review Datadog templates
 
-Review the toolkit's rules and skill templates for Datadog configuration correctness, consistency with current docs, and drift. Use in the d-sect repo after iterating on templates or before releasing.
+Review the toolkit's rules and skill templates for Datadog configuration correctness, consistency with current docs, and drift. Use in the d-scribe repo after iterating on templates or before releasing.
 
 Delegate to the `dd-review-templates` subagent, which will:
 
