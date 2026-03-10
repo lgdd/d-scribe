@@ -98,6 +98,8 @@ graph LR
 | `DD_API_KEY` | Your Datadog API key |
 | `DD_SITE` | Datadog site (e.g. `datadoghq.com`, `datadoghq.eu`) |
 
+`DD_ENV` is auto-generated during scaffolding using the `{project}-{YYMMDD}` convention and is already set in `.env.example`. You do not need to export it.
+
 ## Getting Started
 
 ```bash
