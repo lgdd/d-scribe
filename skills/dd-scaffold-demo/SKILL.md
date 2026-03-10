@@ -57,7 +57,11 @@ Copy all `.mdc` files from the toolkit's `rules/` directory into the new project
 Generate these files in order:
 
 1. `.gitignore` including `.env`, `node_modules/`, `__pycache__/`, `.venv/`, etc. — **must be created first**
-2. `.env.example` with placeholder values and comments explaining each variable — **must be created before `.env`** so it serves as the canonical variable manifest
+2. `.env.example` with placeholder values and comments explaining each variable — **must be created before `.env`** so it serves as the canonical variable manifest. Generate `DD_ENV` using the `{project}-{YYMMDD}` convention: slugify the project directory name to kebab-case and append today's date as `YYMMDD`. Example:
+   ```
+   # Unique demo environment — format: {project}-{YYMMDD}
+   DD_ENV=ecommerce-260310
+   ```
 3. `.env` — generated from `.env.example` using a shell command (see [dd-secrets-env rule](../../rules/dd-secrets-env.mdc)). Use `.env.example` as the template so every declared variable is present. Substitute host environment values for secrets; keep defaults for non-secret vars. Validate that `DD_API_KEY` and `DD_SITE` are non-empty; if missing, ask the SE to export them and re-run.
 4. `Makefile` — use the [Makefile template](templates/Makefile) as the starting point. It contains all canonical targets: `build`, `up`, `down`, `logs`, `smoke-test`, `traffic`, `clean`
 5. `README.md` — use the [README template](templates/README.md) as the starting point and fill in all `{{PLACEHOLDER}}` values. The README must include: project description, architecture diagram (Mermaid), services table (name, language/framework, address), **demo scenarios** (golden path steps and failure paths with triggers and Datadog signals), prerequisites, getting-started snippet, and Makefile targets table. When Keycloak is present, include the **Authentication** section with credentials, auth endpoints, and persona mappings; otherwise remove the `AUTH:START`/`AUTH:END` block
