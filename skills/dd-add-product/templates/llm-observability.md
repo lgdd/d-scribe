@@ -250,6 +250,6 @@ services:
 ## References
 
 - [LLM Observability Setup](https://docs.datadoghq.com/llm_observability/setup/)
-- [SDK Instrumentation](https://docs.datadoghq.com/llm_observability/instrumentation/sdk/)
-- [Auto-instrumentation](https://docs.datadoghq.com/llm_observability/auto_instrumentation/)
+- [SDK Instrumentation](https://docs.datadoghq.com/llm_observability/setup/sdk/)
+- [Auto-instrumentation](https://docs.datadoghq.com/llm_observability/setup/auto_instrumentation/)
 - [Terms and Concepts (Span Kinds)](https://docs.datadoghq.com/llm_observability/terms/)
