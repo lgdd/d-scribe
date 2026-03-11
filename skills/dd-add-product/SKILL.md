@@ -1,6 +1,6 @@
 ---
 name: dd-add-product
-description: Adds a Datadog product integration to an existing demo project. Use when the user asks to add APM, RUM, Log Management, SIEM, Profiler, DBM, LLM Observability, or any other DD product to an already-scaffolded demo.
+description: Adds a Datadog product integration to an existing demo project. Use when the user asks to add RUM, SIEM, Profiler, LLM Observability, or any other add-on DD product to an already-scaffolded demo.
 ---
 
 # Add Datadog Product to Demo
@@ -19,21 +19,30 @@ Follow the procedure in [_auto-update.md](../_auto-update.md).
    - Language/framework of each service
    - Which DD products are already configured
 
-## Supported Products
+## Products
+
+### Baseline (included by default)
+
+The following products are configured automatically by the deployment rules (`dd-docker-compose`, `dd-kubernetes`) when a demo is scaffolded. If an SE asks to "add" one of these, verify it is already present before making changes — it almost certainly is.
 
 - **Infrastructure Monitoring** — host/container metrics, live processes
-- **Log Management** — structured log collection and correlation
-- **Observability Pipelines** — install and configure the OPW worker
 - **Application Performance Monitoring** — distributed tracing
+- **Log Management** — structured log collection and correlation
+- **Database Monitoring** — query-level database insights (Postgres, MySQL, MongoDB)
+- **Workload Protection** — runtime threat detection
+
+### Add-on (use this skill)
+
+These products require additional Agent features, application-level changes, or new infrastructure beyond the baseline. Use this skill to layer them onto an existing demo.
+
+- **Observability Pipelines** — install and configure the OPW worker
 - **Real User Monitoring** — browser/mobile SDK (requires a frontend)
-- **Database Monitoring** — query-level database insights
 - **Continuous Profiler** — code-level performance profiling
 - **Data Streams Monitoring** — Kafka/RabbitMQ/SQS pipeline visibility
 - **Data Jobs Monitoring** — Spark/Airflow/dbt job observability
 - **Feature Flags** — feature flag tracking integration
 - **Cloud SIEM** — security event correlation (e.g. K8s Audit Logs, Nginx, Keycloak). If the demo already includes Keycloak (see `dd-auth-sso` rule), configure its log collection as a SIEM source — Keycloak auth events enable detection rules for brute force, impossible travel, and credential stuffing. If Keycloak is not present, consider adding it first via the identity provider topology extension to maximize SIEM demo value
 - **Code Security** — static and runtime analysis (SAST/SCA/IAST)
-- **Workload Protection** — runtime threat detection
 - **Cloud Network Monitoring** — aggregate traffic by meaningful entities
 - **LLM Observability** — automatic tracing of LLM calls (Python/Node.js: OpenAI, Anthropic, Bedrock, LangChain; Java: OpenAI). Requires `ddtrace` (Python), `dd-trace` (Node.js), or `dd-trace-java` (Java) with `LLMObs.enable()` or equivalent SDK setup. Auto-instrumentation alone produces flat LLM spans — add custom span kinds (workflow, agent, task, tool, retrieval) for the execution graph and flame graph
 
