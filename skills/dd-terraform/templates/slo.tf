@@ -25,10 +25,6 @@ resource "datadog_service_level_objective" "availability_{{SERVICE_NAME}}" {
     warning   = 99.95
   }
 
-  timeframe         = "30d"
-  target_threshold  = 99.9
-  warning_threshold = 99.95
-
   tags = ["env:${var.env}", "service:{{SERVICE_NAME}}", "team:${var.team}"]
 }
 
@@ -55,10 +51,6 @@ resource "datadog_service_level_objective" "latency_{{SERVICE_NAME}}" {
     target    = 99.0
     warning   = 99.5
   }
-
-  timeframe         = "30d"
-  target_threshold  = 99.0
-  warning_threshold = 99.5
 
   tags = ["env:${var.env}", "service:{{SERVICE_NAME}}", "team:${var.team}"]
 }

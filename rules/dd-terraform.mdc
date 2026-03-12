@@ -21,7 +21,7 @@ Keep one file per resource type inside the `terraform/` directory:
 
 ## Provider
 
-- Pin the `DataDog/datadog` provider with a `~>` constraint (e.g., `~> 3.46`). Provider v4.0.0 is available but includes breaking changes (removed `datadog_integration_aws`, changed `datadog_monitor` restricted_roles); use `~> 4.0` only for new projects that have reviewed the [upgrade guide](https://registry.terraform.io/providers/DataDog/datadog/latest/docs/guides/upgrade-to-v4)
+- Pin the `DataDog/datadog` provider to `~> 4.0`
 - Read `DD_API_KEY` and `DD_APP_KEY` from environment variables — never hardcode credentials
 - Derive `api_url` from `DD_SITE` to support all Datadog regions
 
