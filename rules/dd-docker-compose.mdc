@@ -69,12 +69,6 @@ labels:
 
 Every stack includes a PostgreSQL database with DBM enabled.
 
-Add the following to the Agent environment:
-
-```yaml
-- DD_DBM_ENABLED=true
-```
-
 The PostgreSQL container must:
 
 1. **Load `pg_stat_statements` at server start** — the extension must be in `shared_preload_libraries`; `CREATE EXTENSION` alone is not enough. Use a custom command:
@@ -166,8 +160,6 @@ Reference: [Setting Up DBM for self-hosted Postgres](https://docs.datadoghq.com/
 
 When a stack uses MySQL instead of or in addition to PostgreSQL, enable DBM for MySQL.
 
-Ensure `DD_DBM_ENABLED=true` is set in the Agent environment (same as for PostgreSQL).
-
 The MySQL container must:
 
 1. **Enable Performance Schema and configure query settings** via a custom config file mounted at `/etc/mysql/conf.d/`:
@@ -250,8 +242,6 @@ Reference: [Setting Up DBM for self-hosted MySQL](https://docs.datadoghq.com/dat
 ## MongoDB — Database Monitoring (DBM)
 
 When a stack uses MongoDB, enable DBM for MongoDB.
-
-Ensure `DD_DBM_ENABLED=true` is set in the Agent environment.
 
 The MongoDB container must:
 
