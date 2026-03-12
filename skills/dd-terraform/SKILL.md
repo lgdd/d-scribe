@@ -31,7 +31,11 @@ Do not rely on memorized HCL snippets — the provider evolves frequently.
 
 ### Step 3: Scaffold Terraform Directory
 
-Create the `terraform/` directory in the project root using the [provider template](templates/provider.tf) as a starting point:
+Create the `terraform/` directory in the project root using the templates as a starting point:
+
+- [templates/provider.tf](templates/provider.tf) — provider configuration and site-to-URL mapping
+- [templates/variables.tf](templates/variables.tf) — shared input variables aligned with Unified Service Tagging
+- [templates/outputs.tf](templates/outputs.tf) — resource URLs and IDs exposed after apply
 
 ```
 terraform/
@@ -44,7 +48,7 @@ terraform/
 ```
 
 `main.tf` must:
-- Pin the `DataDog/datadog` provider to `~> 3.46` or later
+- Pin the `DataDog/datadog` provider to `~> 4.0`
 - Read `DD_API_KEY` and `DD_APP_KEY` from environment variables (never hardcode)
 - Derive `api_url` from `DD_SITE` (default `datadoghq.com`)
 - Use local backend only — demos are ephemeral

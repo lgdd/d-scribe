@@ -4,7 +4,7 @@ terraform {
   required_providers {
     datadog = {
       source  = "DataDog/datadog"
-      version = "~> 3.46" # v4.0.0 available with breaking changes; upgrade only after reviewing the migration guide
+      version = "~> 4.0"
     }
   }
 }
