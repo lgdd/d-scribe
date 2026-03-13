@@ -1,0 +1,96 @@
+---
+description: PostgreSQL Database Monitoring (DBM) configuration for Docker Compose demo projects
+globs: "**/docker-compose*.y*ml"
+alwaysApply: false
+---
+
+# PostgreSQL — Database Monitoring (DBM)
+
+Every stack includes a PostgreSQL database with DBM enabled.
+
+The PostgreSQL container must:
+
+1. **Load `pg_stat_statements` at server start** — the extension must be in `shared_preload_libraries`; `CREATE EXTENSION` alone is not enough. Use a custom command:
+
+```yaml
+postgres:
+  image: postgres:16
+  command: ["postgres", "-c", "shared_preload_libraries=pg_stat_statements"]
+  # ... rest of service definition
+```
+
+After changing the command, recreate the container (restart is not enough): `docker compose up -d --force-recreate postgres`.
+
+2. **Create the `datadog` user, schema, extension, and EXPLAIN helper** via an init script mounted at `docker-entrypoint-initdb.d/`. Run this in the **same database** the application uses (e.g. the one set by `POSTGRES_DB`). If the app uses a non-default database, the Agent instance must set `dbname` to that database (see step 3).
+
+```sql
+CREATE USER datadog WITH PASSWORD 'datadog';
+GRANT pg_monitor TO datadog;
+-- Postgres 15+: required for schema/table access
+ALTER ROLE datadog INHERIT;
+
+CREATE SCHEMA IF NOT EXISTS datadog;
+GRANT USAGE ON SCHEMA datadog TO datadog;
+GRANT USAGE ON SCHEMA public TO datadog;
+
+CREATE EXTENSION IF NOT EXISTS pg_stat_statements;
+
+CREATE OR REPLACE FUNCTION datadog.explain_statement(
+   l_query TEXT,
+   OUT explain JSON
+)
+RETURNS SETOF JSON AS
+$$
+DECLARE
+  curs REFCURSOR;
+  plan JSON;
+BEGIN
+  SET TRANSACTION READ ONLY;
+  OPEN curs FOR EXECUTE pg_catalog.concat('EXPLAIN (FORMAT JSON) ', l_query);
+  FETCH curs INTO plan;
+  CLOSE curs;
+  RETURN QUERY SELECT plan;
+END;
+$$
+LANGUAGE 'plpgsql'
+RETURNS NULL ON NULL INPUT
+SECURITY DEFINER;
+```
+
+For an already-initialized database, run the same `CREATE SCHEMA`/`GRANT`/`CREATE OR REPLACE FUNCTION` in a migration script instead of re-running the full init.
+
+3. **Expose Autodiscovery labels** so the Agent auto-detects the integration. Set **`dbname`** to the database that has the extension and is used by the app (e.g. the value of `POSTGRES_DB`). If you omit `dbname`, the Agent connects to the default `postgres` database; if the extension and app data live in another database (e.g. `supermarket`), you will see errors like "pg_stat_statements is not created in database 'postgres'". Set **`collect_schemas`** to `true` for schema collection.
+
+```yaml
+postgres:
+  image: postgres:16
+  command: ["postgres", "-c", "shared_preload_libraries=pg_stat_statements"]
+  environment:
+    - POSTGRES_USER=app
+    - POSTGRES_PASSWORD=app
+    - POSTGRES_DB=app
+  volumes:
+    - ./scripts/postgres-init:/docker-entrypoint-initdb.d
+  labels:
+    com.datadoghq.tags.env: "${DD_ENV:-demo}"
+    com.datadoghq.tags.service: "postgres"
+    com.datadoghq.tags.version: "${DD_VERSION:-1.0.0}"
+    com.datadoghq.ad.check_names: '["postgres"]'
+    com.datadoghq.ad.init_configs: "[{}]"
+    com.datadoghq.ad.instances: >-
+      [{
+        "dbm": true,
+        "host": "%%host%%",
+        "port": 5432,
+        "username": "datadog",
+        "password": "datadog",
+        "dbname": "app",
+        "collect_schemas": {"enabled": true}
+      }]
+```
+
+Replace `"dbname": "app"` with the actual database name (e.g. `supermarket`) when it differs from `postgres`.
+
+For application services that connect to Postgres, configure APM/DBM correlation as described in the `dd-telemetry-correlation` rule (`DD_DBM_PROPAGATION_MODE=full`; when using a tracer that supports prepared-statement DBM tracing, also set `DD_DBM_TRACE_PREPARED_STATEMENTS=true`).
+
+Reference: [Setting Up DBM for self-hosted Postgres](https://docs.datadoghq.com/database_monitoring/setup_postgres/selfhosted/). If unavailable, follow the [documentation lookup procedure](../skills/_doc-lookup.md) to find the current page.

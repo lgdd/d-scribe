@@ -25,7 +25,7 @@ The installer symlinks skills, subagents, and commands into `~/.cursor/` so they
 
 ## What's Included
 
-### Rules (11 templates)
+### Rules (14 templates)
 
 Project-scoped guardrails copied into each demo project by the scaffold skill. Not installed globally.
 
@@ -40,6 +40,9 @@ Project-scoped guardrails copied into each demo project by the scaffold skill. N
 | `dd-telemetry-correlation` | docker-compose + service source | Correlation wiring for all signal pairs (Logs+Traces, DBM+Traces, RUM+Traces, Profiles+Traces) |
 | `dd-auth-sso` | docker-compose + api-gateway + keycloak | Keycloak OIDC identity provider, auth event logs for Cloud SIEM, RUM user identity |
 | `dd-docker-compose` | docker-compose files | Agent container config, service labels, networking, exclusions |
+| `dd-docker-compose-postgres` | docker-compose files | PostgreSQL DBM setup (user, extensions, Autodiscovery labels) |
+| `dd-docker-compose-mysql` | docker-compose files | MySQL DBM setup (Performance Schema, user, Autodiscovery labels) |
+| `dd-docker-compose-mongo` | docker-compose files | MongoDB DBM setup (monitoring user, Autodiscovery labels) |
 | `dd-kubernetes` | K8s manifests | DaemonSet/Helm Agent, pod annotations, audit logs, exclusions |
 | `dd-terraform` | `terraform/**` | Terraform conventions for Datadog dashboards, monitors, and SLOs |
 
