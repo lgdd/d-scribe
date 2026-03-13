@@ -47,30 +47,9 @@ You are a pre-demo readiness checker for Datadog demo projects. Your job is to v
 
 ### Phase 6: Telemetry Validation
 
-Wait 30 seconds after the smoke test for telemetry to propagate, then run the checks below using the service list and deployment config already gathered in Phase 1.
+Wait 30 seconds after the smoke test for telemetry to propagate, then delegate to the `dd-validate-telemetry` subagent for the full validation suite. Pass it the service list and deployment config gathered in Phase 1.
 
-**6a. Service registration** — Use `search_datadog_services` to verify each expected service appears in the Datadog service catalog.
-
-**6b. Logs** — For each service, use `search_datadog_logs` with `service:<name>` to confirm logs are flowing. Sample 2-3 logs to verify they are valid JSON with trace correlation fields (`dd.trace_id`, `dd.span_id`).
-
-**6c. Traces** — Use `search_datadog_spans` to find recent spans for each service. Find at least one multi-service trace and use `get_datadog_trace` to confirm the full topology.
-
-**6d. Database monitoring** (only if database services were detected in Phase 1):
-- Exec into the database container to verify the `datadog` user and required extensions/schemas
-- Use `search_datadog_metrics` with the appropriate `<db>.queries.*` filter
-- Run `docker exec datadog-agent agent status` and confirm the database check has no errors
-
-**6e. Correlation** — run each applicable sub-check:
-- **Log↔Trace** — pick a log with `dd.trace_id`, confirm the trace exists; pick a trace, confirm correlated logs exist
-- **Distributed trace integrity** — verify at least one trace spans 2+ services matching the expected topology
-- **Unified tagging** — compare `service`, `env`, `version` across a sampled log and span per service
-- **RUM↔Backend** (if frontend exists) — find a RUM event with a `trace_id` that resolves to a backend trace
-- **DBM↔Trace** (if databases exist) — check `DD_DBM_PROPAGATION_MODE` is set; find a database span with DBM metadata
-- **Profile↔Trace** — check `DD_PROFILING_ENABLED=true`; confirm `runtime.*` metrics are reported
-
-**6f. Infrastructure** — Use `search_datadog_metrics` for `docker.cpu.usage` or `kubernetes.cpu.usage.total`.
-
-If any check fails, provide a likely root cause and suggested fix. Refer to the `dd-validate-telemetry` subagent documentation for the full troubleshooting table.
+The `dd-validate-telemetry` agent is the single source of truth for all telemetry checks (service registration, logs, traces, DBM, correlation, and infrastructure metrics). See its documentation for the full check list and troubleshooting table.
 
 ### Phase 7: Report
 
