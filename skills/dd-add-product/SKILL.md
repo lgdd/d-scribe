@@ -54,16 +54,16 @@ Check if a product-specific template exists in [templates/](templates/) (e.g., `
 
 If no template exists for the requested product, proceed directly to Step 3.
 
-### Step 3: Consult Datadog Documentation
+### Step 3: Consult Datadog Documentation (When Needed)
 
-Look up the **current official Datadog documentation** for the requested product. Follow the [documentation lookup procedure](../_doc-lookup.md) to verify and supplement the template (if one was loaded) or to determine from scratch:
+Follow the [documentation lookup procedure](../_doc-lookup.md) for version-sensitive content — SDK versions, library names, API parameters, environment variables, and configuration for newer/less-stable products (LLM Observability, Data Streams Monitoring). When a doc lookup is needed, verify and supplement the template (if one was loaded) or determine from scratch:
 
 - Which Agent features or environment variables need to be enabled
 - Whether application-level changes are required (SDK, library, annotations)
 - Whether additional infrastructure is needed (e.g., audit log pipeline for SIEM)
 - Which languages/frameworks are supported for this product
 
-Do not rely on memorized or cached configuration snippets — Datadog products evolve frequently.
+**Skip doc lookup** for structural patterns (docker-compose shape, Makefile targets, Dockerfile structure), d-scribe conventions (topology, naming), and glue code (health endpoints, service wiring).
 
 ### Step 4: Assess Compatibility
 
@@ -91,9 +91,9 @@ After updating configuration, bring the project `README.md` in sync with the cha
 4. **Authentication section** — if Keycloak was just added, insert the Authentication section (credentials, auth endpoints, persona mappings) using the `AUTH:START`/`AUTH:END` block from the README template as a reference. If Keycloak was already present, leave the section unchanged
 5. **Prerequisites** — if the product requires new environment variables that the SE must export (e.g., `DD_APPLICATION_ID` for RUM, `OPENAI_API_KEY` for LLM Obs), add them to the Prerequisites variables table
 
-### Step 7: Preflight
+### Step 7: Preflight (Optional)
 
-After all changes are applied, run the `dd-demo-preflight` subagent to validate the project end-to-end (build, deploy, health checks, smoke test, telemetry validation, and teardown). Do not consider the addition complete until preflight passes or the SE acknowledges the failures.
+After all changes are applied, ask the SE if they want to run preflight validation. If they agree, run the `dd-demo-preflight` subagent to validate the project end-to-end (build, deploy, health checks, smoke test, telemetry validation, and teardown). If the SE declines, proceed to the post-addition checklist.
 
 ## Post-Addition Checklist
 
