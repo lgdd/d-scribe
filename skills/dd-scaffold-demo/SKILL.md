@@ -20,6 +20,19 @@ Gather the following from the SE (ask if not provided):
 3. **Datadog products** to include (default: APM, Logs, Infrastructure Monitoring, Database Monitoring, Redis integration). When the user mentions an AI app, LLM-powered service, or chatbot, include **LLM Observability**
 4. **Optional**: narrative context, audience, or specific use case
 
+### Step 1.5: Present Plan
+
+Before generating any files, present the SE with a summary of what will be scaffolded:
+
+- Project name and directory structure
+- Services (name, language/framework, role in topology)
+- Datadog products to configure (baseline + add-ons)
+- Deployment model (Docker Compose / Kubernetes / AWS)
+- Failure scenarios to include (magic values and triggers)
+- Optional components: Keycloak (auth/SIEM), LLM service, frontend
+
+**Wait for the SE to confirm before proceeding to Step 2.** This is a checkpoint — do not generate any files until the plan is approved. If the SE requests changes, update the plan and re-present.
+
 ## Scaffolding Workflow
 
 ### Step 2: Project Structure
@@ -76,11 +89,13 @@ For each service, generate:
 4. At least one business-logic endpoint
 5. Dockerfile with multi-stage build
 
-**Important**: Do not rely on memorized or cached instrumentation snippets. Before generating DD instrumentation code for any language/framework, consult the **current official Datadog documentation** to ensure library names, APIs, and configuration options are up to date. Follow the [documentation lookup procedure](../_doc-lookup.md) to look up:
+**When to consult Datadog documentation**: Follow the [documentation lookup procedure](../_doc-lookup.md) for version-sensitive content — tracing library names, SDK initialization, API parameters, environment variables, and configuration for newer/less-stable products (LLM Observability, Data Streams Monitoring). Look up:
 
 - The correct tracing library and initialization for the chosen language (start from the [Tracing Setup](https://docs.datadoghq.com/tracing/trace_collection/) page)
 - JSON logging setup with trace-log correlation (see `dd-logging` rule for format requirements; see also [Correlate Logs and Traces](https://docs.datadoghq.com/tracing/other_telemetry/connect_logs_and_traces/))
 - Any required environment variables or Agent configuration for the selected DD products
+
+**Skip doc lookup** for structural patterns (docker-compose shape, Makefile targets, Dockerfile structure, Locust boilerplate), d-scribe conventions (topology, failure scenarios, naming), and glue code (health endpoints, service wiring).
 
 ### Step 6: Wire Service Topology
 
@@ -110,9 +125,9 @@ Generate deployment config for the chosen model:
 - Generate `scripts/smoke-test.sh` that starts services, waits for health, makes one request, verifies success
 - Make traffic parameters configurable via environment variables (rate, latency) and task weights (failure scenario frequency)
 
-### Step 9: Preflight
+### Step 9: Preflight (Optional)
 
-After all files are generated, run the `dd-demo-preflight` subagent to validate the project end-to-end (build, deploy, health checks, smoke test, telemetry validation, and teardown). Do not consider scaffolding complete until preflight passes or the SE acknowledges the failures.
+After all files are generated, ask the SE if they want to run preflight validation. If they agree, run the `dd-demo-preflight` subagent to validate the project end-to-end (build, deploy, health checks, smoke test, telemetry validation, and teardown). If the SE declines, proceed to the post-scaffold checklist.
 
 ## Post-Scaffold Checklist
 

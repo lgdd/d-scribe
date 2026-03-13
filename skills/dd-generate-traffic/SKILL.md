@@ -41,7 +41,7 @@ Every traffic generator must include at minimum:
 - Each scenario gets its own Locust task with a descriptive name tag (e.g., `[retry-storm]`, `[timeout]`)
 - Failure frequency is controlled by task weights, not an error-rate coin flip
 
-Consult the [failure scenarios catalog](../../skills/dd-scaffold-demo/failure-scenarios.md) for the per-topology list of named scenarios, trigger values, and naming patterns. Adapt the scenarios to match the project's actual topology and endpoints.
+Use the failure scenarios already defined in the project's service code and README (established during scaffolding). Only consult the [failure scenarios catalog](../../skills/dd-scaffold-demo/failure-scenarios.md) if the project was not scaffolded by d-scribe or if failure scenarios are missing from the project. Adapt the scenarios to match the project's actual topology and endpoints.
 
 ### Step 4: Configure Parameters
 
@@ -96,9 +96,9 @@ The traffic service must be explicitly excluded from Datadog monitoring so it do
   - **Demo Scenarios — Failure Paths** — if the traffic generator introduces failure scenarios not already listed (e.g., burst spike causing saturation, error rate triggering alerts), add them as rows in the Failure Paths table with Trigger, Expected Behavior, and Datadog Signal
   - **Makefile Targets** — add the new traffic targets to the Makefile Targets table
 
-### Step 9: Preflight
+### Step 9: Preflight (Optional)
 
-After all changes are applied, run the `dd-demo-preflight` subagent to validate the project end-to-end (build, deploy, health checks, smoke test, telemetry validation, and teardown). Do not consider the traffic generator complete until preflight passes or the SE acknowledges the failures.
+After all changes are applied, ask the SE if they want to run preflight validation. If they agree, run the `dd-demo-preflight` subagent to validate the project end-to-end (build, deploy, health checks, smoke test, telemetry validation, and teardown). If the SE declines, proceed to the next step.
 
 ## Important
 

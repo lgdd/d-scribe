@@ -18,14 +18,14 @@ Follow the procedure in [_auto-update.md](../_auto-update.md).
 3. Determine the deployment model (Docker Compose / Kubernetes / AWS)
 4. Check if a `terraform/` directory already exists — if so, extend rather than overwrite
 
-### Step 2: Consult Datadog Documentation
+### Step 2: Consult Datadog Documentation (When Needed)
 
-Look up the **current Datadog Terraform provider documentation** to verify resource schemas, argument names, and version compatibility. Follow the [documentation lookup procedure](../_doc-lookup.md) using these starting points:
+Follow the [documentation lookup procedure](../_doc-lookup.md) for Terraform provider resource schemas, argument names, and version-sensitive configuration. Use these starting points when a lookup is needed:
 
 - [Terraform Integration](https://docs.datadoghq.com/integrations/terraform/)
 - [Terraform Provider Registry](https://registry.terraform.io/providers/DataDog/datadog/latest/docs)
 
-Do not rely on memorized HCL snippets — the provider evolves frequently.
+**Skip doc lookup** for structural patterns (directory layout, variable definitions, output wiring) and d-scribe conventions (UST variable naming, Makefile targets).
 
 ## Terraform Workflow
 
@@ -155,7 +155,6 @@ tf-destroy:
 1. Run `terraform init` in the `terraform/` directory to verify provider downloads correctly
 2. Run `terraform validate` to confirm HCL is syntactically correct
 3. Do **not** run `terraform apply` — the SE decides when to provision resources
-4. Run the `dd-demo-preflight` subagent for full project validation
 
 ## Post-Generation Checklist
 
