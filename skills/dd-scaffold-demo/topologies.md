@@ -24,6 +24,10 @@ The standard topology for most demos. Produces a clear service map with trace pr
   - **Trigger**: primary endpoint with entity ID `<prefix>-fail-500` (e.g., `sku-fail-500`, `shipment-fail-500`, `txn-fail-500`)
 - **Cascading Timeout**: `service-b` latency spikes to 30 s → `service-a` times out → `api-gateway` returns 504
   - **Trigger**: primary endpoint with parameter value `TIMEOUT_30S` in any free-text field
+- **Slow Query (Database)**: `service-b` executes a slow PostgreSQL query → elevated P99 latency visible in DBM and APM
+  - **Trigger**: primary read endpoint with entity ID `<prefix>-fail-dbslow`
+- **Cache Failure**: `service-b` Redis connection fails → fallback to direct DB lookup → degraded latency
+  - **Trigger**: primary read endpoint with entity ID `<prefix>-fail-cache`
 
 ---
 
@@ -45,7 +49,7 @@ Adds browser-based RUM telemetry. Use when demonstrating end-to-end user experie
 - **Frontend JS Error**: unhandled exception on detail page → visible in RUM Error Tracking
   - **Trigger**: navigate to entity with ID `<prefix>-fail-js` (e.g., click *Glitch Gadget*, *Broken Parcel*, *Error Invoice*)
 - **Slow API Degradation**: slow API response → visible in RUM Resource timing + APM trace waterfall
-  - **Trigger**: filter or search with a slow-path parameter (e.g., `category=slow`, `region=slow`)
+  - **Trigger**: filter or search with parameter value `SLOW_3S` (e.g., `category=SLOW_3S`, `region=SLOW_3S`)
 
 ---
 
@@ -98,10 +102,11 @@ Adds Keycloak as an OIDC identity provider. Use when demonstrating Cloud SIEM, a
 ### Additional Failure Scenarios
 
 - **Expired Token Cascade**: token expired → 401 cascade visible in traces and logs
-  - **Trigger**: log in as `expired@demo.test` (token TTL set to 1 s in realm export), or send `Authorization: Bearer EXPIRED_TOKEN_DEMO`
+  - **Trigger**: log in as `expired@demo.test` (token TTL set to 1 s in realm export)
 - **Brute-Force Login**: burst of failed-auth events → detectable via SIEM detection rules
   - **Trigger**: attempt login as `brute@demo.test` with wrong password 10× in a row
-- IdP latency spike → auth middleware slows all downstream requests
+- **IdP Latency Spike**: auth middleware blocks on slow token validation → all downstream requests delayed
+  - **Trigger**: log in as `slowauth@demo.test`
 
 ---
 
@@ -130,9 +135,9 @@ Adds an LLM-powered service. Use when demonstrating AI applications, chatbots, o
 ### Additional Failure Scenarios
 
 - **LLM Rate Limit**: LLM provider returns 429 → visible in LLM Obs traces and error tracking
-  - **Trigger**: `POST /api/chat` with `message: "RATELIMIT_TEST"`
+  - **Trigger**: `POST /api/chat` with `message: "RATELIMIT_429"`
 - **LLM Provider Timeout**: LLM provider timeout → cascading latency visible in APM trace waterfall
-  - **Trigger**: `POST /api/chat` with `message: "TIMEOUT_TEST"`
+  - **Trigger**: `POST /api/chat` with `message: "TIMEOUT_60S"`
 
 ---
 
