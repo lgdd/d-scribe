@@ -100,43 +100,6 @@ Preflight runs automatically at the end of each skill workflow (scaffolding, pro
 
 When working in the **d-scribe repo**, Cursor also loads repo-local agents and commands from `.cursor/agents/` and `.cursor/commands/`. These include `review-templates` — use it (or type `/review-templates`) to review and optionally fix the rules and skill templates for Datadog config correctness and doc alignment. This agent is not installed globally; it only runs in this repository.
 
-## Repository Structure
-
-```
-d-scribe/
-├── README.md
-├── install.sh
-├── uninstall.sh
-├── rules/              # Rule templates (copied into demo projects)
-├── skills/             # Skills (symlinked to ~/.cursor/skills/)
-│   ├── _auto-update.md # Shared auto-update procedure
-│   ├── _doc-lookup.md  # Shared documentation lookup procedure
-│   ├── dd-scaffold-demo/
-│   │   └── templates/  # Topologies, failure scenarios, Makefile, README
-│   ├── dd-add-product/
-│   │   └── templates/  # Per-product instrumentation templates (11)
-│   ├── dd-generate-traffic/
-│   ├── dd-demo-narrator/
-│   │   └── templates/  # Segments, Datadog views, runbook structure
-│   └── dd-terraform/
-│       └── templates/  # Provider, dashboard, monitor, SLO templates
-├── agents/             # Subagents (symlinked to ~/.cursor/agents/)
-│   ├── dd-validate-telemetry.md
-│   └── dd-demo-preflight.md
-├── commands/           # Commands (symlinked to ~/.cursor/commands/)
-│   ├── dd-scaffold.md
-│   ├── dd-validate.md
-│   ├── dd-preflight.md
-│   ├── dd-add-product.md
-│   ├── dd-traffic.md
-│   ├── dd-narrator.md
-│   └── dd-terraform.md
-└── .cursor/            # Repo-local Cursor config (not installed by install.sh)
-    ├── agents/         # Toolkit-only agent: review-templates
-    ├── commands/      # Toolkit-only command: /review-templates
-    └── rules/         # Repo conventions (toolkit-conventions, component-sync, etc.)
-```
-
 ## Uninstall
 
 ```bash
