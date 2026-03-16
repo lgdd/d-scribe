@@ -25,7 +25,7 @@ The installer symlinks skills, subagents, and commands into `~/.cursor/` so they
 
 ## What's Included
 
-### Rules (14 templates)
+### Rules (15 templates)
 
 Project-scoped guardrails copied into each demo project by the scaffold skill. Not installed globally.
 
@@ -44,6 +44,7 @@ Project-scoped guardrails copied into each demo project by the scaffold skill. N
 | `dd-docker-compose-mysql` | docker-compose files | MySQL DBM setup (Performance Schema, user, Autodiscovery labels) |
 | `dd-docker-compose-mongo` | docker-compose files | MongoDB DBM setup (monitoring user, Autodiscovery labels) |
 | `dd-kubernetes` | K8s manifests | DaemonSet/Helm Agent, pod annotations, audit logs, exclusions |
+| `dd-logging` | Services and source files | JSON-formatted application logging for Datadog log collection and trace correlation |
 | `dd-terraform` | `terraform/**` | Terraform conventions for Datadog dashboards, monitors, and SLOs |
 
 ### Skills (5)
