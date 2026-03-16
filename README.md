@@ -46,7 +46,7 @@ Project-scoped guardrails copied into each demo project by the scaffold skill. N
 | `dd-kubernetes` | K8s manifests | DaemonSet/Helm Agent, pod annotations, audit logs, exclusions |
 | `dd-terraform` | `terraform/**` | Terraform conventions for Datadog dashboards, monitors, and SLOs |
 
-### Skills (4)
+### Skills (5)
 
 Domain knowledge with supporting reference files. Installed to `~/.cursor/skills/`.
 
@@ -56,8 +56,9 @@ Domain knowledge with supporting reference files. Installed to `~/.cursor/skills
 | `dd-add-product` | "add RUM", "add SIEM" | Adds a DD product to an existing demo |
 | `dd-generate-traffic` | "generate traffic" | Creates Locust traffic service with named failure scenarios (excluded from DD monitoring) |
 | `dd-terraform` | "add Terraform" | Generates Terraform HCL for Datadog dashboards, monitors, and SLOs |
+| `dd-demo-narrator` | "generate runbook" | Generates a DEMO-RUNBOOK.md with talking points, DD UI nav, and failure playbooks |
 
-### Subagents (3)
+### Subagents (2)
 
 Context-isolated workflows. Installed to `~/.cursor/agents/`.
 
@@ -65,7 +66,6 @@ Context-isolated workflows. Installed to `~/.cursor/agents/`.
 |----------|---------|-------------|
 | `dd-validate-telemetry` | "validate telemetry" | Readonly check that telemetry is flowing — use on an already-running stack |
 | `dd-demo-preflight` | "preflight check" | Full build/deploy/test/validate cycle that always tears down after |
-| `dd-demo-narrator` | "generate runbook" | Generates a DEMO-RUNBOOK.md with talking points, DD UI nav, and failure playbooks |
 
 ### Commands (7)
 
@@ -111,17 +111,17 @@ d-scribe/
 │   ├── _auto-update.md # Shared auto-update procedure
 │   ├── _doc-lookup.md  # Shared documentation lookup procedure
 │   ├── dd-scaffold-demo/
-│   │   ├── topologies.md        # Reference topology diagrams
-│   │   └── failure-scenarios.md # Deterministic failure trigger catalog
+│   │   └── templates/  # Topologies, failure scenarios, Makefile, README
 │   ├── dd-add-product/
-│   │   └── templates/  # Per-product reference templates
+│   │   └── templates/  # Per-product instrumentation templates (11)
 │   ├── dd-generate-traffic/
+│   ├── dd-demo-narrator/
+│   │   └── templates/  # Segments, Datadog views, runbook structure
 │   └── dd-terraform/
 │       └── templates/  # Provider, dashboard, monitor, SLO templates
 ├── agents/             # Subagents (symlinked to ~/.cursor/agents/)
 │   ├── dd-validate-telemetry.md
-│   ├── dd-demo-preflight.md
-│   └── dd-demo-narrator.md
+│   └── dd-demo-preflight.md
 ├── commands/           # Commands (symlinked to ~/.cursor/commands/)
 │   ├── dd-scaffold.md
 │   ├── dd-validate.md
