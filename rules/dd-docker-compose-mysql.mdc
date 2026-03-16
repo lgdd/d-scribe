@@ -28,9 +28,11 @@ performance-schema-consumer-events-statements-history = ON
 
 ```sql
 CREATE USER datadog@'%' IDENTIFIED BY 'datadog';
+ALTER USER datadog@'%' WITH MAX_USER_CONNECTIONS 5;
 GRANT REPLICATION CLIENT ON *.* TO datadog@'%';
 GRANT PROCESS ON *.* TO datadog@'%';
 GRANT SELECT ON performance_schema.* TO datadog@'%';
+GRANT SELECT ON mysql.innodb_index_stats TO datadog@'%';
 CREATE SCHEMA IF NOT EXISTS datadog;
 GRANT EXECUTE ON datadog.* TO datadog@'%';
 
