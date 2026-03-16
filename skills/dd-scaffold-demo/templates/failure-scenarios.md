@@ -42,7 +42,9 @@ When the scaffold skill generates service code, each service must:
 
 The scenarios below use generic endpoint names (`/api/<resource>`) and entity-ID placeholders (`<id>-fail-*`). The scaffold skill adapts these to the demo's domain — for example, `/api/orders` with `product_id` for e-commerce, `/api/shipments` with `shipment_id` for logistics, `/api/transactions` with `txn_id` for fintech.
 
-### Default: API Gateway + 2 Services
+### Backend-Only / Default Base Scenarios
+
+These scenarios apply to all topologies that include backend services (i.e., all topologies).
 
 #### Retry Storm
 
@@ -76,7 +78,9 @@ The scenarios below use generic endpoint names (`/api/<resource>`) and entity-ID
 - **Datadog signals**: long PostgreSQL span in APM trace waterfall, slow query visible in Database Monitoring (DBM), elevated P99 latency on `service-b`
 - **Locust task**: `slow_query` · default weight **1**
 
-#### Cache Failure
+#### Cache Failure (requires Redis)
+
+Only include when Redis is part of the topology.
 
 - **Trigger**: primary read endpoint with entity ID `<prefix>-fail-cache`
 - **Human action**: view the item whose name hints at a cache problem (e.g., *Uncached Widget*, *Cold Parcel*, *Miss Record*)
@@ -86,9 +90,9 @@ The scenarios below use generic endpoint names (`/api/<resource>`) and entity-ID
 
 ---
 
-### Extended: With Frontend (RUM + APM)
+### Default: Frontend (RUM + APM)
 
-Inherits all Default scenarios, plus:
+Inherits all backend-only base scenarios, plus:
 
 #### Frontend JavaScript Error
 
@@ -110,7 +114,7 @@ Inherits all Default scenarios, plus:
 
 ### Extended: With Worker (Async Traces)
 
-Inherits all Default scenarios, plus:
+Inherits all base scenarios, plus:
 
 #### Poison Message
 
@@ -132,7 +136,7 @@ Inherits all Default scenarios, plus:
 
 ### Extended: With Identity Provider (Auth + SIEM)
 
-Inherits all Default scenarios, plus:
+Inherits all base scenarios, plus:
 
 #### Expired Token Cascade
 
@@ -162,7 +166,7 @@ Inherits all Default scenarios, plus:
 
 ### Extended: With LLM Service (AI / LLM Observability)
 
-Inherits all Default scenarios, plus:
+Inherits all base scenarios, plus:
 
 #### LLM Rate Limit
 
@@ -196,18 +200,18 @@ Each failure scenario's Locust task should:
 
 ## Quick Reference
 
-| Scenario              | Topology     | Trigger Value              | Expected Status | Locust Task              |
-| --------------------- | ------------ | -------------------------- | --------------- | ------------------------ |
-| Retry Storm           | Default      | `<prefix>-fail-500`        | 500             | `retry_storm`            |
-| Cascading Timeout     | Default      | `TIMEOUT_30S`              | 504             | `cascading_timeout`      |
-| Slow Query (Database) | Default      | `<prefix>-fail-dbslow`     | 200 (slow)      | `slow_query`             |
-| Cache Failure         | Default      | `<prefix>-fail-cache`      | 200 (slow)      | `cache_failure`          |
-| Frontend JS Error     | Frontend     | `<prefix>-fail-js`         | N/A (client)    | N/A                      |
-| Slow API Degradation  | Frontend     | `SLOW_3S`                  | 200 (slow)      | `slow_api_degradation`   |
-| Poison Message        | Worker       | `<prefix>-fail-poison`     | 202             | `poison_message`         |
-| Queue Backlog         | Worker       | `9999`                     | 202             | `queue_backlog`          |
-| Expired Token Cascade | Auth + SIEM  | `expired@demo.test`        | 401             | `expired_token`          |
-| Brute-Force Login     | Auth + SIEM  | `brute@demo.test`          | 401 → 403       | `brute_force_login`      |
-| IdP Latency Spike     | Auth + SIEM  | `slowauth@demo.test`       | 200 (slow)      | `idp_latency_spike`      |
-| LLM Rate Limit        | LLM          | `RATELIMIT_429`            | 429             | `llm_rate_limit`         |
-| LLM Provider Timeout  | LLM          | `TIMEOUT_60S`              | 504             | `llm_provider_timeout`   |
+| Scenario              | Topology        | Trigger Value              | Expected Status | Locust Task              |
+| --------------------- | --------------- | -------------------------- | --------------- | ------------------------ |
+| Retry Storm           | Base            | `<prefix>-fail-500`        | 500             | `retry_storm`            |
+| Cascading Timeout     | Base            | `TIMEOUT_30S`              | 504             | `cascading_timeout`      |
+| Slow Query (Database) | Base            | `<prefix>-fail-dbslow`     | 200 (slow)      | `slow_query`             |
+| Cache Failure         | Base + Redis    | `<prefix>-fail-cache`      | 200 (slow)      | `cache_failure`          |
+| Frontend JS Error     | Frontend        | `<prefix>-fail-js`         | N/A (client)    | N/A                      |
+| Slow API Degradation  | Frontend        | `SLOW_3S`                  | 200 (slow)      | `slow_api_degradation`   |
+| Poison Message        | Worker          | `<prefix>-fail-poison`     | 202             | `poison_message`         |
+| Queue Backlog         | Worker          | `9999`                     | 202             | `queue_backlog`          |
+| Expired Token Cascade | Auth + SIEM     | `expired@demo.test`        | 401             | `expired_token`          |
+| Brute-Force Login     | Auth + SIEM     | `brute@demo.test`          | 401 → 403       | `brute_force_login`      |
+| IdP Latency Spike     | Auth + SIEM     | `slowauth@demo.test`       | 200 (slow)      | `idp_latency_spike`      |
+| LLM Rate Limit        | LLM             | `RATELIMIT_429`            | 429             | `llm_rate_limit`         |
+| LLM Provider Timeout  | LLM             | `TIMEOUT_60S`              | 504             | `llm_provider_timeout`   |

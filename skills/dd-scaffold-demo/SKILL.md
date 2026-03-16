@@ -17,8 +17,9 @@ Gather the following from the SE (ask if not provided):
 
 1. **Language/framework** for services (e.g., Python/Flask, Go/Gin, Node/Express, Java/Spring Boot)
 2. **Deployment model**: Docker Compose (default), Kubernetes, or AWS
-3. **Datadog products** to include (default: APM, Logs, Infrastructure Monitoring, Database Monitoring, Redis integration). When the user mentions an AI app, LLM-powered service, or chatbot, include **LLM Observability**
-4. **Optional**: narrative context, audience, or specific use case
+3. **Datadog products** to include (default: RUM, APM, Logs, Infrastructure Monitoring, Database Monitoring). Optional add-ons: Redis integration, LLM Observability (when the user mentions an AI app, LLM-powered service, or chatbot), Cloud SIEM (when the user mentions authentication or security)
+4. **Topology**: Frontend + 2 backend services (default), backend-only, or minimal — see [templates/topologies.md](templates/topologies.md)
+5. **Optional**: narrative context, audience, or specific use case
 
 ### Step 1.5: Present Plan
 
@@ -29,105 +30,81 @@ Before generating any files, present the SE with a summary of what will be scaff
 - Datadog products to configure (baseline + add-ons)
 - Deployment model (Docker Compose / Kubernetes / AWS)
 - Failure scenarios to include (magic values and triggers)
-- Optional components: Keycloak (auth/SIEM), LLM service, frontend
+- Optional components: Redis cache, Keycloak (auth/SIEM), LLM service, worker
 
-**Wait for the SE to confirm before proceeding to Step 2.** This is a checkpoint — do not generate any files until the plan is approved. If the SE requests changes, update the plan and re-present.
+**Wait for the SE to confirm before proceeding.** Do not generate any files until the plan is approved.
 
 ## Scaffolding Workflow
 
-### Step 2: Project Structure
+### Step 2: Load Reference Documents
 
-Create the project root with:
+Load the documents needed for this scaffold:
+
+1. **Always**: [templates/topologies.md](templates/topologies.md) — topology diagrams, service roles, wiring rules
+2. **Always**: [templates/failure-scenarios.md](templates/failure-scenarios.md) — magic-value triggers and Locust task specs
+3. **If Docker Compose**: the `dd-docker-compose` rule
+4. **If Kubernetes**: the `dd-kubernetes` rule
+
+### Step 3: Project Structure
+
+Create the project root — the default topology includes a `frontend/` directory:
 
 ```
 <project-name>/
-├── .cursor/rules/          # Copy rule templates from toolkit
-├── .env.example
-├── .gitignore
+├── .cursor/rules/          # Copied from toolkit
+├── .env.example / .env / .gitignore
 ├── docker-compose.yml      # Or k8s/ directory
-├── Makefile
-├── README.md
+├── Makefile / README.md
+├── frontend/               # RUM-instrumented SPA (default topology)
 ├── services/
 │   ├── api-gateway/
 │   ├── service-a/
-│   ├── service-b/
-│   └── worker/             # Optional
-├── frontend/               # Optional
-├── keycloak/               # Optional — OIDC identity provider
-│   └── realm-export.json
+│   └── service-b/
 ├── traffic/
-│   └── locustfile.py       # Locust traffic generator
+│   └── locustfile.py
 └── scripts/
     └── smoke-test.sh
 ```
 
-### Step 3: Copy Rule Templates
+Add optional directories per topology: `keycloak/` (auth/SIEM), `worker/` (async), `llm-service/` (AI).
 
-Copy all `.mdc` files from the toolkit's `rules/` directory into the new project's `.cursor/rules/`. The toolkit is located at the path stored in the skill's installation source (the symlink target of `~/.cursor/skills/dd-scaffold-demo/`). Navigate up two levels from the SKILL.md location to find the `rules/` directory.
+### Step 4: Copy Rule Templates
 
-### Step 4: Generate Core Files
+Copy all `.mdc` files from the toolkit's `rules/` directory into `.cursor/rules/`. Navigate up two levels from this SKILL.md to find `rules/`.
 
-Generate these files in order:
+### Step 5: Generate Core Files
 
-1. `.gitignore` including `.env`, `node_modules/`, `__pycache__/`, `.venv/`, etc. — **must be created first**
-2. `.env.example` with placeholder values and comments explaining each variable — **must be created before `.env`** so it serves as the canonical variable manifest. Generate `DD_ENV` using the `{project}-{YYMMDD}` convention: slugify the project directory name to kebab-case and append today's date as `YYMMDD`. Example:
-   ```
-   # Unique demo environment — format: {project}-{YYMMDD}
-   DD_ENV=ecommerce-260310
-   ```
-3. `.env` — generated from `.env.example` using a shell command (see [dd-secrets-env rule](../../rules/dd-secrets-env.mdc)). Use `.env.example` as the template so every declared variable is present. Substitute host environment values for secrets; keep defaults for non-secret vars. Validate that `DD_API_KEY` and `DD_SITE` are non-empty; if missing, ask the SE to export them and re-run.
-4. `Makefile` — use the [Makefile template](templates/Makefile) as the starting point. It contains all canonical targets: `build`, `up`, `down`, `logs`, `smoke-test`, `traffic`, `clean`
-5. `README.md` — use the [README template](templates/README.md) as the starting point and fill in all `{{PLACEHOLDER}}` values. The README must include: project description, architecture diagram (Mermaid), services table (name, language/framework, address), **demo scenarios** (golden path steps and failure paths with triggers and Datadog signals), prerequisites, getting-started snippet, and Makefile targets table. When Keycloak is present, include the **Authentication** section with credentials, auth endpoints, and persona mappings; otherwise remove the `AUTH:START`/`AUTH:END` block
+Generate in order:
 
-### Step 5: Scaffold Services
+1. `.gitignore` — **must be created first**
+2. `.env.example` with `DD_ENV` using `{project}-{YYMMDD}` convention (see `dd-secrets-env` rule)
+3. `.env` — from `.env.example` via shell command (see `dd-secrets-env` rule). Validate `DD_API_KEY` and `DD_SITE` are non-empty
+4. `Makefile` — from [templates/Makefile](templates/Makefile)
+5. `README.md` — from [templates/README.md](templates/README.md), fill all `{{PLACEHOLDER}}` values. Include architecture diagram, services table, demo scenarios, prerequisites, getting-started, Makefile targets. Include/remove the `AUTH:START`/`AUTH:END` block based on Keycloak presence
 
-For each service, generate:
+### Step 6: Scaffold Services
 
-1. Application code with a health endpoint (`/health` or `/healthz`)
-2. DD tracer initialization (language-appropriate)
-3. JSON-formatted logging to stdout (see the `dd-logging` rule)
-4. At least one business-logic endpoint
-5. Dockerfile with multi-stage build
+For each service, generate: application code with `/health` endpoint, DD tracer init, JSON logging to stdout (see `dd-logging` rule), business-logic endpoints, and Dockerfile with multi-stage build.
 
-**When to consult Datadog documentation**: Follow the [documentation lookup procedure](../_doc-lookup.md) for version-sensitive content — tracing library names, SDK initialization, API parameters, environment variables, and configuration for newer/less-stable products (LLM Observability, Data Streams Monitoring). Look up:
+**Consult Datadog documentation** via [_doc-lookup.md](../_doc-lookup.md) for version-sensitive content: tracing library names/init, JSON logging with trace-log correlation, environment variables for selected DD products. **Skip doc lookup** for structural patterns, d-scribe conventions, and glue code.
 
-- The correct tracing library and initialization for the chosen language (start from the [Tracing Setup](https://docs.datadoghq.com/tracing/trace_collection/) page)
-- JSON logging setup with trace-log correlation (see `dd-logging` rule for format requirements; see also [Correlate Logs and Traces](https://docs.datadoghq.com/tracing/other_telemetry/connect_logs_and_traces/))
-- Any required environment variables or Agent configuration for the selected DD products
+### Step 7: Wire Topology & Failure Scenarios
 
-**Skip doc lookup** for structural patterns (docker-compose shape, Makefile targets, Dockerfile structure, Locust boilerplate), d-scribe conventions (topology, failure scenarios, naming), and glue code (health endpoints, service wiring).
+Wire services per the topology loaded in Step 2. Include one **golden path** and at least one **failure scenario** using deterministic magic-value triggers from the failure scenarios catalog. When a frontend exists, magic entities must appear in the UI.
 
-### Step 6: Wire Service Topology
-
-Use the reference topology from [topologies.md](topologies.md):
-
-- `api-gateway` routes to `service-a`
-- `service-a` calls `service-b`
-- `service-b` reads/writes **PostgreSQL** and uses **Redis** as a cache
-- **Database Monitoring** and the **Redis integration** are always enabled — see the `dd-docker-compose` rule for Agent and container configuration
-- When the SE requests authentication, user sessions, or Cloud SIEM: add **Keycloak** as the identity provider — see the `dd-auth-sso` rule and the identity provider topology in [topologies.md](topologies.md)
-- When the SE requests an AI app, LLM-powered service, or chatbot: add an **LLM service** calling an LLM provider — see the AI/LLM topology in [topologies.md](topologies.md)
-- Include one **golden path** (successful end-to-end request)
-- Include at least one **failure scenario** using a deterministic magic-value trigger from the [failure scenarios catalog](failure-scenarios.md). Each failure must be activated by a specific business input (product ID, coupon code, email) — never random probability or debug headers. When a frontend exists, magic products or coupons must appear in the UI so the demoer can trigger failures by clicking or typing
-
-### Step 7: Deployment Configuration
-
-Generate deployment config for the chosen model:
+### Step 8: Deployment Configuration
 
 - **Docker Compose**: follow the `dd-docker-compose` rule
 - **Kubernetes**: follow the `dd-kubernetes` rule
 - **AWS**: generate Terraform or CloudFormation with project-managed Agent
 
-### Step 8: Traffic & Smoke Test
+### Step 9: Traffic & Smoke Test
 
-- Generate a Locust traffic generator in `traffic/locustfile.py` using the `dd-generate-traffic` skill
-- Add a `traffic` service to the deployment config (Docker Compose or K8s) that runs Locust in headless mode alongside the application stack — the traffic service must be excluded from Datadog monitoring (see the `dd-generate-traffic` skill templates for the exact configuration)
-- Generate `scripts/smoke-test.sh` that starts services, waits for health, makes one request, verifies success
-- Make traffic parameters configurable via environment variables (rate, latency) and task weights (failure scenario frequency)
+Generate a Locust traffic generator using the `dd-generate-traffic` skill. Add a `traffic` service excluded from DD monitoring. Generate `scripts/smoke-test.sh`.
 
-### Step 9: Preflight (Optional)
+### Step 10: Preflight (Optional)
 
-After all files are generated, ask the SE if they want to run preflight validation. If they agree, run the `dd-demo-preflight` subagent to validate the project end-to-end (build, deploy, health checks, smoke test, telemetry validation, and teardown). If the SE declines, proceed to the post-scaffold checklist.
+Ask the SE if they want to run preflight validation via the `dd-demo-preflight` subagent.
 
 ## Post-Scaffold Checklist
 
@@ -135,12 +112,12 @@ After all files are generated, ask the SE if they want to run preflight validati
 - [ ] `.env.example` contains all required DD variables
 - [ ] `.env` is in `.gitignore`
 - [ ] At least one golden path and one failure path exist
-- [ ] Each failure scenario uses a deterministic trigger (magic value), not random probability
-- [ ] README documents demo scenarios (golden path steps, failure paths with triggers, reproduction steps, and Datadog signals)
-- [ ] If Keycloak is present: README includes credentials, auth endpoints, and persona mappings
+- [ ] Each failure scenario uses a deterministic trigger (magic value)
+- [ ] README documents demo scenarios with triggers and Datadog signals
+- [ ] If Keycloak: README includes credentials and auth endpoints
 - [ ] All services build successfully
 - [ ] `make up` starts the full stack including DD Agent
 - [ ] Traffic generator is functional
 - [ ] DBM is enabled for PostgreSQL
-- [ ] Redis integration is enabled
-- [ ] README contains architecture diagram, services table, demo scenarios, and Makefile targets
+- [ ] If Redis included: Redis integration is enabled
+- [ ] README contains architecture diagram, services table, and Makefile targets

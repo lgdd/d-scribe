@@ -1,22 +1,50 @@
 # Reference Topologies
 
-All topologies include **PostgreSQL** (database — enables DBM) and **Redis** (cache — enables the Redis integration) as backing dependencies.
+All topologies include **PostgreSQL** (database — enables DBM). **Redis** (cache) is optional — include it when the SE requests caching, the Redis integration, or cache-failure demo scenarios.
 
-## Default: API Gateway + 2 Services
+## Default: Frontend + API Gateway + 2 Services
 
-The standard topology for most demos. Produces a clear service map with trace propagation across 3 services.
+The standard topology for most demos. Produces end-to-end RUM-to-APM correlation with trace propagation across a frontend and 3 backend services.
+
+```
+[Browser/RUM] → [frontend] → [api-gateway] → [service-a] → [service-b] → [PostgreSQL]
+                                                                  ↓
+                                                               [Redis]  ← optional
+```
+
+- **frontend**: Static SPA or SSR app instrumented with DD RUM SDK — traffic flows through the frontend for end-to-end trace correlation (RUM → APM)
+- **api-gateway**: HTTP routing, auth simulation, trace root
+- **service-a**: Core business logic (e.g., order processing, user management)
+- **service-b**: Downstream data service (e.g., inventory lookup, notification dispatch)
+- **PostgreSQL**: Primary database — visible in traces and Database Monitoring
+- **Redis** (optional): Cache layer — visible in traces via the Redis integration
+
+### Failure Scenarios
+
+Inherits all backend-only scenarios (retry storm, cascading timeout, slow query, cache failure if Redis present), plus:
+
+- **Frontend JS Error**: unhandled exception on detail page → visible in RUM Error Tracking
+  - **Trigger**: navigate to entity with ID `<prefix>-fail-js` (e.g., click *Glitch Gadget*, *Broken Parcel*, *Error Invoice*)
+- **Slow API Degradation**: slow API response → visible in RUM Resource timing + APM trace waterfall
+  - **Trigger**: filter or search with parameter value `SLOW_3S` (e.g., `category=SLOW_3S`, `region=SLOW_3S`)
+
+---
+
+## Backend-Only: API Gateway + 2 Services
+
+Use when a frontend is not needed. Produces a clear service map with trace propagation across 3 services.
 
 ```
 [Client] → [api-gateway] → [service-a] → [service-b] → [PostgreSQL]
                                                 ↓
-                                             [Redis]
+                                             [Redis]  ← optional
 ```
 
 - **api-gateway**: HTTP routing, auth simulation, trace root
 - **service-a**: Core business logic (e.g., order processing, user management)
 - **service-b**: Downstream data service (e.g., inventory lookup, notification dispatch)
 - **PostgreSQL**: Primary database — visible in traces and Database Monitoring
-- **Redis**: Cache layer — visible in traces via the Redis integration
+- **Redis** (optional): Cache layer — visible in traces via the Redis integration
 
 ### Failure Scenarios
 
@@ -26,30 +54,8 @@ The standard topology for most demos. Produces a clear service map with trace pr
   - **Trigger**: primary endpoint with parameter value `TIMEOUT_30S` in any free-text field
 - **Slow Query (Database)**: `service-b` executes a slow PostgreSQL query → elevated P99 latency visible in DBM and APM
   - **Trigger**: primary read endpoint with entity ID `<prefix>-fail-dbslow`
-- **Cache Failure**: `service-b` Redis connection fails → fallback to direct DB lookup → degraded latency
+- **Cache Failure** (requires Redis): `service-b` Redis connection fails → fallback to direct DB lookup → degraded latency
   - **Trigger**: primary read endpoint with entity ID `<prefix>-fail-cache`
-
----
-
-## Extended: With Frontend (RUM + APM)
-
-Adds browser-based RUM telemetry. Use when demonstrating end-to-end user experience monitoring.
-
-```
-[Browser/RUM] → [frontend] → [api-gateway] → [service-a] → [service-b] → [PostgreSQL]
-                                                                  ↓
-                                                               [Redis]
-```
-
-- **frontend**: Static SPA or SSR app instrumented with DD RUM SDK
-- Traffic should flow through the frontend for end-to-end trace correlation (RUM → APM)
-
-### Additional Failure Scenarios
-
-- **Frontend JS Error**: unhandled exception on detail page → visible in RUM Error Tracking
-  - **Trigger**: navigate to entity with ID `<prefix>-fail-js` (e.g., click *Glitch Gadget*, *Broken Parcel*, *Error Invoice*)
-- **Slow API Degradation**: slow API response → visible in RUM Resource timing + APM trace waterfall
-  - **Trigger**: filter or search with parameter value `SLOW_3S` (e.g., `category=SLOW_3S`, `region=SLOW_3S`)
 
 ---
 
@@ -62,7 +68,7 @@ Adds asynchronous processing. Use when demonstrating queue-based architectures, 
                      ↓
                [service-b] → [PostgreSQL]
                      ↓
-                  [Redis]
+                  [Redis]  ← optional
 ```
 
 - **worker**: Consumes messages from the queue, processes asynchronously
@@ -84,7 +90,7 @@ Adds Keycloak as an OIDC identity provider. Use when demonstrating Cloud SIEM, a
 ```
 [Browser/RUM] → [frontend] → [api-gateway] → [service-a] → [service-b] → [PostgreSQL]
                                     ↕                                ↓
-                               [Keycloak]                         [Redis]
+                               [Keycloak]                         [Redis]  ← optional
 ```
 
 - **Keycloak**: OIDC provider — issues JWTs, produces structured security event logs (login, logout, failed attempts)
@@ -119,7 +125,7 @@ Adds an LLM-powered service. Use when demonstrating AI applications, chatbots, o
                                  ↓
                             [PostgreSQL]
                                  ↓
-                              [Redis]
+                              [Redis]  ← optional
 ```
 
 - **llm-service**: Application that calls an LLM provider (via OpenAI SDK, Anthropic SDK, Bedrock SDK, or LangChain). Instrumented with `ddtrace` LLM Observability (`LLMObs.enable()` or equivalent)
@@ -148,20 +154,20 @@ Use for quick, focused demos where a smaller topology is sufficient.
 ```
 [service-a] → [service-b] → [PostgreSQL]
                     ↓
-                 [Redis]
+                 [Redis]  ← optional
 ```
 
 - Omit `api-gateway` — `service-a` acts as both entry point and business logic
-- Still meets the minimum architecture requirement (2 services + PostgreSQL + Redis)
+- Still meets the minimum architecture requirement (2 services + PostgreSQL)
 
 ---
 
 ## Topology Selection Guide
 
-- **Standard demo**: Default (gateway + 2 services)
-- **RUM / frontend focus**: Extended with frontend
+- **Standard demo**: Default (frontend + gateway + 2 services)
+- **No frontend needed**: Backend-only (gateway + 2 services)
 - **Event-driven / async**: Extended with worker
 - **Auth / SIEM / user identity**: Extended with identity provider (Keycloak)
 - **AI / LLM focus**: Extended with LLM service
 - **Quick proof-of-concept**: Minimal (2 services)
-- **Full platform showcase**: Extended with frontend + identity provider + worker (all components)
+- **Full platform showcase**: Default + identity provider + worker (all components)
