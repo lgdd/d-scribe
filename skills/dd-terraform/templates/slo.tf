@@ -29,6 +29,9 @@ resource "datadog_service_level_objective" "availability_{{SERVICE_NAME}}" {
 }
 
 # --- Latency SLO --------------------------------------------------------------
+# NOTE: The metric below requires APM percentile metrics to be enabled.
+# If percentile metrics are not available, switch to a monitor-based SLO
+# using a latency monitor as the source instead.
 
 resource "datadog_service_level_objective" "latency_{{SERVICE_NAME}}" {
   name        = "[${var.project_name}] {{SERVICE_NAME}} Latency (p95 < 500ms)"
