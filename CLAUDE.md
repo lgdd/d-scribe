@@ -16,7 +16,7 @@ There are no package managers, build scripts, test frameworks, or linters. Do no
 
 All commits use **Conventional Commits 1.0.0**: `<type>(<scope>): <description>`
 
-Types: `feat`, `fix`, `docs`, `style`, `refactor`, `chore`, `ci`, `test`, `perf`, `revert`. Description is lowercase, imperative mood, no trailing period, under 72 chars. Common scopes: `skills`, `agents`, `rules`, `commands`, `install`.
+Types: `feat`, `fix`, `docs`, `style`, `refactor`, `chore`, `ci`, `test`, `perf`, `revert`. Description is lowercase, imperative mood, no trailing period, under 72 chars. Common scopes: `skills`, `agents`, `rules`, `commands`, `install`. Use `!` after type/scope for breaking changes (e.g., `feat!: remove v1 API`, `refactor(rules)!: rename frontmatter fields`).
 
 ## Architecture
 
@@ -30,6 +30,37 @@ Types: `feat`, `fix`, `docs`, `style`, `refactor`, `chore`, `ci`, `test`, `perf`
 | **Agents**   | `agents/<name>.md`       | Single `.md` with YAML frontmatter (`name`, `description`, `model`, optional `readonly`)        | Symlinked to `~/.cursor/agents/`                                                |
 | **Commands** | `commands/<name>.md`     | Single `.md`, **no frontmatter**, under 20 lines, delegates to a skill or agent                 | Symlinked to `~/.cursor/commands/`                                              |
 
+
+### Frontmatter Schemas
+
+**Rules** (`rules/*.mdc`):
+```yaml
+---
+description: What the rule enforces
+alwaysApply: true          # or false with a globs field
+globs: "**/*.yml"          # only when alwaysApply is false
+---
+```
+
+**Skills** (`skills/<name>/SKILL.md`):
+```yaml
+---
+name: dd-<name>
+description: One-line description used by Cursor to match the skill to user intent
+---
+```
+
+**Agents** (`agents/<name>.md`):
+```yaml
+---
+name: dd-<name>
+description: One-line description
+model: inherit
+readonly: true             # optional — omit if the agent needs write access
+---
+```
+
+**Commands** (`commands/<name>.md`): no frontmatter, body under 20 lines, delegates to a skill or agent.
 
 Shared includes in `skills/`: `_auto-update.md` (auto-update procedure) and `_doc-lookup.md` (documentation lookup procedure) — prefixed with `_` to indicate they are not standalone skills.
 
