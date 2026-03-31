@@ -1,5 +1,7 @@
 import { program } from 'commander';
 import { registerInitCommand } from './commands/init.js';
+import { registerListCommand } from './commands/list.js';
+import { registerAddCommand } from './commands/add.js';
 
 program
   .name('d-scribe')
@@ -7,6 +9,7 @@ program
   .version('1.0.0');
 
 registerInitCommand(program);
-// registerListCommand and registerAddCommand will be added in Task 8
+registerListCommand(program);
+registerAddCommand(program);
 
 program.parse();
