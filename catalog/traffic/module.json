@@ -1,0 +1,5 @@
+{
+  "label": "Locust Traffic Generator",
+  "type": "traffic",
+  "always_included": true
+}
