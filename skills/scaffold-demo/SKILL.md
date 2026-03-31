@@ -64,8 +64,8 @@ Read the generated `AGENTS.md` to understand the project structure and available
 
 Read `skills/customize-domain/SKILL.md`. If it contains actual instructions (not a stub), follow them to:
 - Rename entities from the todo app domain to the user's business domain
-- Remove code blocks for features not included in the scaffold
-- Adapt service names if the user specified them
+- Rename service names to match the business domain
+- Update magic value prefixes for failure scenarios
 
 If the skill is a stub (contains "coming in a future release"), skip this step.
 
@@ -79,8 +79,10 @@ If the skill is a stub, skip this step.
 
 Tell the user:
 1. What was created (services, frontend, features)
-2. How to launch: refer to the Launch section in AGENTS.md
-3. Available skills they can run manually:
+2. If customize-domain ran: the domain mapping that was applied
+3. If create-demo-scenarios ran: `DEMO-SCENARIOS.md` was created — use it as a demo script
+4. How to launch: refer to the Launch section in AGENTS.md
+5. Available skills they can run manually:
    - `preflight-check` — build, deploy, smoke test, validate, cleanup
    - `verify-telemetry` — confirm data arrives in Datadog (requires running stack + Datadog MCP)
    - `generate-runbook` — produce DEMO-RUNBOOK.md with talking points

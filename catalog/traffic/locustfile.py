@@ -57,10 +57,10 @@ class DemoUser(HttpUser):
 
     @task(5)
     def search_injection(self):
-        """SQL injection attempt via search (feature: security:code)"""
+        """SQL injection attempt via search"""
         self.client.get("/api/users/search", params={"q": "' OR 1=1 --"})
 
     @task(5)
     def ssrf_attempt(self):
-        """SSRF attempt via fetch-url (feature: security:code)"""
+        """SSRF attempt via fetch-url"""
         self.client.get("/api/tasks/fetch-url", params={"url": "http://169.254.169.254/latest/meta-data/"})

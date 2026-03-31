@@ -15,8 +15,7 @@ function CreateForm() {
     if (!title.trim()) return;
 
     try {
-      // User identity tracking for RUM (feature: rum:user-tracking)
-      // datadogRum.setUser({ id: userId, name: userName, email: userEmail });
+      // User identity tracking for RUM      // datadogRum.setUser({ id: userId, name: userName, email: userEmail });
 
       const result = await createProject({
         title,
@@ -24,14 +23,12 @@ function CreateForm() {
         userId: userId || 'anonymous',
       });
 
-      // Custom RUM action tracking (feature: rum:custom-actions)
-      // datadogRum.addAction('project_created', { projectId: result.id });
+      // Custom RUM action tracking      // datadogRum.addAction('project_created', { projectId: result.id });
 
       navigate(`/projects/${result.id}`);
     } catch (err) {
       setError('Failed to create project');
-      // Manual error tracking for RUM (feature: rum:error-tracking)
-      // datadogRum.addError(err, { source: 'custom' });
+      // Manual error tracking for RUM      // datadogRum.addError(err, { source: 'custom' });
       console.error(err);
     }
   };

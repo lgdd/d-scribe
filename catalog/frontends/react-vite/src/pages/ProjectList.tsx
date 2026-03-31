@@ -17,7 +17,7 @@ function ProjectList() {
       .then(setProjects)
       .catch((err) => {
         setError('Failed to load projects');
-        // Manual error tracking for RUM (feature: rum:error-tracking)
+        // Manual error tracking for RUM
         // datadogRum.addError(err, { source: 'custom' });
         console.error(err);
       });

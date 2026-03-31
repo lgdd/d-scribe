@@ -110,7 +110,7 @@ def delete_project(project_id):
     return "", 204
 
 
-# SQL injection in search for Code Security demo (feature: security:code)
+# SQL injection in search for Code Security demo
 @app.route("/api/projects/search")
 def search_projects():
     q = request.args.get("q", "")
@@ -118,7 +118,7 @@ def search_projects():
     return jsonify(results)
 
 
-# Slow query simulation for DBM demo (feature: dbm:postgresql)
+# Slow query simulation for DBM demo
 # Simulates N+1 query pattern with deliberate delay
 @app.route("/api/projects/<project_id>/details")
 def project_details(project_id):

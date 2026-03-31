@@ -86,7 +86,7 @@ def delete_user(user_id):
     return "", 204
 
 
-# SQL injection simulation for Code Security demo (feature: security:code)
+# SQL injection simulation for Code Security demo
 # WARNING: intentionally vulnerable — demonstrates IAST detection
 @app.route("/api/users/search")
 def search_users():
@@ -96,7 +96,7 @@ def search_users():
     return jsonify(results)
 
 
-# CPU-intensive stats for Profiling demo (feature: profiling)
+# CPU-intensive stats for Profiling demo
 @app.route("/api/users/stats")
 def user_stats():
     total = 0

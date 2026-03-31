@@ -56,20 +56,20 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
-    // SQL injection vulnerability for Code Security demo (feature: security:code)
+    // SQL injection vulnerability for Code Security demo
     // WARNING: intentionally vulnerable — demonstrates IAST detection
     @GetMapping("/search")
     public List<User> search(@RequestParam String q) {
-        // Simulated SQL injection with in-memory filter (feature: security:code)
+        // Simulated SQL injection with in-memory filter
         return users.values().stream()
                 .filter(u -> u.getName().toLowerCase().contains(q.toLowerCase()))
                 .toList();
     }
 
-    // CPU-intensive user stats for Profiling demo (feature: profiling)
+    // CPU-intensive user stats for Profiling demo
     @GetMapping("/stats")
     public Map<String, Object> stats() {
-        // Deliberately inefficient nested computation (feature: profiling)
+        // Deliberately inefficient nested computation
         long sum = 0;
         for (int i = 0; i < 10000; i++) {
             for (int j = 0; j < 1000; j++) {

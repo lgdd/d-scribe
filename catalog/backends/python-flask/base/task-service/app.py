@@ -125,7 +125,7 @@ def delete_task(task_id):
     return "", 204
 
 
-# SSRF vulnerability for Code Security demo (feature: security:code)
+# SSRF vulnerability for Code Security demo
 # WARNING: intentionally vulnerable — demonstrates IAST detection
 @app.route("/api/tasks/fetch-url")
 def fetch_url():
@@ -137,7 +137,7 @@ def fetch_url():
         return jsonify({"error": str(e)}), 500
 
 
-# CPU-intensive aggregation for Profiling demo (feature: profiling)
+# CPU-intensive aggregation for Profiling demo
 @app.route("/api/tasks/aggregate")
 def aggregate_tasks():
     by_status = {}

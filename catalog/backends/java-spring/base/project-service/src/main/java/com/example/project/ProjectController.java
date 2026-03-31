@@ -71,23 +71,23 @@ public class ProjectController {
         return ResponseEntity.noContent().build();
     }
 
-    // SQL injection in search for Code Security demo (feature: security:code)
+    // SQL injection in search for Code Security demo
     // WARNING: intentionally vulnerable — demonstrates IAST detection
     @GetMapping("/search")
     public List<Project> search(@RequestParam String q) {
-        // Simulated SQL injection with in-memory filter (feature: security:code)
+        // Simulated SQL injection with in-memory filter
         return projects.values().stream()
                 .filter(p -> p.getTitle().toLowerCase().contains(q.toLowerCase()))
                 .toList();
     }
 
-    // Slow query simulation for DBM demo (feature: dbm:postgresql)
+    // Slow query simulation for DBM demo
     // Simulates N+1 query pattern with deliberate delay
     @GetMapping("/{id}/details")
     public ResponseEntity<Map<String, Object>> details(@PathVariable String id) {
         Project p = projects.get(id);
         if (p == null) return ResponseEntity.notFound().build();
-        // Simulate N+1: fetch user for each related entity (feature: dbm:postgresql)
+        // Simulate N+1: fetch user for each related entity
         try { Thread.sleep(200); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
         return ResponseEntity.ok(Map.of("project", p, "owner", p.getUserId() != null ? p.getUserId() : "unknown"));
     }

@@ -87,11 +87,11 @@ public class TaskController {
         return ResponseEntity.noContent().build();
     }
 
-    // SSRF vulnerability for Code Security demo (feature: security:code)
+    // SSRF vulnerability for Code Security demo
     // WARNING: intentionally vulnerable — demonstrates IAST detection
     @GetMapping("/fetch-url")
     public String fetchUrl(@RequestParam String url) {
-        // Arbitrary URL fetch — SSRF vector (feature: security:code)
+        // Arbitrary URL fetch — SSRF vector
         try {
             return new RestTemplate().getForObject(url, String.class);
         } catch (Exception e) {
@@ -99,10 +99,10 @@ public class TaskController {
         }
     }
 
-    // CPU-intensive aggregation for Profiling demo (feature: profiling)
+    // CPU-intensive aggregation for Profiling demo
     @GetMapping("/aggregate")
     public Map<String, Object> aggregate() {
-        // Deliberately inefficient: recompute from scratch each time (feature: profiling)
+        // Deliberately inefficient: recompute from scratch each time
         Map<String, Long> byStatus = new HashMap<>();
         for (int i = 0; i < 100; i++) { // Repeat to burn CPU
             byStatus.clear();

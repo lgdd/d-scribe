@@ -32,7 +32,7 @@ function ProjectDetail() {
       .then(setProject)
       .catch((err) => {
         setError('Failed to load project');
-        // Manual error tracking for RUM (feature: rum:error-tracking)
+        // Manual error tracking for RUM
         // datadogRum.addError(err, { source: 'custom' });
         console.error(err);
       });
@@ -55,7 +55,7 @@ function ProjectDetail() {
         assigneeId: assigneeId || 'unassigned',
       });
 
-      // Custom RUM action tracking (feature: rum:custom-actions)
+      // Custom RUM action tracking
       // datadogRum.addAction('task_created', { taskId: result.id, projectId: id });
 
       setTasks((prev) => [...prev, result]);
@@ -63,7 +63,7 @@ function ProjectDetail() {
       setAssigneeId('');
     } catch (err) {
       setError('Failed to create task');
-      // Manual error tracking for RUM (feature: rum:error-tracking)
+      // Manual error tracking for RUM
       // datadogRum.addError(err, { source: 'custom' });
       console.error(err);
     }
