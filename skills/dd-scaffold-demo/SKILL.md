@@ -9,7 +9,16 @@ tools:
 
 # Scaffold Demo
 
-Create a Datadog demo project from scratch. This skill orchestrates the full scaffolding workflow: CLI execution, domain customization, and scenario creation.
+Create a Datadog demo project from scratch using the `d-scribe` CLI. This is NOT a design exercise — it is a structured CLI workflow. Follow the steps below exactly.
+
+## IMPORTANT — What This Skill Does NOT Do
+
+- Do NOT ask about visual design, color schemes, or styling
+- Do NOT brainstorm UI concepts or mockups
+- Do NOT ask open-ended creative questions about the domain
+- Do NOT treat this as a frontend design project
+
+This skill runs a CLI command (`d-scribe init demo`) that generates a pre-built microservice project, then customizes it for the user's domain. The questions you ask are strictly about **technical choices** (backend language, Datadog features) — not about aesthetics.
 
 ## Prerequisites
 
