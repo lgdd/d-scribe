@@ -8,3 +8,8 @@
 
 # Cursor / VS Code
 .cursor/mcp*.json
+
+# Node
+node_modules/
+dist/
+package-lock.json
