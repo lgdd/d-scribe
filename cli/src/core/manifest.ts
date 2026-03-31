@@ -21,18 +21,11 @@ export interface FrontendEntry {
 
 export interface DepEntry {
   path: string;
-  compose_overlay?: string;
 }
 
 export interface InfraConfig {
-  stacks: {
-    compose: { base: string; agent_overlay: string };
-    k8s?: { base: string };
-  };
-  deploy: {
-    local: Record<string, never>;
-    aws?: { terraform_modules: string };
-  };
+  stacks: string[];
+  deploy: string[];
 }
 
 export interface Manifest {

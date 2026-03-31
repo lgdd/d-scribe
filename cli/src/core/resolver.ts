@@ -26,7 +26,6 @@ export interface ResolvedFeature {
 export interface ResolvedDep {
   key: string;
   path: string;
-  compose_overlay?: string;
 }
 
 export interface FrontendModule {
@@ -108,7 +107,7 @@ export function resolve(options: ResolveOptions, manifest: Manifest): ResolvedPl
 
   const deps: ResolvedDep[] = [...depKeys].map(key => {
     const entry = manifest.deps[key];
-    return { key, path: entry.path, compose_overlay: entry.compose_overlay };
+    return { key, path: entry.path };
   });
 
   // Collect agent_env from features

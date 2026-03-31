@@ -48,26 +48,17 @@
   },
   "deps": {
     "db:postgresql": {
-      "path": "deps/postgresql",
-      "compose_overlay": "infra/compose/overlays/dbm-postgresql.yml"
+      "path": "deps/postgresql"
     },
     "cache:redis": {
       "path": "deps/redis"
     },
     "auth:keycloak": {
-      "path": "deps/keycloak",
-      "compose_overlay": "infra/compose/overlays/siem-keycloak.yml"
+      "path": "deps/keycloak"
     }
   },
   "infra": {
-    "stacks": {
-      "compose": {
-        "base": "infra/compose/base.yml",
-        "agent_overlay": "infra/compose/overlays/datadog-agent.yml"
-      }
-    },
-    "deploy": {
-      "local": {}
-    }
+    "stacks": ["compose", "k8s"],
+    "deploy": ["local", "aws"]
   }
 }

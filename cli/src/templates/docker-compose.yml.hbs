@@ -30,9 +30,6 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - dd-agent-data:/opt/datadog-agent/run
-    ports:
-      - "8126:8126"
-      - "8125:8125/udp"
     networks:
       - dd-demo
     healthcheck:
