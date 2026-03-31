@@ -150,9 +150,64 @@ export function registerInitCommand(program: Command): void {
 
   init
     .command('skills')
-    .description('Install skills globally (coming soon)')
-    .action(() => {
-      console.log('d-scribe init skills is coming in a future release.');
+    .description('Install dd-scaffold-demo skill globally for Cursor and/or Claude Code')
+    .option('--tool <name>', 'Force install for a specific tool (cursor, claude)')
+    .action((opts) => {
+      const skPath = skillsPath();
+      const skillSrc = path.join(skPath, 'dd-scaffold-demo');
+
+      if (!fs.existsSync(skillSrc)) {
+        console.error('Error: dd-scaffold-demo skill not found in bundle.');
+        process.exit(1);
+      }
+
+      const homeDir = process.env.HOME || process.env.USERPROFILE || '';
+      const tools: Array<{ name: string; configDir: string; skillsDir: string }> = [
+        { name: 'Cursor', configDir: path.join(homeDir, '.cursor'), skillsDir: path.join(homeDir, '.cursor', 'skills') },
+        { name: 'Claude', configDir: path.join(homeDir, '.claude'), skillsDir: path.join(homeDir, '.claude', 'skills') },
+      ];
+
+      // Filter by --tool flag if provided
+      let targets = tools;
+      if (opts.tool) {
+        const toolName = opts.tool.toLowerCase();
+        const toolMap: Record<string, string> = { cursor: 'Cursor', claude: 'Claude' };
+        const match = toolMap[toolName];
+        if (!match) {
+          console.error(`Unknown tool "${opts.tool}". Available: cursor, claude`);
+          process.exit(1);
+        }
+        targets = tools.filter(t => t.name === match);
+      }
+
+      let installed = 0;
+      console.log('\nInstalled dd-scaffold-demo skill:');
+
+      for (const tool of targets) {
+        if (!fs.existsSync(tool.configDir)) {
+          if (opts.tool) {
+            console.error(`  ${tool.name} config directory (${tool.configDir}) not found. Is ${tool.name} installed?`);
+            process.exit(1);
+          }
+          console.log(`  ○ ${tool.name.padEnd(8)} — not detected`);
+          continue;
+        }
+
+        const dest = path.join(tool.skillsDir, 'dd-scaffold-demo');
+        fs.ensureDirSync(tool.skillsDir);
+        // Remove existing symlink or file before copying (handles migration from install.sh symlinks)
+        fs.removeSync(dest);
+        fs.copySync(skillSrc, dest);
+        console.log(`  ✓ ${tool.name.padEnd(8)} → ${dest}/SKILL.md`);
+        installed++;
+      }
+
+      if (installed === 0) {
+        console.error('\nNo supported tools detected. Install Cursor or Claude Code, or use --tool to specify.');
+        process.exit(1);
+      }
+
+      console.log('');
     });
 }
 
