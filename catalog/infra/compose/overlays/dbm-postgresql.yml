@@ -1,0 +1,17 @@
+# Reference: PostgreSQL DBM configuration
+# Agent autodiscovery labels for Database Monitoring
+services:
+  postgresql:
+    labels:
+      com.datadoghq.ad.check_names: '["postgres"]'
+      com.datadoghq.ad.init_configs: "[{}]"
+      com.datadoghq.ad.instances: >-
+        [{
+          "host": "%%host%%",
+          "port": "5432",
+          "username": "datadog",
+          "password": "datadog",
+          "dbname": "app",
+          "dbm": true,
+          "collect_schemas": {"enabled": true}
+        }]

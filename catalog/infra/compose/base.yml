@@ -1,0 +1,4 @@
+# Reference: base compose configuration
+networks:
+  dd-demo:
+    driver: bridge

@@ -1,0 +1,6 @@
+{
+  "label": "Keycloak",
+  "category": "auth",
+  "type": "keycloak",
+  "version": "latest"
+}
