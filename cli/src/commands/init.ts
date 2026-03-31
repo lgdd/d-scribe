@@ -67,6 +67,13 @@ export function registerInitCommand(program: Command): void {
       // Project name from output dir
       const projectName = path.basename(outputDir);
 
+      // DD_ENV: {project}-{YYMMDD} to prevent collision in shared Datadog orgs
+      const now = new Date();
+      const yy = String(now.getFullYear()).slice(-2);
+      const mm = String(now.getMonth() + 1).padStart(2, '0');
+      const dd = String(now.getDate()).padStart(2, '0');
+      const ddEnv = `${projectName}-${yy}${mm}${dd}`;
+
       // Templates dir
       const tplDir = templatesPath();
 
@@ -82,6 +89,7 @@ export function registerInitCommand(program: Command): void {
       // Template data (shared across all templates)
       const data = {
         projectName,
+        ddEnv,
         services: servicesWithPorts,
         frontend: plan.frontend,
         features: plan.features,
