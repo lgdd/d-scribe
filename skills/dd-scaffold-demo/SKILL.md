@@ -22,17 +22,28 @@ Create a Datadog demo project from scratch. This skill orchestrates the full sca
 
 Run `d-scribe init demo --help` to see all available backends, frontends, features, and options. Do NOT hardcode these — always discover dynamically.
 
-### Step 2: Gather requirements through conversation
+### Step 2: Gather requirements
 
-Ask the user about what they need. Do NOT silently default — have a brief conversation to understand:
+After running `--help`, immediately present this to the user in a single message. Fill in what you can infer from their request, and ask about the rest:
 
-1. **Domain/industry**: What is the demo about? (e.g., e-commerce, banking, logistics, healthcare)
-2. **Backend language(s)**: Ask which language(s) they prefer. Suggest based on industry if they're unsure (banking → java:spring, ML/data → python:flask, startup → node:express).
-3. **Frontend**: Does the demo need a UI? If yes, suggest react:vite.
-4. **Datadog features**: Which products do they want to showcase beyond the baseline (APM, Logs, Infra)? List the available features from Step 1 and ask which ones are relevant.
-5. **Output directory**: Check if the current working directory is empty. If it is, suggest `--output .` (create here). If it has existing content, suggest a subdirectory name based on the domain.
+```
+Here's what I'm thinking based on your description:
 
-Keep the conversation lightweight — 1-2 messages, not an interrogation. If the user gave a detailed description upfront, extract what you can and only ask about what's missing.
+**Domain**: [what you understood, e.g., "Online sports store"]
+**Backend**: [suggest one, e.g., "java:spring" — or ask if no clue]
+**Frontend**: [yes/no — suggest yes if they mentioned UI/store/app]
+**Datadog features** (beyond the baseline APM + Logs + Infra):
+  - [ ] Database Monitoring (dbm:postgresql)
+  - [ ] Code Security / IAST (security:code)
+  - [ ] Continuous Profiling (profiling)
+  - [ ] Cloud SIEM (siem)
+  - [ ] Custom Metrics (metrics:custom)
+**Output directory**: [. if CWD is empty, or ./suggested-name otherwise]
+
+Which features do you want, and does the rest look right?
+```
+
+Do NOT skip this step. Do NOT silently default. Do NOT ask about visual mockups or design — this is a CLI scaffolding step, not a design session. Wait for the user's response before proceeding.
 
 ### Step 3: Confirm the plan
 
