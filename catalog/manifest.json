@@ -1,0 +1,73 @@
+{
+  "version": "1.0.0",
+  "features": {
+    "dbm:postgresql": {
+      "label": "Database Monitoring (PostgreSQL)",
+      "requires_deps": ["db:postgresql"],
+      "datadog_products": ["dbm"],
+      "agent_config": "dbm-postgresql"
+    },
+    "security:code": {
+      "label": "Code Security / IAST",
+      "requires_deps": [],
+      "datadog_products": ["code_security", "asm"],
+      "agent_env": { "DD_IAST_ENABLED": "true", "DD_ASM_ENABLED": "true" }
+    },
+    "profiling": {
+      "label": "Continuous Profiling",
+      "requires_deps": [],
+      "datadog_products": ["profiling"],
+      "agent_env": { "DD_PROFILING_ENABLED": "true" }
+    },
+    "siem": {
+      "label": "Cloud SIEM",
+      "requires_deps": ["auth:keycloak"],
+      "datadog_products": ["siem", "cloud_siem"]
+    },
+    "metrics:custom": {
+      "label": "Custom Metrics (DogStatsD)",
+      "requires_deps": [],
+      "datadog_products": ["metrics"]
+    }
+  },
+  "backends": {
+    "java:spring": {
+      "label": "Java Spring Boot",
+      "path": "backends/java-spring"
+    },
+    "python:flask": {
+      "label": "Python Flask",
+      "path": "backends/python-flask"
+    }
+  },
+  "frontends": {
+    "react:vite": {
+      "label": "React (Vite)",
+      "path": "frontends/react-vite"
+    }
+  },
+  "deps": {
+    "db:postgresql": {
+      "path": "deps/postgresql",
+      "compose_overlay": "infra/compose/overlays/dbm-postgresql.yml"
+    },
+    "cache:redis": {
+      "path": "deps/redis"
+    },
+    "auth:keycloak": {
+      "path": "deps/keycloak",
+      "compose_overlay": "infra/compose/overlays/siem-keycloak.yml"
+    }
+  },
+  "infra": {
+    "stacks": {
+      "compose": {
+        "base": "infra/compose/base.yml",
+        "agent_overlay": "infra/compose/overlays/datadog-agent.yml"
+      }
+    },
+    "deploy": {
+      "local": {}
+    }
+  }
+}
