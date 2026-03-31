@@ -1,6 +1,6 @@
 ---
 name: dd-scaffold-demo
-description: Create a complete Datadog demo project with pre-instrumented microservices, configured traffic generation, and full observability stack
+description: Create a Datadog demo project — scaffold microservices, customize the domain, and generate demo scenarios. Use when the user asks to create a demo, scaffold a project, set up a Datadog environment, or build a sample application.
 tools:
   - terminal
   - file_read
@@ -22,19 +22,17 @@ Create a Datadog demo project from scratch. This skill orchestrates the full sca
 
 Run `d-scribe init demo --help` to see all available backends, frontends, features, and options. Do NOT hardcode these — always discover dynamically.
 
-### Step 2: Analyze the user's request
+### Step 2: Gather requirements through conversation
 
-Extract from the user's description:
-- **Industry/domain** (e.g., e-commerce, banking, healthcare, SaaS)
-- **Backend language(s)** (if specified, or infer from industry: banking → java:spring, ML/data → python:flask)
-- **Frontend** (if the user mentions a UI, web app, or dashboard → react:vite)
-- **Datadog features** (if the user mentions security, database monitoring, profiling, etc.)
-- **Stack preferences** (compose is the only option in Phase 1)
+Ask the user about what they need. Do NOT silently default — have a brief conversation to understand:
 
-Make reasonable defaults for anything not specified:
-- No language preference → java:spring (most common in enterprise demos)
-- No features mentioned → none (baseline APM+Logs+Infra is already included)
-- Always use --stack compose --deploy local
+1. **Domain/industry**: What is the demo about? (e.g., e-commerce, banking, logistics, healthcare)
+2. **Backend language(s)**: Ask which language(s) they prefer. Suggest based on industry if they're unsure (banking → java:spring, ML/data → python:flask, startup → node:express).
+3. **Frontend**: Does the demo need a UI? If yes, suggest react:vite.
+4. **Datadog features**: Which products do they want to showcase beyond the baseline (APM, Logs, Infra)? List the available features from Step 1 and ask which ones are relevant.
+5. **Output directory**: Check if the current working directory is empty. If it is, suggest `--output .` (create here). If it has existing content, suggest a subdirectory name based on the domain.
+
+Keep the conversation lightweight — 1-2 messages, not an interrogation. If the user gave a detailed description upfront, extract what you can and only ask about what's missing.
 
 ### Step 3: Confirm the plan
 
@@ -42,12 +40,13 @@ Present the mapped CLI command to the user for confirmation before executing:
 
 ```
 I'll create a demo with:
+- Domain: Online sports store
 - Backend: java:spring
 - Frontend: react:vite
 - Features: dbm:postgresql, security:code
-- Output: ./demo-project
+- Output: . (current directory)
 
-Command: d-scribe init demo --backend java:spring --frontend react:vite --features dbm:postgresql,security:code --output ./demo-project
+Command: d-scribe init demo --backend java:spring --frontend react:vite --features dbm:postgresql,security:code --output .
 
 Does this look right?
 ```
@@ -60,11 +59,12 @@ Run the confirmed `d-scribe init demo` command.
 
 Read the generated `AGENTS.md` to understand the project structure and available skills.
 
-### Step 6: Customize the domain (if available)
+### Step 6: Customize the domain
 
 Read `skills/dd-customize-domain/SKILL.md`. If it contains actual instructions (not a stub), follow them to:
-- Rename entities from the todo app domain to the user's business domain
-- Rename service names to match the business domain
+- Adapt the generic todo app to the user's business domain
+- Rename entities, services, and endpoints to match the domain
+- Add domain-specific services, logic, and frontend customizations
 - Update magic value prefixes for failure scenarios
 
 If the skill is a stub (contains "coming in a future release"), skip this step.
