@@ -1,5 +1,5 @@
 ---
-name: generate-runbook
+name: dd-generate-runbook
 description: Generate DEMO-RUNBOOK.md with talking points and Datadog UI navigation
 tools:
   - terminal

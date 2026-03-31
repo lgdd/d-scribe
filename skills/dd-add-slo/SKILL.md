@@ -1,12 +1,12 @@
 ---
-name: add-dashboard
-description: Generate Terraform for a Datadog dashboard
+name: dd-add-slo
+description: Generate Terraform for Datadog SLOs
 tools:
   - terminal
   - file_read
   - file_write
 ---
 
-# Add Dashboard
+# Add SLO
 
 This skill is coming in a future release of d-scribe.

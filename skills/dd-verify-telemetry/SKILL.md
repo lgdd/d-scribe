@@ -1,5 +1,5 @@
 ---
-name: verify-telemetry
+name: dd-verify-telemetry
 description: Verify Datadog telemetry is flowing correctly using MCP tools
 tools:
   - file_read

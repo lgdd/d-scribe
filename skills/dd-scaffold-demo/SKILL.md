@@ -1,5 +1,5 @@
 ---
-name: scaffold-demo
+name: dd-scaffold-demo
 description: Create a complete Datadog demo project with pre-instrumented microservices, configured traffic generation, and full observability stack
 tools:
   - terminal
@@ -62,7 +62,7 @@ Read the generated `AGENTS.md` to understand the project structure and available
 
 ### Step 6: Customize the domain (if available)
 
-Read `skills/customize-domain/SKILL.md`. If it contains actual instructions (not a stub), follow them to:
+Read `skills/dd-customize-domain/SKILL.md`. If it contains actual instructions (not a stub), follow them to:
 - Rename entities from the todo app domain to the user's business domain
 - Rename service names to match the business domain
 - Update magic value prefixes for failure scenarios
@@ -71,7 +71,7 @@ If the skill is a stub (contains "coming in a future release"), skip this step.
 
 ### Step 7: Create demo scenarios (if available)
 
-Read `skills/create-demo-scenarios/SKILL.md`. If it contains actual instructions, follow them to create golden paths and failure scenarios.
+Read `skills/dd-create-demo-scenarios/SKILL.md`. If it contains actual instructions, follow them to create golden paths and failure scenarios.
 
 If the skill is a stub, skip this step.
 
@@ -83,9 +83,9 @@ Tell the user:
 3. If create-demo-scenarios ran: `DEMO-SCENARIOS.md` was created — use it as a demo script
 4. How to launch: refer to the Launch section in AGENTS.md
 5. Available skills they can run manually:
-   - `preflight-check` — build, deploy, smoke test, validate, cleanup
-   - `verify-telemetry` — confirm data arrives in Datadog (requires running stack + Datadog MCP)
-   - `generate-runbook` — produce DEMO-RUNBOOK.md with talking points
+   - `dd-preflight-check` — build, deploy, smoke test, validate, cleanup
+   - `dd-verify-telemetry` — confirm data arrives in Datadog (requires running stack + Datadog MCP)
+   - `dd-generate-runbook` — produce DEMO-RUNBOOK.md with talking points
 
 ## Notes
 

@@ -1,5 +1,5 @@
 ---
-name: generate-traffic
+name: dd-generate-traffic
 description: Configure Locust traffic generator with domain-specific scenarios
 tools:
   - terminal

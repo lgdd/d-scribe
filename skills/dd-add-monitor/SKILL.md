@@ -1,5 +1,5 @@
 ---
-name: add-monitor
+name: dd-add-monitor
 description: Generate Terraform for Datadog monitors
 tools:
   - terminal

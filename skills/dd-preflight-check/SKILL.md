@@ -1,5 +1,5 @@
 ---
-name: preflight-check
+name: dd-preflight-check
 description: Build, deploy, test, validate telemetry, and cleanup a demo project
 tools:
   - terminal

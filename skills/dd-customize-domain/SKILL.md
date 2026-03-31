@@ -1,5 +1,5 @@
 ---
-name: customize-domain
+name: dd-customize-domain
 description: Adapt the todo app domain to a specific business context by renaming entities, services, and endpoints
 tools:
   - terminal
