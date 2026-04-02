@@ -2,7 +2,6 @@
   "label": "Python Flask",
   "language": "python",
   "framework": "flask",
-  "services": ["api-gateway", "user-service", "project-service", "task-service"],
   "supported_features": ["dbm:postgresql", "security:code", "profiling", "siem", "metrics:custom"],
   "python_version": "3.12",
   "flask_version": "3.x"

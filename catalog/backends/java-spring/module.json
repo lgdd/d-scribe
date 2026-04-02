@@ -2,7 +2,6 @@
   "label": "Java Spring Boot",
   "language": "java",
   "framework": "spring",
-  "services": ["api-gateway", "user-service", "project-service", "task-service"],
   "supported_features": ["dbm:postgresql", "security:code", "profiling", "siem", "metrics:custom"],
   "java_version": "21",
   "spring_boot_version": "3.4.x"
