@@ -2,7 +2,12 @@
   "label": "Python Flask",
   "language": "python",
   "framework": "flask",
-  "supported_features": ["dbm:postgresql", "security:code", "profiling", "siem", "metrics:custom"],
+  "supported_features": [
+    "dbm:postgresql",
+    "security:code",
+    "profiling",
+    "siem"
+  ],
   "python_version": "3.12",
   "flask_version": "3.x"
 }

@@ -8,6 +8,5 @@
 | ssrf_example_route.py | security:code | SSRF via unvalidated URL param |
 | cpu_intensive_service.py | profiling | Nested loop aggregation |
 | memory_leak_service.py | profiling | Gradual allocation in a cache |
-| custom_metrics_service.py | metrics:custom | DogStatsD gauge and counter |
 | audit_log_middleware.py | siem | Structured audit log for auth events |
 | inter_service_client.py | (base) | HTTP call with tracing headers propagated |
