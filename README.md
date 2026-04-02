@@ -1,30 +1,73 @@
-# d-scribe
+<p align="center">
+  <img src="https://github.com/lgdd/doc-assets/blob/main/d-scribe/d-scribe.png?raw=true" alt="d-scribe" width="400">
+</p>
 
-CLI toolkit for assembling Datadog demo projects. Generates pre-instrumented microservice architectures with full observability — APM, Logs, Infrastructure Monitoring, and optional features like Database Monitoring, Code Security, and Continuous Profiling.
+<h1 align="center">AI-first CLI toolkit for Datadog Sales Engineers</h1>
 
-Designed for Datadog Sales Engineers who need to spin up realistic demo environments quickly.
+Scaffolds pre-instrumented microservice architectures that AI coding agents then bring to life with domain-specific business logic, guided by instrumentation patterns and portable skills.
 
 ## Quick Start
 
 ```bash
-# Create a Java Spring demo with 3 services
-npx d-scribe init demo --backend java:spring --services 3 --output ./my-demo
-
-# Create a polyglot demo (Java + Python) with frontend
-npx d-scribe init demo --backend java:spring,python:flask --frontend react:vite --services 4 --output ./my-demo
-
-# Add Database Monitoring and Code Security
-npx d-scribe init demo --backend java:spring --features dbm:postgresql,security:code --services 3 --output ./my-demo
+# Install skills for your AI coding agent
+npx d-scribe init skills
 ```
 
-Then:
+Ask your AI coding agent to build a demo
+> "Build me a Datadog demo for an online shop selling dog food & toys"
 
-```bash
-cd my-demo
-# .env is auto-populated from $DD_API_KEY, $DD_SITE, $DD_APP_KEY if set on your host
-# Otherwise, edit .env with your Datadog API key
-docker compose up -d
-```
+Your agent scaffolds the project, generates domain-specific business logic, and walks you through running it — all guided by bundled patterns and skills.
+
+## What Gets Generated
+
+A scaffolded project includes:
+
+- **N minimal microservices** (configurable via `--services`, default 4) — each compiles, starts, exposes `/health`, logs JSON, and is instrumented for APM, but has no business logic. AI generates domain-specific code guided by instrumentation patterns.
+- **Instrumentation patterns** in `references/patterns/` — compact reference files (~30 lines each) for DBM, Code Security, Profiling, SIEM, and inter-service calls
+- **Datadog Agent** pre-configured for APM, Logs, and Infrastructure Monitoring
+- **Traffic generator** (Locust) with golden paths and failure scenarios
+- **docker-compose.yml** with all services wired together
+- **AGENTS.md** with project context, architecture, and pattern references for AI coding agents
+- **Skills** for domain customization, preflight checks, traffic generation, telemetry verification, and runbook generation
+
+## Available Backends
+
+| Key | Framework |
+|-----|-----------|
+| `java:spring` | Java Spring Boot 3.4.x |
+| `java:quarkus` | Java Quarkus 3.17.x |
+| `python:flask` | Python Flask 3.x |
+| `python:django` | Python Django 5.1.x |
+| `node:express` | Node.js Express 5.x |
+| `ruby:rails` | Ruby on Rails 8.0.x |
+| `php:laravel` | PHP Laravel 12.x |
+| `dotnet:aspnetcore` | .NET ASP.NET Core 9.0 |
+| `go:gin` | Go Gin 1.10.x |
+
+## Available Frontends
+
+| Key | Framework |
+|-----|-----------|
+| `react:vite` | React 18 (Vite) |
+| `angular:esbuild` | Angular 19 (esbuild) |
+| `vue:vite` | Vue 3 (Vite) |
+
+## Available Features
+
+| Key | Description | Requires |
+|-----|-------------|----------|
+| `dbm:postgresql` | Database Monitoring | PostgreSQL |
+| `security:code` | Code Security / IAST | — |
+| `profiling` | Continuous Profiling | — |
+| `siem` | Cloud SIEM | Keycloak |
+
+## Architecture
+
+d-scribe is a monorepo with three components:
+
+- **`cli/`** — TypeScript CLI that reads a manifest, resolves dependencies, copies service templates N times, and renders Handlebars templates. Deterministic — no LLM code generation.
+- **`catalog/`** — Minimal service templates (`service-template/`), instrumentation patterns (`patterns/`), infrastructure configs, and a traffic generator.
+- **`skills/`** — Portable AI agent workflows (agentskills.io format) for scaffolding, domain customization, validation, and runbook generation.
 
 ## Commands
 
@@ -38,44 +81,3 @@ docker compose up -d
 | `d-scribe list deps` | List available infrastructure dependencies |
 | `d-scribe add feature` | Add a feature to existing project (coming soon) |
 | `d-scribe add dep` | Add a dependency to existing project (coming soon) |
-
-## What Gets Generated
-
-A scaffolded project includes:
-
-- **N minimal microservices** (configurable via `--services`, default 4) — each compiles, starts, exposes `/health`, logs JSON, and is instrumented for APM, but has no business logic. AI generates domain-specific code guided by instrumentation patterns.
-- **Instrumentation patterns** in `references/patterns/` — compact reference files (~30 lines each) for DBM, Code Security, Profiling, SIEM, Custom Metrics, and inter-service calls
-- **Datadog Agent** pre-configured for APM, Logs, and Infrastructure Monitoring
-- **Traffic generator** (Locust) with golden paths and failure scenarios
-- **docker-compose.yml** with all services wired together
-- **AGENTS.md** with project context, architecture, and pattern references for AI coding agents
-- **Skills** for domain customization, preflight checks, traffic generation, telemetry verification, and runbook generation
-
-## Available Backends
-
-| Key | Framework |
-|-----|-----------|
-| `java:spring` | Java Spring Boot 3.4.x |
-| `python:flask` | Python Flask 3.x |
-
-## Available Features
-
-| Key | Description | Requires |
-|-----|-------------|----------|
-| `dbm:postgresql` | Database Monitoring | PostgreSQL |
-| `security:code` | Code Security / IAST | — |
-| `profiling` | Continuous Profiling | — |
-| `siem` | Cloud SIEM | Keycloak |
-| `metrics:custom` | Custom Metrics (DogStatsD) | — |
-
-## Architecture
-
-d-scribe is a monorepo with three components:
-
-- **`cli/`** — TypeScript CLI that reads a manifest, resolves dependencies, copies service templates N times, and renders Handlebars templates. Deterministic — no LLM code generation.
-- **`catalog/`** — Minimal service templates (`service-template/`), instrumentation patterns (`patterns/`), infrastructure configs, and a traffic generator.
-- **`skills/`** — Portable AI agent workflows (agentskills.io format) for scaffolding, domain customization, validation, and runbook generation.
-
-## License
-
-MIT
