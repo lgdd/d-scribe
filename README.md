@@ -7,21 +7,22 @@ Designed for Datadog Sales Engineers who need to spin up realistic demo environm
 ## Quick Start
 
 ```bash
-# Create a Java Spring demo with React frontend
-npx d-scribe init demo --backend java:spring --frontend react:vite --output ./my-demo
+# Create a Java Spring demo with 3 services
+npx d-scribe init demo --backend java:spring --services 3 --output ./my-demo
 
-# Create a polyglot demo (Java + Python)
-npx d-scribe init demo --backend java:spring,python:flask --output ./my-demo
+# Create a polyglot demo (Java + Python) with frontend
+npx d-scribe init demo --backend java:spring,python:flask --frontend react:vite --services 4 --output ./my-demo
 
-# Add Database Monitoring
-npx d-scribe init demo --backend java:spring --features dbm:postgresql --output ./my-demo
+# Add Database Monitoring and Code Security
+npx d-scribe init demo --backend java:spring --features dbm:postgresql,security:code --services 3 --output ./my-demo
 ```
 
 Then:
 
 ```bash
 cd my-demo
-cp .env.example .env  # Edit with your Datadog API key
+# .env is auto-populated from $DD_API_KEY, $DD_SITE, $DD_APP_KEY if set on your host
+# Otherwise, edit .env with your Datadog API key
 docker compose up -d
 ```
 
@@ -42,12 +43,13 @@ docker compose up -d
 
 A scaffolded project includes:
 
-- **4 microservices** implementing a distributed todo app (api-gateway, user-service, project-service, task-service)
+- **N minimal microservices** (configurable via `--services`, default 4) — each compiles, starts, exposes `/health`, logs JSON, and is instrumented for APM, but has no business logic. AI generates domain-specific code guided by instrumentation patterns.
+- **Instrumentation patterns** in `references/patterns/` — compact reference files (~30 lines each) for DBM, Code Security, Profiling, SIEM, Custom Metrics, and inter-service calls
 - **Datadog Agent** pre-configured for APM, Logs, and Infrastructure Monitoring
 - **Traffic generator** (Locust) with golden paths and failure scenarios
 - **docker-compose.yml** with all services wired together
-- **AGENTS.md** with project context and rules for AI coding agents
-- **Skills** for domain customization, telemetry verification, and runbook generation
+- **AGENTS.md** with project context, architecture, and pattern references for AI coding agents
+- **Skills** for domain customization, preflight checks, traffic generation, telemetry verification, and runbook generation
 
 ## Available Backends
 
@@ -70,9 +72,9 @@ A scaffolded project includes:
 
 d-scribe is a monorepo with three components:
 
-- **`cli/`** — TypeScript CLI that reads a manifest, resolves dependencies, copies pre-written skeletons, and renders templates. No LLM code generation.
-- **`catalog/`** — Pre-instrumented backend/frontend skeletons, infrastructure configs, and a traffic generator.
-- **`skills/`** — Portable AI agent workflows (agentskills.io format) for customization and verification.
+- **`cli/`** — TypeScript CLI that reads a manifest, resolves dependencies, copies service templates N times, and renders Handlebars templates. Deterministic — no LLM code generation.
+- **`catalog/`** — Minimal service templates (`service-template/`), instrumentation patterns (`patterns/`), infrastructure configs, and a traffic generator.
+- **`skills/`** — Portable AI agent workflows (agentskills.io format) for scaffolding, domain customization, validation, and runbook generation.
 
 ## License
 

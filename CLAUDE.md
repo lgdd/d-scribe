@@ -27,8 +27,8 @@ Types: `feat`, `fix`, `docs`, `style`, `refactor`, `chore`, `ci`, `test`, `perf`
 |-----------|----------|---------|
 | CLI | `cli/src/` | TypeScript CLI (commander.js + Handlebars) |
 | Manifest | `catalog/manifest.json` | Central registry of all available modules |
-| Backends | `catalog/backends/<lang>-<framework>/` | Pre-instrumented microservice skeletons |
-| Frontends | `catalog/frontends/<framework>-<bundler>/` | Frontend skeletons with RUM |
+| Backends | `catalog/backends/<lang>-<framework>/` | Service template + instrumentation patterns |
+| Frontends | `catalog/frontends/<framework>-<bundler>/` | Frontend template + RUM patterns |
 | Deps | `catalog/deps/<name>/` | Infrastructure dependency configs |
 | Infra | `catalog/infra/compose/` | Reference compose overlays (not merged at runtime) |
 | Traffic | `catalog/traffic/` | Locust load generator |
@@ -38,8 +38,8 @@ Types: `feat`, `fix`, `docs`, `style`, `refactor`, `chore`, `ci`, `test`, `perf`
 
 ### Key Design Decisions
 
-- **No LLM code generation** for boilerplate — the CLI copies pre-written skeletons and renders Handlebars templates
+- **Infra is deterministic, domain is creative** — the CLI scaffolds minimal services (compile, start, /health, JSON logs, APM) with no business logic. AI generates domain-specific code guided by instrumentation patterns.
 - **Manifest is the source of truth** — backends, frontends, features, and deps are all declared in `catalog/manifest.json`
-- **Features use semantic code annotations** — `(feature: category:type)` comments in service code mark feature-specific blocks
+- **Service templates + patterns** — each backend has a `service-template/` (minimal scaffold) and `patterns/` (instrumentation reference files ~30 lines each). The CLI copies the template N times; the AI reads patterns when generating business logic.
 - **Compose overlays are reference docs** — files in `catalog/infra/compose/overlays/` document configs but are not merged at runtime
 - **No manual version bumps** — release-please handles versioning
