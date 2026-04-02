@@ -1,0 +1,8 @@
+{
+  "label": "Vue (Vite)",
+  "framework": "vue",
+  "bundler": "vite",
+  "vue_version": "3",
+  "vite_version": "6",
+  "template_path": "template"
+}
