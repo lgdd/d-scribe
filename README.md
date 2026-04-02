@@ -10,7 +10,7 @@ Scaffolds pre-instrumented microservice architectures that AI coding agents then
 
 ```bash
 # Install skills for your AI coding agent
-npx d-scribe init skills
+npx d-scribe install skills
 ```
 
 Ask your AI coding agent to build a demo
@@ -74,7 +74,7 @@ d-scribe is a monorepo with three components:
 | Command | Description |
 |---------|-------------|
 | `d-scribe init demo` | Create a complete demo project |
-| `d-scribe init skills` | Install skills globally (coming soon) |
+| `d-scribe install skills` | Install skills globally for Cursor and/or Claude Code |
 | `d-scribe list backends` | List available backend frameworks |
 | `d-scribe list frontends` | List available frontend frameworks |
 | `d-scribe list features` | List available Datadog features |
