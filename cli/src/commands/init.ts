@@ -20,11 +20,11 @@ export function registerInitCommand(program: Command): void {
     .option('--stack <type>', 'Infrastructure stack', 'compose')
     .option('--deploy <target>', 'Deployment target', 'local')
     .option('--dd-site <site>', 'Datadog site', 'datadoghq.com')
-    .option('--output <dir>', 'Output directory', '.')
+    .option('--dest <dir>', 'Destination directory', '.')
     .action((opts) => {
       const catPath = catalogPath();
       const manifest = loadManifest(catPath);
-      const outputDir = path.resolve(opts.output);
+      const outputDir = path.resolve(opts.dest);
 
       // Parse comma-separated args
       const backends = opts.backend.split(',').map((s: string) => s.trim());
