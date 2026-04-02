@@ -1,4 +1,4 @@
-name: Validate Toolkit
+name: Validate Catalog
 
 on:
   push:
@@ -7,11 +7,85 @@ on:
     branches: [main]
 
 jobs:
-  validate:
+  build-cli:
     runs-on: ubuntu-latest
+    outputs:
+      backends: ${{ steps.list.outputs.backends }}
+      frontends: ${{ steps.list.outputs.frontends }}
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Run structural validation
-        run: ./scripts/validate.sh
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install, test, and build CLI
+        working-directory: cli
+        run: npm install && npm test && npm run build
+
+      - name: List available backends and frontends
+        id: list
+        run: |
+          echo "backends=$(node cli/dist/index.js list backends --output json)" >> "$GITHUB_OUTPUT"
+          echo "frontends=$(node cli/dist/index.js list frontends --output json)" >> "$GITHUB_OUTPUT"
+
+  scaffold-backends:
+    needs: build-cli
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        backend: ${{ fromJson(needs.build-cli.outputs.backends) }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Build CLI
+        working-directory: cli
+        run: npm install && npm run build
+
+      - name: Scaffold project
+        env:
+          BACKEND: ${{ matrix.backend }}
+        run: |
+          node cli/dist/index.js init demo \
+            --backend "$BACKEND" \
+            --services 1 \
+            --dest /tmp/demo
+
+      - name: Docker build service
+        run: docker build /tmp/demo/services/service-1
+
+  scaffold-frontends:
+    needs: build-cli
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        frontend: ${{ fromJson(needs.build-cli.outputs.frontends) }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Build CLI
+        working-directory: cli
+        run: npm install && npm run build
+
+      - name: Scaffold project with frontend
+        env:
+          FRONTEND: ${{ matrix.frontend }}
+        run: |
+          node cli/dist/index.js init demo \
+            --backend "python:flask" \
+            --frontend "$FRONTEND" \
+            --services 1 \
+            --dest /tmp/demo
+
+      - name: Docker build frontend
+        run: docker build /tmp/demo/frontend
