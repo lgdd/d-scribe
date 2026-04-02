@@ -1,0 +1,11 @@
+{
+  "name": "service",
+  "private": true,
+  "dependencies": {
+    "dd-trace": "^5.0.0",
+    "express": "^5.0.0",
+    "hot-shots": "^10.0.0",
+    "pg": "^8.13.0",
+    "pino": "^9.0.0"
+  }
+}

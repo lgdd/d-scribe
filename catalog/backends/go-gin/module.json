@@ -1,0 +1,13 @@
+{
+  "label": "Go Gin",
+  "language": "go",
+  "framework": "gin",
+  "supported_features": [
+    "dbm:postgresql",
+    "security:code",
+    "profiling",
+    "siem"
+  ],
+  "go_version": "1.23",
+  "gin_version": "1.10.x"
+}

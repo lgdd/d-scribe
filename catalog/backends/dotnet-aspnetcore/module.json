@@ -1,0 +1,13 @@
+{
+  "label": ".NET ASP.NET Core",
+  "language": "dotnet",
+  "framework": "aspnetcore",
+  "supported_features": [
+    "dbm:postgresql",
+    "security:code",
+    "profiling",
+    "siem"
+  ],
+  "dotnet_version": "9.0",
+  "aspnetcore_version": "9.0"
+}

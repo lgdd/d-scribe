@@ -1,0 +1,7 @@
+source 'https://rubygems.org'
+
+gem 'rails', '~> 8.0'
+gem 'datadog', require: 'datadog/auto_instrument'
+gem 'dogstatsd-ruby', '~> 5.6'
+gem 'lograge', '~> 0.14'
+gem 'pg', '~> 1.5'

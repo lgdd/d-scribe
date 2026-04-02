@@ -1,0 +1,13 @@
+{
+  "label": "Java Quarkus",
+  "language": "java",
+  "framework": "quarkus",
+  "supported_features": [
+    "dbm:postgresql",
+    "security:code",
+    "profiling",
+    "siem"
+  ],
+  "java_version": "21",
+  "quarkus_version": "3.17.x"
+}
