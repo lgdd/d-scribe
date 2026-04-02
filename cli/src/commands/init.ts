@@ -16,6 +16,7 @@ export function registerInitCommand(program: Command): void {
     .requiredOption('--backend <specs>', 'Backend(s) as lang:framework, comma-separated')
     .option('--frontend <spec>', 'Frontend as framework:bundler')
     .option('--features <list>', 'Features as category:type, comma-separated', '')
+    .option('--services <count>', 'Number of microservices to scaffold', '4')
     .option('--stack <type>', 'Infrastructure stack', 'compose')
     .option('--deploy <target>', 'Deployment target', 'local')
     .option('--dd-site <site>', 'Datadog site', 'datadoghq.com')
@@ -28,23 +29,26 @@ export function registerInitCommand(program: Command): void {
       // Parse comma-separated args
       const backends = opts.backend.split(',').map((s: string) => s.trim());
       const features = opts.features ? opts.features.split(',').map((s: string) => s.trim()).filter(Boolean) : [];
+      const serviceCount = parseInt(opts.services, 10);
 
       // Resolve plan
-      const plan = resolve({ backends, frontend: opts.frontend, features, stack: opts.stack, deploy: opts.deploy, ddSite: opts.ddSite }, manifest);
+      const plan = resolve({ backends, frontend: opts.frontend, features, stack: opts.stack, deploy: opts.deploy, ddSite: opts.ddSite, serviceCount }, manifest);
 
       // Create output dir
       fs.ensureDirSync(outputDir);
 
-      // Copy services from catalog
+      // Copy service-template N times for each service
       for (const svc of plan.services) {
-        const src = path.join(catPath, svc.backendPath, 'base', svc.name);
+        const templateDir = path.join(catPath, svc.backendPath, 'service-template');
         const dest = path.join(outputDir, 'services', svc.name);
-        fs.copySync(src, dest);
+        fs.copySync(templateDir, dest);
       }
 
-      // Copy frontend
+      // Copy frontend template
       if (plan.frontend) {
-        const src = path.join(catPath, plan.frontend.path);
+        const frontendBase = path.join(catPath, plan.frontend.path);
+        const templateSubdir = path.join(frontendBase, 'template');
+        const src = fs.existsSync(templateSubdir) ? templateSubdir : frontendBase;
         const dest = path.join(outputDir, 'frontend');
         fs.copySync(src, dest, { filter: (s) => !path.basename(s).startsWith('module.json') });
       }
@@ -64,6 +68,27 @@ export function registerInitCommand(program: Command): void {
         }
       }
 
+      // Copy patterns from used backends into references/
+      const copiedBackends = new Set<string>();
+      for (const svc of plan.services) {
+        if (copiedBackends.has(svc.backendPath)) continue;
+        copiedBackends.add(svc.backendPath);
+        const patternsDir = path.join(catPath, svc.backendPath, 'patterns');
+        if (fs.existsSync(patternsDir)) {
+          const backendName = path.basename(svc.backendPath);
+          fs.copySync(patternsDir, path.join(outputDir, 'references', 'patterns', backendName));
+        }
+      }
+
+      // Copy frontend patterns if frontend is used
+      if (plan.frontend) {
+        const frontendPatternsDir = path.join(catPath, plan.frontend.path, 'patterns');
+        if (fs.existsSync(frontendPatternsDir)) {
+          const frontendName = path.basename(plan.frontend.path);
+          fs.copySync(frontendPatternsDir, path.join(outputDir, 'references', 'patterns', frontendName));
+        }
+      }
+
       // Project name from output dir
       const projectName = path.basename(outputDir);
 
@@ -80,17 +105,11 @@ export function registerInitCommand(program: Command): void {
       // Group services by backend for AGENTS.md
       const servicesByBackend = groupServicesByBackend(plan.services, manifest);
 
-      // Port map for template data
-      const portMap: Record<string, number> = {
-        'api-gateway': 8080, 'project-service': 8081, 'task-service': 8082, 'user-service': 8083,
-      };
-      const servicesWithPorts = plan.services.map(s => ({ ...s, port: portMap[s.name] ?? 8080 }));
-
       // Template data (shared across all templates)
       const data = {
         projectName,
         ddEnv,
-        services: servicesWithPorts,
+        services: plan.services,
         frontend: plan.frontend,
         features: plan.features,
         deps: plan.deps,
@@ -110,6 +129,25 @@ export function registerInitCommand(program: Command): void {
       renderToFile(path.join(tplDir, 'AGENTS.md.hbs'), data, path.join(outputDir, 'AGENTS.md'));
       renderToFile(path.join(tplDir, 'CLAUDE.md.hbs'), data, path.join(outputDir, 'CLAUDE.md'));
       renderToFile(path.join(tplDir, 'env.hbs'), data, path.join(outputDir, '.env.example'));
+
+      // Copy .env.example to .env, injecting host environment variables
+      const envExample = fs.readFileSync(path.join(outputDir, '.env.example'), 'utf-8');
+      let envContent = envExample;
+      const hostVars: Record<string, string> = {
+        DD_API_KEY: process.env.DD_API_KEY || '',
+        DD_APP_KEY: process.env.DD_APP_KEY || '',
+        DD_SITE: process.env.DD_SITE || '',
+      };
+      for (const [key, value] of Object.entries(hostVars)) {
+        if (value) {
+          envContent = envContent.replace(
+            new RegExp(`^${key}=.*$`, 'm'),
+            `${key}=${value}`,
+          );
+        }
+      }
+      fs.writeFileSync(path.join(outputDir, '.env'), envContent, 'utf-8');
+
       renderToFile(path.join(tplDir, 'README.md.hbs'), data, path.join(outputDir, 'README.md'));
 
       // Write .gitignore
@@ -127,7 +165,7 @@ export function registerInitCommand(program: Command): void {
       console.log(`\n  Demo project created at ${outputDir}\n`);
       console.log('  Next steps:');
       console.log(`    1. cd ${path.relative(process.cwd(), outputDir) || '.'}`);
-      console.log('    2. cp .env.example .env  # Edit with your Datadog API key');
+      console.log('    2. Review .env (auto-populated from host if DD_API_KEY was set)');
       console.log('    3. docker compose up -d');
       console.log('');
     });
