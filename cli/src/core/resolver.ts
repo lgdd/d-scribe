@@ -1,7 +1,5 @@
 import type { Manifest } from './manifest.js';
 
-const SERVICE_NAMES = ['api-gateway', 'project-service', 'task-service', 'user-service'];
-
 export interface ResolveOptions {
   backends: string[];
   frontend?: string;
@@ -9,12 +7,14 @@ export interface ResolveOptions {
   stack: string;
   deploy: string;
   ddSite: string;
+  serviceCount: number;
 }
 
 export interface ServiceAssignment {
   name: string;
   backend: string;
   backendPath: string;
+  port: number;
 }
 
 export interface ResolvedFeature {
@@ -44,6 +44,8 @@ export interface ResolvedPlan {
   deploy: 'local';
   ddSite: string;
 }
+
+const BASE_PORT = 8080;
 
 export function resolve(options: ResolveOptions, manifest: Manifest): ResolvedPlan {
   // Validate stack
@@ -81,15 +83,18 @@ export function resolve(options: ResolveOptions, manifest: Manifest): ResolvedPl
     }
   }
 
-  // Distribute services round-robin
-  const services: ServiceAssignment[] = SERVICE_NAMES.map((name, i) => {
+  // Generate N services with generic names and round-robin backend assignment
+  const count = options.serviceCount;
+  const services: ServiceAssignment[] = [];
+  for (let i = 0; i < count; i++) {
     const backend = options.backends[i % options.backends.length];
-    return {
-      name,
+    services.push({
+      name: `service-${i + 1}`,
       backend,
       backendPath: manifest.backends[backend].path,
-    };
-  });
+      port: BASE_PORT + i,
+    });
+  }
 
   // Resolve features
   const features: ResolvedFeature[] = options.features.map(key => {
