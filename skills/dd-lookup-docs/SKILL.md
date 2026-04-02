@@ -1,5 +1,5 @@
 ---
-name: dd-doc-lookup
+name: dd-lookup-docs
 description: Look up current Datadog documentation via the llms.txt index
 tools:
   - file_read

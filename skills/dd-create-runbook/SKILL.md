@@ -1,5 +1,5 @@
 ---
-name: dd-generate-runbook
+name: dd-create-runbook
 description: Generate DEMO-RUNBOOK.md with step-by-step talking points, Datadog UI navigation, and audience-tailored messaging for presenting a demo to a prospect.
 tools:
   - file_read

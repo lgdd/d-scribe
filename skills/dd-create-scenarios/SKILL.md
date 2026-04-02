@@ -1,5 +1,5 @@
 ---
-name: dd-create-demo-scenarios
+name: dd-create-scenarios
 description: Create golden paths and failure scenarios for demos, update the traffic generator, and produce DEMO-SCENARIOS.md
 tools:
   - terminal

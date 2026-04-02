@@ -1,5 +1,5 @@
 ---
-name: dd-preflight-check
+name: dd-check-preflight
 description: Build, deploy, smoke test, and validate a demo project before presenting it. Use after scaffolding or modifying services to ensure everything works end-to-end.
 tools:
   - terminal

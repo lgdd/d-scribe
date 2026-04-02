@@ -40,14 +40,16 @@ After running `--help`, immediately present this to the user in a single message
 
     **Domain**: [what you understood, e.g., "Online banking application"]
     **Backend**: [suggest one or more, e.g., "java:spring" — or ask if no clue]
-    **Frontend**: [yes/no — suggest yes if they mentioned UI/portal/app]
+    **Frontend**: [suggest framework, e.g., "react:vite" if they mentioned UI/portal/app — or "none"]
     **Services** (number of microservices): [suggest 3-4 based on domain complexity]
-    **Datadog features** (beyond the baseline APM + Logs + Infra):
+    **Baseline** (always active, no configuration needed):
+      - APM, Logs, Infrastructure Monitoring
+      - RUM (included because frontend is selected) ← only show this line if frontend is not "none"
+    **Datadog features** (beyond the baseline):
       - [ ] Database Monitoring (dbm:postgresql)
       - [ ] Code Security / IAST (security:code)
       - [ ] Continuous Profiling (profiling)
       - [ ] Cloud SIEM (siem)
-      - [ ] Custom Metrics (metrics:custom)
 
     **Prospect context** (helps tailor the demo scenarios):
       - Current monitoring: [if mentioned, e.g., "migrating from Splunk" — otherwise "not specified"]
@@ -117,17 +119,17 @@ After all services are built, update `docker-compose.yml` to reflect the renamed
 
 ### Step 7: Create demo scenarios (if available)
 
-Read `skills/dd-create-demo-scenarios/SKILL.md`. If it contains actual instructions, follow them to create golden paths and failure scenarios.
+Read `skills/dd-create-scenarios/SKILL.md`. If it contains actual instructions, follow them to create golden paths and failure scenarios.
 
 If the skill is a stub (contains "coming in a future release"), skip this step.
 
 ### Step 8: Validate the demo
 
-1. Read and follow `skills/dd-preflight-check/SKILL.md` but SKIP the teardown step — leave the stack running.
+1. Read and follow `skills/dd-check-preflight/SKILL.md` but SKIP the teardown step — leave the stack running.
 
 2. If preflight passed:
    Check if `DD_API_KEY` is set in `.env` (not a placeholder).
-   - If yes and Datadog MCP is available: read and follow `skills/dd-verify-telemetry/SKILL.md`
+   - If yes and Datadog MCP is available: read and follow `skills/dd-check-telemetry/SKILL.md`
    - If not: skip telemetry verification, mention it in the summary
 
 3. If preflight failed: attempt to fix, re-run. After 2 failed attempts, stop and present the errors to the user instead of continuing.
@@ -141,9 +143,10 @@ Tell the user:
 4. Telemetry verification result: passed, skipped (with reason), or issues found
 5. How to launch: refer to the Launch section in AGENTS.md (stack is already running if preflight passed)
 6. Available skills they can run manually:
-   - `dd-generate-runbook` — produce DEMO-RUNBOOK.md with talking points
-   - `dd-verify-telemetry` — if it was skipped: explain what's needed (configure MCP, set DD_API_KEY in .env)
-   - `dd-preflight-check` — to re-run the full validation cycle
+   - `dd-create-runbook` — produce DEMO-RUNBOOK.md with talking points
+   - `dd-check-telemetry` — if it was skipped: explain what's needed (configure MCP, set DD_API_KEY in .env)
+   - `dd-check-preflight` — to re-run the full validation cycle
+   - Datadog-as-Code: `dd-add-monitor` → `dd-add-slo` → `dd-add-dashboard` — generate Terraform for monitors, SLOs, and dashboards
 7. If prospect context was provided: key talking points tailored to their pain points
 
 ## Notes

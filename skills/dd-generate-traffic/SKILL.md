@@ -13,7 +13,7 @@ Adapt the Locust traffic generator (`traffic/locustfile.py`) to produce realisti
 
 ## When to Use
 
-- Called after `dd-create-demo-scenarios` to implement the scenarios as automated traffic
+- Called after `dd-create-scenarios` to implement the scenarios as automated traffic
 - Called manually when the SE wants to refresh or customize traffic patterns
 - Called after `dd-customize-domain` when services and endpoints have been renamed
 
