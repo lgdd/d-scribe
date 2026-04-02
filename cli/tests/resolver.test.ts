@@ -147,13 +147,13 @@ describe('resolve', () => {
 
   it('throws on unknown backend', () => {
     expect(() => resolve({
-      backends: ['ruby:rails'],
+      backends: ['unknown:backend'],
       features: [],
       stack: 'compose',
       deploy: 'local',
       ddSite: 'datadoghq.com',
       serviceCount: 4,
-    }, manifest)).toThrow(/unknown backend.*ruby:rails/i);
+    }, manifest)).toThrow(/unknown backend.*unknown:backend/i);
   });
 
   it('throws on unknown feature', () => {
