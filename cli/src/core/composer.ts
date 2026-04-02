@@ -1,4 +1,3 @@
-// cli/src/core/composer.ts
 import path from 'node:path';
 import { renderToFile } from './renderer.js';
 import type { ResolvedPlan } from './resolver.js';
@@ -11,22 +10,9 @@ export function composeDockerCompose(
 ): void {
   const templatePath = path.join(templatesDir, 'docker-compose.yml.hbs');
 
-  // Assign ports to services based on their name
-  const portMap: Record<string, number> = {
-    'api-gateway': 8080,
-    'project-service': 8081,
-    'task-service': 8082,
-    'user-service': 8083,
-  };
-
-  const servicesWithPorts = plan.services.map(s => ({
-    ...s,
-    port: portMap[s.name] ?? 8080,
-  }));
-
   const data = {
     projectName,
-    services: servicesWithPorts,
+    services: plan.services,
     frontend: plan.frontend,
     features: plan.features,
     deps: plan.deps,

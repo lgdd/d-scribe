@@ -15,23 +15,33 @@
 ## Launch
 
 ```bash
-cp .env.example .env
-# Edit .env with your Datadog API key
 docker compose up -d
 ```
 
 ## Architecture
 
-The microservices communicate via HTTP with automatic tracing header propagation.
+The scaffolded services are minimal — each compiles, starts, exposes `/health`, logs in JSON, and is instrumented for APM. They have no business logic yet. The AI generates domain-specific code using the instrumentation patterns as reference.
 
-| Service | Port | Calls |
-|---------|------|-------|
-| api-gateway | 8080 | Routes to all services |
+| Service | Port | Backend |
+|---------|------|---------|
 {{#each services}}
-{{#unless (eq this.name "api-gateway")}}
-| {{this.name}} | {{this.port}} | {{#if (eq this.name "user-service")}}None{{/if}}{{#if (eq this.name "project-service")}}user-service{{/if}}{{#if (eq this.name "task-service")}}project-service, user-service{{/if}} |
-{{/unless}}
+| {{this.name}} | {{this.port}} | {{this.backend}} |
 {{/each}}
+
+## Instrumentation references
+
+Instrumentation patterns are available in `references/patterns/`.
+See `index.md` for the full list with feature mapping.
+Only load the patterns needed for the service you're currently building.
+
+{{#if features.length}}
+## Datadog features requested
+{{#each features}}
+- **{{this.label}}**
+{{/each}}
+
+When generating business logic, integrate the patterns matching the features above into each service where relevant.
+{{/if}}
 
 ## Datadog — Baseline Instrumentation
 
@@ -43,20 +53,12 @@ These are always active (no configuration needed):
 - **RUM**: Browser SDK initialized. Sessions captured and connected to backend traces.
 {{/if}}
 
-{{#if features.length}}
-## Datadog — Active Features
-
-{{#each features}}
-- **{{this.label}}**: Enabled
-{{/each}}
-{{/if}}
-
 ## Available Skills
 
 The following skills are available in the `skills/` directory:
 
 - `dd-scaffold-demo`: Create a new demo project (you already used this one)
-- `dd-customize-domain`: Adapt entities and service names to a specific business domain
+- `dd-customize-domain`: Adapt an existing demo to a different business domain or prospect
 - `dd-create-demo-scenarios`: Create realistic golden and failure paths
 - `dd-verify-telemetry`: Verify data arrives in Datadog (requires running stack + Datadog MCP)
 - `dd-preflight-check`: Build, deploy, test, validate, cleanup
@@ -79,7 +81,6 @@ Tags are configured via environment variables in docker-compose.yml — do not h
 
 - **Never** commit API keys or secrets to version control.
 - All credentials live in `.env` (gitignored). `.env.example` documents required variables.
-- To populate `.env` from your shell environment: `envsubst < .env.example > .env`
 - Required: `DD_API_KEY`, `DD_SITE`{{#if frontend}}, `DD_RUM_APPLICATION_ID`, `DD_RUM_CLIENT_TOKEN`{{/if}}
 
 ### Logging

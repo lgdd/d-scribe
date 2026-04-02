@@ -20,13 +20,14 @@ describe('composeDockerCompose', () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'd-scribe-test-'));
   });
 
-  it('generates valid YAML with 4 services + agent + traffic', () => {
+  it('generates valid YAML with N services + agent + traffic', () => {
     const plan = resolve({
       backends: ['java:spring'],
       features: [],
       stack: 'compose',
       deploy: 'local',
       ddSite: 'datadoghq.com',
+      serviceCount: 3,
     }, manifest);
 
     const outPath = path.join(tmpDir, 'docker-compose.yml');
@@ -36,10 +37,9 @@ describe('composeDockerCompose', () => {
     const parsed = YAML.parse(content);
 
     expect(parsed.services).toHaveProperty('datadog-agent');
-    expect(parsed.services).toHaveProperty('api-gateway');
-    expect(parsed.services).toHaveProperty('user-service');
-    expect(parsed.services).toHaveProperty('project-service');
-    expect(parsed.services).toHaveProperty('task-service');
+    expect(parsed.services).toHaveProperty('service-1');
+    expect(parsed.services).toHaveProperty('service-2');
+    expect(parsed.services).toHaveProperty('service-3');
     expect(parsed.services).toHaveProperty('traffic');
     expect(parsed.services).not.toHaveProperty('frontend');
   });
@@ -52,6 +52,7 @@ describe('composeDockerCompose', () => {
       stack: 'compose',
       deploy: 'local',
       ddSite: 'datadoghq.com',
+      serviceCount: 3,
     }, manifest);
 
     const outPath = path.join(tmpDir, 'docker-compose.yml');
@@ -69,6 +70,7 @@ describe('composeDockerCompose', () => {
       stack: 'compose',
       deploy: 'local',
       ddSite: 'datadoghq.com',
+      serviceCount: 3,
     }, manifest);
 
     const outPath = path.join(tmpDir, 'docker-compose.yml');
@@ -86,6 +88,7 @@ describe('composeDockerCompose', () => {
       stack: 'compose',
       deploy: 'local',
       ddSite: 'datadoghq.com',
+      serviceCount: 3,
     }, manifest);
 
     const outPath = path.join(tmpDir, 'docker-compose.yml');
@@ -93,5 +96,25 @@ describe('composeDockerCompose', () => {
 
     const content = fs.readFileSync(outPath, 'utf-8');
     expect(content).toContain('DD_IAST_ENABLED');
+  });
+
+  it('assigns correct ports to services', () => {
+    const plan = resolve({
+      backends: ['java:spring'],
+      features: [],
+      stack: 'compose',
+      deploy: 'local',
+      ddSite: 'datadoghq.com',
+      serviceCount: 3,
+    }, manifest);
+
+    const outPath = path.join(tmpDir, 'docker-compose.yml');
+    composeDockerCompose(plan, 'test-demo', TEMPLATES_DIR, outPath);
+
+    const content = fs.readFileSync(outPath, 'utf-8');
+    const parsed = YAML.parse(content);
+
+    // First service gets exposed port
+    expect(parsed.services['service-1'].ports).toContain('8080:8080');
   });
 });
