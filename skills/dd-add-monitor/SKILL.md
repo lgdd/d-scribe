@@ -5,6 +5,7 @@ tools:
   - terminal
   - file_read
   - file_write
+  - ask_user
 ---
 
 # Add Monitor
@@ -164,7 +165,7 @@ Present the full monitor list to the user with:
 - Monitor name, type, service (or "global"), and proposed threshold
 - Note which thresholds come from real telemetry vs. defaults
 
-Wait for explicit user confirmation before writing any files.
+**Stop here.** Use `ask_user` to present the monitor proposal and wait for explicit user confirmation. Do not write any files until they reply.
 
 ### Step 6: Generate `terraform/monitors.tf`
 
@@ -251,7 +252,7 @@ Tell the user:
 ## Constraints
 
 - **Idempotent scaffolding** — never overwrite `terraform/provider.tf` or `terraform/variables.tf` if they exist
-- **Confirmation before writing** — present the full monitor proposal and wait for explicit user approval before generating `terraform/monitors.tf`
+- **Confirmation before writing** — use `ask_user` to present the full monitor proposal and wait for explicit user approval before generating `terraform/monitors.tf`
 - **Soft MCP dependency** — Datadog MCP enriches thresholds but is not required; always fall back to demo-friendly defaults
 - **Query scoping** — every monitor query must include `env:${var.dd_env}`; never hardcode environment names
 - **Tag every monitor** with `managed_by:terraform`

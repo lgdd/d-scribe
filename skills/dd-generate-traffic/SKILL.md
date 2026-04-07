@@ -5,6 +5,7 @@ tools:
   - terminal
   - file_read
   - file_write
+  - ask_user
 ---
 
 # Generate Traffic
@@ -55,7 +56,7 @@ Map the discovered endpoints to Locust task methods with these weight distributi
 
 Omit tasks for features that aren't active. Adjust weights so they sum to 100.
 
-Present the task design to the user for confirmation before writing.
+**Stop here.** Use `ask_user` to present the task design and wait for user confirmation. Do not write any files until they reply.
 
 ### Step 3: Write the locustfile
 

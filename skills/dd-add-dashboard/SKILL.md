@@ -5,6 +5,7 @@ tools:
   - terminal
   - file_read
   - file_write
+  - ask_user
 ---
 
 # Add Dashboard
@@ -189,7 +190,7 @@ Dashboards to generate for project "<project-name>":
 Confirm? [y/n]
 ```
 
-Wait for user confirmation before proceeding to Step 6.
+**Stop here.** Use `ask_user` to present the dashboard proposal and wait for user confirmation. Do not proceed to Step 6 until they reply.
 
 ### Step 6: Generate `terraform/dashboards.tf`
 
@@ -289,6 +290,6 @@ Tell the user:
 - **Dashboard titles include project name** — required for identification in shared Datadog orgs
 - **Never hardcode API keys** — all credentials go through Terraform variables
 - **Feature-gated dashboards** — only generate dashboards for active features discovered in `AGENTS.md`
-- **Present and confirm before writing** — always show the dashboard proposal and wait for user confirmation before generating `dashboards.tf`
+- **Present and confirm before writing** — use `ask_user` to show the dashboard proposal and wait for user confirmation before generating `dashboards.tf`
 - **Idempotent scaffolding** — Step 1 must not overwrite existing `terraform/` files
 - **Read actual project files** — do not assume service names or features; discover them from `AGENTS.md` and `docker-compose.yml`

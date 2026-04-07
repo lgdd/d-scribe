@@ -4,7 +4,7 @@ description: >
   Adapt an existing demo to a different business domain
   or prospect context. Use when reusing a demo for a
   new prospect in a different industry.
-tools: [terminal, file_read, file_write]
+tools: [terminal, file_read, file_write, ask_user]
 ---
 
 # Customize Domain
@@ -39,7 +39,7 @@ Present a concrete proposal:
 - Adjusted demo scenarios for the new domain
 - Which instrumentation patterns stay relevant
 
-Wait for user confirmation.
+**Stop here.** Use `ask_user` to present the proposal and wait for user confirmation. Do not continue until they reply.
 
 ### Step 4: Apply changes service by service
 

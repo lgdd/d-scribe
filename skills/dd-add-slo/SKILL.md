@@ -5,6 +5,7 @@ tools:
   - terminal
   - file_read
   - file_write
+  - ask_user
 ---
 
 # Add SLO
@@ -171,7 +172,7 @@ Present the full proposal to the user before writing any files. Include:
 - Which features are covered (DBM, RUM)
 - Any target adjustments suggested by real telemetry (Step 3)
 
-Wait for explicit confirmation before proceeding to Step 6.
+**Stop here.** Use `ask_user` to present the SLO proposal and wait for explicit user confirmation. Do not proceed to Step 6 until they reply.
 
 ### Step 6: Generate `terraform/slos.tf`
 
@@ -272,7 +273,7 @@ Tell the user:
 
 - **Idempotent scaffolding** — never overwrite existing `terraform/provider.tf`, `variables.tf`, or `outputs.tf`
 - **Do not hardcode monitor IDs** — always use Terraform expressions (`datadog_monitor.<name>.id`) to maintain the dependency graph
-- **Confirm before writing** — present the full SLO proposal and wait for user confirmation before generating `slos.tf`
+- **Confirm before writing** — use `ask_user` to present the full SLO proposal and wait for user confirmation before generating `slos.tf`
 - **Demo-appropriate targets** — use 99.9% availability and 99% latency (under 2s) as defaults; adjust only if real telemetry clearly shows a different baseline
 - **30-day windows only** — SLO timeframes are always `30d` for demo consistency
 - **Tag every resource** — all SLOs must carry `managed_by:terraform` and `env:${var.dd_env}`
