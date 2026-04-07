@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{name}}
+  namespace: {{namespace}}
+  labels:
+    app: {{name}}
+    tags.datadoghq.com/env: "{{ddEnv}}"
+    tags.datadoghq.com/service: "{{name}}"
+    tags.datadoghq.com/version: "1.0.0"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{name}}
+  template:
+    metadata:
+      labels:
+        app: {{name}}
+        tags.datadoghq.com/env: "{{ddEnv}}"
+        tags.datadoghq.com/service: "{{name}}"
+        tags.datadoghq.com/version: "1.0.0"
+      annotations:
+        ad.datadoghq.com/{{name}}.logs: '[{"source":"{{name}}","service":"{{name}}"}]'
+    spec:
+      containers:
+        - name: {{name}}
+          image: {{image}}
+          imagePullPolicy: Never
+          ports:
+            - containerPort: {{port}}
+          env:
+            - name: DD_SERVICE
+              value: "{{name}}"
+            - name: DD_ENV
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.labels['tags.datadoghq.com/env']
+            - name: DD_VERSION
+              value: "1.0.0"
+            - name: DD_AGENT_HOST
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.hostIP
+            - name: PORT
+              value: "{{port}}"
