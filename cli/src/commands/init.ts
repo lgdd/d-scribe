@@ -17,8 +17,7 @@ export function registerInitCommand(program: Command): void {
     .option('--frontend <spec>', 'Frontend as framework:bundler')
     .option('--features <list>', 'Features as category:type, comma-separated', '')
     .option('--services <count>', 'Number of microservices to scaffold', '4')
-    .option('--stack <type>', 'Infrastructure stack', 'compose')
-    .option('--deploy <target>', 'Deployment target', 'local')
+    .option('--deploy <target>', 'Deploy target (compose, k8s, k8s:aws:ec2, etc.)', 'compose')
     .option('--dd-site <site>', 'Datadog site', 'datadoghq.com')
     .option('--dest <dir>', 'Destination directory', '.')
     .action((opts) => {
@@ -32,7 +31,7 @@ export function registerInitCommand(program: Command): void {
       const serviceCount = parseInt(opts.services, 10);
 
       // Resolve plan
-      const plan = resolve({ backends, frontend: opts.frontend, features, stack: opts.stack, deploy: opts.deploy, ddSite: opts.ddSite, serviceCount }, manifest);
+      const plan = resolve({ backends, frontend: opts.frontend, features, deploy: opts.deploy, ddSite: opts.ddSite, serviceCount }, manifest);
 
       // Create output dir
       fs.ensureDirSync(outputDir);
@@ -119,7 +118,6 @@ export function registerInitCommand(program: Command): void {
         hasRedis: plan.deps.some(d => d.key === 'cache:redis'),
         hasKeycloak: plan.deps.some(d => d.key === 'auth:keycloak'),
         ddSite: plan.ddSite,
-        stack: plan.stack,
         deploy: plan.deploy,
         servicesByBackend,
       };

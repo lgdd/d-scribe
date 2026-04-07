@@ -24,8 +24,7 @@ describe('composeDockerCompose', () => {
     const plan = resolve({
       backends: ['java:spring'],
       features: [],
-      stack: 'compose',
-      deploy: 'local',
+      deploy: 'compose',
       ddSite: 'datadoghq.com',
       serviceCount: 3,
     }, manifest);
@@ -49,8 +48,7 @@ describe('composeDockerCompose', () => {
       backends: ['java:spring'],
       frontend: 'react:vite',
       features: [],
-      stack: 'compose',
-      deploy: 'local',
+      deploy: 'compose',
       ddSite: 'datadoghq.com',
       serviceCount: 3,
     }, manifest);
@@ -67,8 +65,7 @@ describe('composeDockerCompose', () => {
     const plan = resolve({
       backends: ['java:spring'],
       features: ['dbm:postgresql'],
-      stack: 'compose',
-      deploy: 'local',
+      deploy: 'compose',
       ddSite: 'datadoghq.com',
       serviceCount: 3,
     }, manifest);
@@ -85,8 +82,7 @@ describe('composeDockerCompose', () => {
     const plan = resolve({
       backends: ['java:spring'],
       features: ['security:code'],
-      stack: 'compose',
-      deploy: 'local',
+      deploy: 'compose',
       ddSite: 'datadoghq.com',
       serviceCount: 3,
     }, manifest);
@@ -102,8 +98,7 @@ describe('composeDockerCompose', () => {
     const plan = resolve({
       backends: ['java:spring'],
       features: [],
-      stack: 'compose',
-      deploy: 'local',
+      deploy: 'compose',
       ddSite: 'datadoghq.com',
       serviceCount: 3,
     }, manifest);
