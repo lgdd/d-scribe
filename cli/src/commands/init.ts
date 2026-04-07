@@ -130,7 +130,38 @@ export function registerInitCommand(program: Command): void {
       } else if (plan.deploy.stack === 'k8s') {
         const namespace = projectName;
         composeK8s(plan, projectName, namespace, ddEnv, tplDir, path.join(outputDir, 'k8s'));
+
+        // Generate build-only docker-compose for image building
+        renderToFile(
+          path.join(tplDir, 'docker-compose.build.yml.hbs'),
+          data,
+          path.join(outputDir, 'docker-compose.yml'),
+        );
       }
+
+      // Generate Terraform files for AWS deploy targets
+      if (plan.deploy.provider === 'aws') {
+        const tfDir = path.join(outputDir, 'terraform');
+        const tfTplDir = path.join(tplDir, 'terraform', 'ec2');
+        const firstServicePort = plan.services[0]?.port ?? 8080;
+
+        const tfData = {
+          ...data,
+          firstServicePort,
+        };
+
+        renderToFile(path.join(tfTplDir, 'main.tf.hbs'), tfData, path.join(tfDir, 'main.tf'));
+        renderToFile(path.join(tfTplDir, 'variables.tf.hbs'), tfData, path.join(tfDir, 'variables.tf'));
+        renderToFile(path.join(tfTplDir, 'outputs.tf.hbs'), tfData, path.join(tfDir, 'outputs.tf'));
+        renderToFile(path.join(tfTplDir, 'user_data.sh.hbs'), tfData, path.join(tfDir, 'user_data.sh'));
+        renderToFile(path.join(tfTplDir, 'terraform.tfvars.example.hbs'), tfData, path.join(tfDir, 'terraform.tfvars.example'));
+        renderToFile(path.join(tfTplDir, 'deploy.sh.hbs'), tfData, path.join(tfDir, 'deploy.sh'));
+        renderToFile(path.join(tfTplDir, 'gitignore.hbs'), tfData, path.join(tfDir, '.gitignore'));
+
+        // Make deploy.sh executable
+        fs.chmodSync(path.join(tfDir, 'deploy.sh'), 0o755);
+      }
+
       renderToFile(path.join(tplDir, 'AGENTS.md.hbs'), data, path.join(outputDir, 'AGENTS.md'));
       renderToFile(path.join(tplDir, 'CLAUDE.md.hbs'), data, path.join(outputDir, 'CLAUDE.md'));
       renderToFile(path.join(tplDir, 'env.hbs'), data, path.join(outputDir, '.env.example'));
@@ -156,10 +187,21 @@ export function registerInitCommand(program: Command): void {
       renderToFile(path.join(tplDir, 'README.md.hbs'), data, path.join(outputDir, 'README.md'));
 
       // Write .gitignore
-      fs.writeFileSync(path.join(outputDir, '.gitignore'), [
+      const gitignoreEntries = [
         '.env', 'node_modules/', '.gradle/', 'target/', 'build/',
         '__pycache__/', '*.pyc', 'dist/',
-      ].join('\n') + '\n');
+      ];
+      if (plan.deploy.provider === 'aws') {
+        gitignoreEntries.push(
+          'terraform/.terraform/',
+          'terraform/*.tfstate',
+          'terraform/*.tfstate.backup',
+          'terraform/*.tfvars',
+          '!terraform/terraform.tfvars.example',
+          'terraform/.terraform.lock.hcl',
+        );
+      }
+      fs.writeFileSync(path.join(outputDir, '.gitignore'), gitignoreEntries.join('\n') + '\n');
 
       // Copy skills
       const skPath = skillsPath();
@@ -171,7 +213,20 @@ export function registerInitCommand(program: Command): void {
       console.log('  Next steps:');
       console.log(`    1. cd ${path.relative(process.cwd(), outputDir) || '.'}`);
       console.log('    2. Review .env (auto-populated from host if DD_API_KEY was set)');
-      console.log('    3. docker compose up -d');
+      if (plan.deploy.provider === 'aws') {
+        console.log('    3. cd terraform && cp terraform.tfvars.example terraform.tfvars');
+        console.log('    4. Edit terraform.tfvars with your Datadog API key');
+        console.log('    5. terraform init && terraform apply');
+        console.log('    6. ./deploy.sh');
+      } else if (plan.deploy.stack === 'k8s') {
+        console.log('    3. minikube start');
+        console.log('    4. eval $(minikube docker-env) && docker compose build');
+        console.log('    5. helm repo add datadog https://helm.datadoghq.com');
+        console.log(`    6. helm install datadog datadog/datadog -f k8s/datadog/values.yaml -n ${projectName} --create-namespace`);
+        console.log('    7. kubectl apply -f k8s/ --recursive');
+      } else {
+        console.log('    3. docker compose up -d');
+      }
       console.log('');
     });
 
