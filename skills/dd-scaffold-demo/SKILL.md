@@ -5,6 +5,7 @@ tools:
   - terminal
   - file_read
   - file_write
+  - ask_user
 ---
 
 # Scaffold Demo
@@ -25,6 +26,8 @@ This skill runs `d-scribe init demo` to generate pre-instrumented service scaffo
 
 - `d-scribe` CLI installed (`npx d-scribe` or globally via `npm install -g d-scribe`)
 - Docker and Docker Compose V2 installed
+- For K8s targets: minikube (or kind) and kubectl installed
+- For AWS targets: Terraform and AWS CLI configured
 
 ## Workflow
 
@@ -42,6 +45,12 @@ After running `--help`, immediately present this to the user in a single message
     **Backend**: [suggest one or more, e.g., "java:spring" — or ask if no clue]
     **Frontend**: [suggest framework, e.g., "react:vite" if they mentioned UI/portal/app — or "none"]
     **Services** (number of microservices): [suggest 3-4 based on domain complexity]
+    **Deploy target**: [default: compose — run `d-scribe list deploy` to show options. Suggest based on context:
+      - `compose` — Docker Compose locally (simplest, default)
+      - `k8s` — Kubernetes locally (minikube)
+      - `compose:aws:ec2` — Docker Compose on AWS EC2
+      - `k8s:aws:ec2` — Kubernetes on AWS EC2 (minikube)]
+    **K8s namespace**: [only show this line if deploy target starts with "k8s" — default to project directory name]
     **Baseline** (always active, no configuration needed):
       - APM, Logs, Infrastructure Monitoring
       - RUM (included because frontend is selected) ← only show this line if frontend is not "none"
@@ -59,7 +68,7 @@ After running `--help`, immediately present this to the user in a single message
 
     Which features do you want, and does the rest look right?
 
-Do NOT skip this step. Do NOT silently default. Wait for the user's response before proceeding. The prospect context fields are optional — if the SE doesn't provide them, proceed without them.
+Do NOT skip this step. Do NOT silently default. **Stop here.** Use `ask_user` to present the message above and wait for the user's response. Do not continue until they reply. The prospect context fields are optional — if the SE doesn't provide them, proceed without them.
 
 ### Step 3: Propose architecture
 
@@ -86,13 +95,13 @@ Based on the requirements, propose a concrete architecture:
 
     Does this look right, or should I adjust anything?
 
-Wait for the user's confirmation before proceeding.
+**Stop here.** Use `ask_user` to present the architecture proposal and wait for the user's confirmation. Do not continue until they reply.
 
 ### Step 4: Execute the CLI
 
-Map the architecture to CLI arguments and run:
+Map the architecture to CLI arguments and run. The `--deploy` flag MUST match the deploy target confirmed in Step 2:
 
-    d-scribe init demo --backend java:spring,python:flask --frontend react:vite --features dbm:postgresql,security:code,profiling --services 4 --output .
+    d-scribe init demo --backend java:spring,python:flask --frontend react:vite --features dbm:postgresql,security:code,profiling --services 4 --deploy <confirmed-deploy-target> --dest .
 
 ### Step 5: Read the generated context
 
@@ -115,7 +124,7 @@ For each service, one at a time:
 
 **Do NOT start the next service until the current one compiles.**
 
-After all services are built, update `docker-compose.yml` to reflect the renamed services.
+After all services are built, update `docker-compose.yml` (or the K8s manifests in `k8s/` if using a K8s deploy target) to reflect the renamed services.
 
 ### Step 7: Create demo scenarios (if available)
 
