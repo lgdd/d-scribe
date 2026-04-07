@@ -53,4 +53,20 @@ export function registerListCommand(program: Command): void {
       console.log(key.padEnd(20) + val.path);
     }
   });
+
+  list.command('deploy').description('List available deploy targets')
+    .option('--output <format>', 'Output as JSON array of keys')
+    .action((opts) => {
+      const manifest = loadManifest(catalogPath());
+      if (opts.output === 'json') {
+        console.log(JSON.stringify(Object.keys(manifest.infra.deploy)));
+        return;
+      }
+      console.log('Target'.padEnd(25) + 'Label');
+      console.log('-'.repeat(60));
+      for (const [key, val] of Object.entries(manifest.infra.deploy)) {
+        const status = val.status ? ` (${val.status})` : '';
+        console.log(key.padEnd(25) + val.label + status);
+      }
+    });
 }
