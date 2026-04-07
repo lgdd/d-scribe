@@ -13,8 +13,7 @@ describe('resolve', () => {
     const plan = resolve({
       backends: ['java:spring'],
       features: [],
-      stack: 'compose',
-      deploy: 'local',
+      deploy: 'compose',
       ddSite: 'datadoghq.com',
       serviceCount: 4,
     }, manifest);
@@ -28,8 +27,7 @@ describe('resolve', () => {
     const plan = resolve({
       backends: ['java:spring'],
       features: [],
-      stack: 'compose',
-      deploy: 'local',
+      deploy: 'compose',
       ddSite: 'datadoghq.com',
       serviceCount: 2,
     }, manifest);
@@ -42,8 +40,7 @@ describe('resolve', () => {
     const plan = resolve({
       backends: ['java:spring'],
       features: [],
-      stack: 'compose',
-      deploy: 'local',
+      deploy: 'compose',
       ddSite: 'datadoghq.com',
       serviceCount: 3,
     }, manifest);
@@ -57,8 +54,7 @@ describe('resolve', () => {
     const plan = resolve({
       backends: ['java:spring', 'python:flask'],
       features: [],
-      stack: 'compose',
-      deploy: 'local',
+      deploy: 'compose',
       ddSite: 'datadoghq.com',
       serviceCount: 4,
     }, manifest);
@@ -75,8 +71,7 @@ describe('resolve', () => {
       backends: ['java:spring'],
       frontend: 'react:vite',
       features: [],
-      stack: 'compose',
-      deploy: 'local',
+      deploy: 'compose',
       ddSite: 'datadoghq.com',
       serviceCount: 4,
     }, manifest);
@@ -88,8 +83,7 @@ describe('resolve', () => {
     const plan = resolve({
       backends: ['java:spring'],
       features: ['dbm:postgresql'],
-      stack: 'compose',
-      deploy: 'local',
+      deploy: 'compose',
       ddSite: 'datadoghq.com',
       serviceCount: 4,
     }, manifest);
@@ -104,8 +98,7 @@ describe('resolve', () => {
     const plan = resolve({
       backends: ['java:spring'],
       features: ['dbm:postgresql'],
-      stack: 'compose',
-      deploy: 'local',
+      deploy: 'compose',
       ddSite: 'datadoghq.com',
       serviceCount: 4,
     }, manifest);
@@ -118,8 +111,7 @@ describe('resolve', () => {
     const plan = resolve({
       backends: ['java:spring'],
       features: ['security:code', 'profiling'],
-      stack: 'compose',
-      deploy: 'local',
+      deploy: 'compose',
       ddSite: 'datadoghq.com',
       serviceCount: 4,
     }, manifest);
@@ -135,8 +127,7 @@ describe('resolve', () => {
     const plan = resolve({
       backends: ['java:spring'],
       features: [],
-      stack: 'compose',
-      deploy: 'local',
+      deploy: 'compose',
       ddSite: 'datadoghq.com',
       serviceCount: 2,
     }, manifest);
@@ -149,8 +140,7 @@ describe('resolve', () => {
     expect(() => resolve({
       backends: ['unknown:backend'],
       features: [],
-      stack: 'compose',
-      deploy: 'local',
+      deploy: 'compose',
       ddSite: 'datadoghq.com',
       serviceCount: 4,
     }, manifest)).toThrow(/unknown backend.*unknown:backend/i);
@@ -160,21 +150,45 @@ describe('resolve', () => {
     expect(() => resolve({
       backends: ['java:spring'],
       features: ['unknown:feature'],
-      stack: 'compose',
-      deploy: 'local',
+      deploy: 'compose',
       ddSite: 'datadoghq.com',
       serviceCount: 4,
     }, manifest)).toThrow(/unknown feature.*unknown:feature/i);
   });
 
-  it('throws on unsupported stack', () => {
-    expect(() => resolve({
+  it('resolves deploy target into plan', () => {
+    const plan = resolve({
       backends: ['java:spring'],
       features: [],
-      stack: 'k8s',
-      deploy: 'local',
+      deploy: 'k8s',
       ddSite: 'datadoghq.com',
-      serviceCount: 4,
-    }, manifest)).toThrow(/k8s.*not supported/i);
+      serviceCount: 2,
+    }, manifest);
+
+    expect(plan.deploy).toEqual({ stack: 'k8s', provider: 'local', service: 'minikube' });
+  });
+
+  it('resolves compose deploy target', () => {
+    const plan = resolve({
+      backends: ['java:spring'],
+      features: [],
+      deploy: 'compose',
+      ddSite: 'datadoghq.com',
+      serviceCount: 2,
+    }, manifest);
+
+    expect(plan.deploy).toEqual({ stack: 'compose', provider: 'local', service: null });
+  });
+
+  it('resolves aws deploy target', () => {
+    const plan = resolve({
+      backends: ['java:spring'],
+      features: [],
+      deploy: 'k8s:aws:ec2',
+      ddSite: 'datadoghq.com',
+      serviceCount: 2,
+    }, manifest);
+
+    expect(plan.deploy).toEqual({ stack: 'k8s', provider: 'aws', service: 'ec2' });
   });
 });

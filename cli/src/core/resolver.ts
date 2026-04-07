@@ -1,10 +1,10 @@
 import type { Manifest } from './manifest.js';
+import { parseDeploy, type DeployTarget } from './deploy.js';
 
 export interface ResolveOptions {
   backends: string[];
   frontend?: string;
   features: string[];
-  stack: string;
   deploy: string;
   ddSite: string;
   serviceCount: number;
@@ -40,21 +40,15 @@ export interface ResolvedPlan {
   features: ResolvedFeature[];
   deps: ResolvedDep[];
   envVars: Record<string, string>;
-  stack: 'compose';
-  deploy: 'local';
+  deploy: DeployTarget;
   ddSite: string;
 }
 
 const BASE_PORT = 8080;
 
 export function resolve(options: ResolveOptions, manifest: Manifest): ResolvedPlan {
-  // Validate stack
-  if (options.stack !== 'compose') {
-    throw new Error(`Stack "${options.stack}" is not supported in Phase 1. Available: compose`);
-  }
-  if (options.deploy !== 'local') {
-    throw new Error(`Deploy target "${options.deploy}" is not supported in Phase 1. Available: local`);
-  }
+  // Parse and validate deploy target
+  const deploy = parseDeploy(options.deploy);
 
   // Validate backends
   for (const b of options.backends) {
@@ -130,8 +124,7 @@ export function resolve(options: ResolveOptions, manifest: Manifest): ResolvedPl
     features,
     deps,
     envVars,
-    stack: 'compose',
-    deploy: 'local',
+    deploy,
     ddSite: options.ddSite,
   };
 }
