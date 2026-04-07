@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { composeDockerCompose } from '../src/core/composer.js';
+import { composeDockerCompose, composeK8s } from '../src/core/composer.js';
 import { resolve } from '../src/core/resolver.js';
 import { loadManifest } from '../src/core/manifest.js';
 import path from 'node:path';
@@ -111,5 +111,97 @@ describe('composeDockerCompose', () => {
 
     // First service gets exposed port
     expect(parsed.services['service-1'].ports).toContain('8080:8080');
+  });
+});
+
+describe('composeK8s', () => {
+  let tmpDir: string;
+
+  beforeEach(() => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'd-scribe-test-'));
+  });
+
+  it('generates namespace.yaml with project namespace', () => {
+    const plan = resolve({
+      backends: ['java:spring'],
+      features: [],
+      deploy: 'k8s',
+      ddSite: 'datadoghq.com',
+      serviceCount: 2,
+    }, manifest);
+
+    const k8sDir = path.join(tmpDir, 'k8s');
+    composeK8s(plan, 'test-demo', 'test-demo', 'test-demo-260407', TEMPLATES_DIR, k8sDir);
+
+    const ns = fs.readFileSync(path.join(k8sDir, 'namespace.yaml'), 'utf-8');
+    expect(ns).toContain('name: test-demo');
+  });
+
+  it('generates deployment and service per service', () => {
+    const plan = resolve({
+      backends: ['java:spring'],
+      features: [],
+      deploy: 'k8s',
+      ddSite: 'datadoghq.com',
+      serviceCount: 2,
+    }, manifest);
+
+    const k8sDir = path.join(tmpDir, 'k8s');
+    composeK8s(plan, 'test-demo', 'test-demo', 'test-demo-260407', TEMPLATES_DIR, k8sDir);
+
+    expect(fs.existsSync(path.join(k8sDir, 'services', 'service-1-deployment.yaml'))).toBe(true);
+    expect(fs.existsSync(path.join(k8sDir, 'services', 'service-1-service.yaml'))).toBe(true);
+    expect(fs.existsSync(path.join(k8sDir, 'services', 'service-2-deployment.yaml'))).toBe(true);
+    expect(fs.existsSync(path.join(k8sDir, 'services', 'service-2-service.yaml'))).toBe(true);
+  });
+
+  it('generates datadog Helm values', () => {
+    const plan = resolve({
+      backends: ['java:spring'],
+      features: [],
+      deploy: 'k8s',
+      ddSite: 'datadoghq.com',
+      serviceCount: 2,
+    }, manifest);
+
+    const k8sDir = path.join(tmpDir, 'k8s');
+    composeK8s(plan, 'test-demo', 'test-demo', 'test-demo-260407', TEMPLATES_DIR, k8sDir);
+
+    const values = fs.readFileSync(path.join(k8sDir, 'datadog', 'values.yaml'), 'utf-8');
+    expect(values).toContain('apiKeyExistingSecret: datadog-secret');
+    expect(values).toContain('datadoghq.com');
+  });
+
+  it('generates ingress.yaml', () => {
+    const plan = resolve({
+      backends: ['java:spring'],
+      features: [],
+      deploy: 'k8s',
+      ddSite: 'datadoghq.com',
+      serviceCount: 2,
+    }, manifest);
+
+    const k8sDir = path.join(tmpDir, 'k8s');
+    composeK8s(plan, 'test-demo', 'test-demo', 'test-demo-260407', TEMPLATES_DIR, k8sDir);
+
+    expect(fs.existsSync(path.join(k8sDir, 'ingress.yaml'))).toBe(true);
+    const ingress = fs.readFileSync(path.join(k8sDir, 'ingress.yaml'), 'utf-8');
+    expect(ingress).toContain('service-1');
+  });
+
+  it('generates dep manifests for postgresql', () => {
+    const plan = resolve({
+      backends: ['java:spring'],
+      features: ['dbm:postgresql'],
+      deploy: 'k8s',
+      ddSite: 'datadoghq.com',
+      serviceCount: 2,
+    }, manifest);
+
+    const k8sDir = path.join(tmpDir, 'k8s');
+    composeK8s(plan, 'test-demo', 'test-demo', 'test-demo-260407', TEMPLATES_DIR, k8sDir);
+
+    expect(fs.existsSync(path.join(k8sDir, 'deps', 'postgresql-deployment.yaml'))).toBe(true);
+    expect(fs.existsSync(path.join(k8sDir, 'deps', 'postgresql-service.yaml'))).toBe(true);
   });
 });

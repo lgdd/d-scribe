@@ -3,7 +3,7 @@ import path from 'node:path';
 import fs from 'fs-extra';
 import { loadManifest } from '../core/manifest.js';
 import { resolve } from '../core/resolver.js';
-import { composeDockerCompose } from '../core/composer.js';
+import { composeDockerCompose, composeK8s } from '../core/composer.js';
 import { renderToFile } from '../core/renderer.js';
 import { catalogPath, skillsPath, templatesPath } from '../helpers/catalog.js';
 
@@ -123,7 +123,13 @@ export function registerInitCommand(program: Command): void {
       };
 
       // Render all templates
-      composeDockerCompose(plan, projectName, tplDir, path.join(outputDir, 'docker-compose.yml'));
+      // Render orchestration files based on deploy target
+      if (plan.deploy.stack === 'compose') {
+        composeDockerCompose(plan, projectName, tplDir, path.join(outputDir, 'docker-compose.yml'));
+      } else if (plan.deploy.stack === 'k8s') {
+        const namespace = projectName;
+        composeK8s(plan, projectName, namespace, ddEnv, tplDir, path.join(outputDir, 'k8s'));
+      }
       renderToFile(path.join(tplDir, 'AGENTS.md.hbs'), data, path.join(outputDir, 'AGENTS.md'));
       renderToFile(path.join(tplDir, 'CLAUDE.md.hbs'), data, path.join(outputDir, 'CLAUDE.md'));
       renderToFile(path.join(tplDir, 'env.hbs'), data, path.join(outputDir, '.env.example'));
