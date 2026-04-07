@@ -23,9 +23,14 @@ export interface DepEntry {
   path: string;
 }
 
+export interface DeployEntry {
+  label: string;
+  status?: string;
+}
+
 export interface InfraConfig {
-  stacks: string[];
-  deploy: string[];
+  deploy: Record<string, DeployEntry>;
+  defaults: Record<string, string>;
 }
 
 export interface Manifest {

@@ -89,7 +89,19 @@
     }
   },
   "infra": {
-    "stacks": ["compose", "k8s"],
-    "deploy": ["local", "aws"]
+    "deploy": {
+      "compose:local": { "label": "Docker Compose (local)" },
+      "compose:aws:ec2": { "label": "Docker Compose on AWS EC2" },
+      "k8s:local:minikube": { "label": "Kubernetes (local Minikube)" },
+      "k8s:aws:ec2": { "label": "Kubernetes on AWS EC2 (Minikube)" },
+      "k8s:aws:eks": { "label": "Kubernetes on AWS EKS", "status": "future" }
+    },
+    "defaults": {
+      "compose": "compose:local",
+      "compose:aws": "compose:aws:ec2",
+      "k8s": "k8s:local:minikube",
+      "k8s:local": "k8s:local:minikube",
+      "k8s:aws": "k8s:aws:ec2"
+    }
   }
 }

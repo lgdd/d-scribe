@@ -25,6 +25,14 @@ describe('loadManifest', () => {
     expect(manifest.backends['java:spring'].path).toBe('backends/java-spring');
   });
 
+  it('has deploy targets with labels and defaults', () => {
+    const manifest = loadManifest(CATALOG_PATH);
+    expect(manifest.infra.deploy).toHaveProperty('compose:local');
+    expect(manifest.infra.deploy['compose:local'].label).toBe('Docker Compose (local)');
+    expect(manifest.infra.defaults).toHaveProperty('compose');
+    expect(manifest.infra.defaults['compose']).toBe('compose:local');
+  });
+
   it('throws on missing manifest', () => {
     expect(() => loadManifest('/nonexistent')).toThrow();
   });
