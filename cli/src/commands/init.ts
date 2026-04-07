@@ -108,6 +108,7 @@ export function registerInitCommand(program: Command): void {
       const data = {
         projectName,
         ddEnv,
+        namespace: projectName,
         services: plan.services,
         frontend: plan.frontend,
         features: plan.features,

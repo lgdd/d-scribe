@@ -7,16 +7,38 @@
 {{#if frontend}}
 - Frontend: {{frontend.label}} (frontend/)
 {{/if}}
-- Infrastructure: Docker Compose (local)
+{{#if (eq deploy.stack "compose")}}
+- Infrastructure: Docker Compose ({{deploy.provider}})
+{{else}}
+- Infrastructure: Kubernetes ({{deploy.provider}}{{#if deploy.service}}, {{deploy.service}}{{/if}})
+{{/if}}
 {{#if deps.length}}
 - Dependencies: {{#each deps}}{{this.key}}{{#unless @last}}, {{/unless}}{{/each}}
 {{/if}}
 
 ## Launch
 
+{{#if (eq deploy.provider "aws")}}
+```bash
+cd terraform && terraform init && terraform apply
+./terraform/deploy.sh
+```
+{{else}}
+{{#if (eq deploy.stack "compose")}}
 ```bash
 docker compose up -d
 ```
+{{else}}
+```bash
+minikube start
+eval $(minikube docker-env)
+docker compose build
+helm repo add datadog https://helm.datadoghq.com
+helm install datadog datadog/datadog -f k8s/datadog/values.yaml -n {{namespace}} --create-namespace
+kubectl apply -f k8s/ --recursive
+```
+{{/if}}
+{{/if}}
 
 ## Architecture
 
