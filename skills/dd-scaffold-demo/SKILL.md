@@ -33,81 +33,255 @@ This skill runs `d-scribe init demo` to generate pre-instrumented service scaffo
 
 ### Step 1: Discover available options
 
-Run `d-scribe init demo --help` to see all available backends, frontends, features, and options. Do NOT hardcode these — always discover dynamically.
+Run `d-scribe init demo --help` and `d-scribe list deploy` to see all available backends, frontends, features, deploy targets, and options. Do NOT hardcode these — always discover dynamically.
 
-### Step 2: Gather requirements
+### Step 2: Confirm domain
 
-After running `--help`, immediately present this to the user in a single message. Fill in what you can infer from their request, and ask about the rest:
+Infer the domain from the user's trigger message.
 
-    Here's what I'm thinking based on your description:
+If the trigger message is too vague to infer a domain (e.g., "create a demo"), ask directly: "What kind of application should this demo simulate?"
 
-    **Domain**: [what you understood, e.g., "Online banking application"]
-    **Backend**: [suggest one or more, e.g., "java:spring" — or ask if no clue]
-    **Frontend**: [suggest framework, e.g., "react:vite" if they mentioned UI/portal/app — or "none"]
-    **Services** (number of microservices): [suggest 3-4 based on domain complexity]
-    **Deploy target**: [default: compose — run `d-scribe list deploy` to show options. Suggest based on context:
-      - `compose` — Docker Compose locally (simplest, default)
-      - `k8s` — Kubernetes locally (minikube)
-      - `compose:aws:ec2` — Docker Compose on AWS EC2
-      - `k8s:aws:ec2` — Kubernetes on AWS EC2 (minikube)]
-    **K8s namespace**: [only show this line if deploy target starts with "k8s" — default to project directory name]
-    **Baseline** (always active, no configuration needed):
-      - APM, Logs, Infrastructure Monitoring
-      - RUM (included because frontend is selected) ← only show this line if frontend is not "none"
-    **Datadog features** (beyond the baseline):
-      - [ ] Database Monitoring (dbm:postgresql)
-      - [ ] Code Security / IAST (security:code)
-      - [ ] Continuous Profiling (profiling)
-      - [ ] Cloud SIEM (siem)
+<ASK_USER>
+Call the `ask_user` tool with a single-select question confirming the inferred domain.
 
-    **Prospect context** (helps tailor the demo scenarios):
-      - Current monitoring: [if mentioned, e.g., "migrating from Splunk" — otherwise "not specified"]
-      - Pain points: [if mentioned, e.g., "slow incident response" — otherwise "not specified"]
+Question: "I'll build the demo around this domain — does this sound right?"
+Options:
+- [inferred domain, e.g., "Online banking / fintech application"] (Recommended) — "I'll tailor services, scenarios, and failure modes around this domain"
+- "Something else" — "I'd like a different domain focus"
 
-    **Output directory**: [. if CWD is empty, or ./suggested-name otherwise]
+Do not proceed to Step 3 until you receive the user's response.
+</ASK_USER>
 
-    Which features do you want, and does the rest look right?
+### Step 3: Prospect context
 
-Do NOT skip this step. Do NOT silently default. **Stop here.** Use `ask_user` to present the message above and wait for the user's response. Do not continue until they reply. The prospect context fields are optional — if the SE doesn't provide them, proceed without them.
+Gather prospect context in three focused sub-steps. All sub-steps use selectable options inferred from the confirmed domain and available CLI options (discovered in Step 1). Each `ask_user` call is **multi-select** so the SE can pick all that apply. All sub-steps are optional — if the SE skips or gives minimal input, proceed with reasonable defaults.
 
-### Step 3: Propose architecture
+#### Step 3a: Tech stack
 
-Based on the requirements, propose a concrete architecture:
+Based on the backends and frontends discovered in Step 1, infer which stacks are most likely for the confirmed domain and present them as options.
 
-    Here's the architecture I propose:
+<ASK_USER>
+Call the `ask_user` tool with a **multi-select** question.
 
-    **Services:**
-    1. `api-gateway` (java:spring) — Routes requests, entry point
-    2. `account-service` (java:spring) — Manages accounts and balances
-    3. `transaction-service` (python:flask) — Processes transfers, showcases distributed tracing cross-language
-    4. `fraud-detection-service` (python:flask) — Analyzes transactions, showcases Code Security + Profiling
+Question: "What's the prospect's tech stack? (select all that apply)"
+Options — infer 4-6 options that are realistic for the domain, drawn from the backends/frontends discovered in Step 1. Always include a "Skip" option. Examples for a fintech domain:
+- "Java / Spring (Recommended)" — "Common in financial services backends"
+- "Python / Flask or Django" — "Used for data processing, ML, APIs"
+- "Go" — "High-performance services, payment processing"
+- "React frontend" — "Customer-facing web portal"
+- "Not sure / Skip" — "I'll use defaults (Java + Python + React)"
 
-    **Demo scenarios I'll create:**
-    - Golden path: Customer logs in → checks balance → transfers funds → receives confirmation
-    - Failure: Slow query on transaction history (DBM)
-    - Failure: SQL injection attempt on search (Code Security)
-    - Failure: CPU spike during batch fraud analysis (Profiling)
+Mark the most likely options for the domain with "(Recommended)".
+Do not proceed to Step 3b until you receive the user's response.
+</ASK_USER>
 
-    [If prospect context was provided:]
-    **Tailored to your prospect:**
-    - Since they're migrating from Splunk, I'll emphasize log correlation with traces
-    - The slow query scenario directly addresses their MTTR pain point
+#### Step 3b: Pain points
 
-    Does this look right, or should I adjust anything?
+Based on the confirmed domain and the Datadog features available, infer the most common pain points and present them as options.
 
-**Stop here.** Use `ask_user` to present the architecture proposal and wait for the user's confirmation. Do not continue until they reply.
+<ASK_USER>
+Call the `ask_user` tool with a **multi-select** question.
 
-### Step 4: Execute the CLI
+Question: "What's driving the eval? What's not working today? (select all that apply)"
+Options — infer 5-7 pain points that are realistic for the domain and map to Datadog capabilities. Always include a "Skip" option. Examples for a fintech domain:
+- "Slow incident response / high MTTR" — "Takes too long to find root cause during outages"
+- "No correlation between logs and traces" — "Jumping between tools to debug issues"
+- "Database performance blind spots" — "Slow queries, no visibility into PostgreSQL/MySQL"
+- "Security / compliance concerns" — "Need vulnerability detection, audit trails"
+- "Migrating off another tool (Splunk, ELK, etc.)" — "Consolidating onto a single platform"
+- "No proactive alerting" — "Reactive firefighting instead of catching issues early"
+- "Not sure / Skip" — "I'll pick features in the next step"
 
-Map the architecture to CLI arguments and run. The `--deploy` flag MUST match the deploy target confirmed in Step 2:
+Mark the most likely pain points for the domain with "(Recommended)".
+Do not proceed to Step 3c until you receive the user's response.
+</ASK_USER>
 
-    d-scribe init demo --backend java:spring,python:flask --frontend react:vite --features dbm:postgresql,security:code,profiling --services 4 --deploy <confirmed-deploy-target> --dest .
+#### Step 3c: Future state
 
-### Step 5: Read the generated context
+Based on the domain and selected pain points from Step 3b, infer the most relevant goals and present them as options.
+
+<ASK_USER>
+Call the `ask_user` tool with a **multi-select** question.
+
+Question: "Where does the prospect want to be? (select all that apply)"
+Options — infer 4-6 goals that logically follow from the selected pain points. Always include a "Skip" option. Examples for a fintech domain with MTTR + database pain points:
+- "Full observability across all microservices" — "End-to-end visibility from frontend to database"
+- "Unified platform replacing multiple tools" — "Single pane of glass for logs, traces, metrics"
+- "Proactive alerting and anomaly detection" — "Catch issues before customers are impacted"
+- "Faster incident resolution (MTTR < 15 min)" — "Quick root cause analysis with correlated telemetry"
+- "Security and compliance visibility" — "Runtime threat detection, vulnerability scanning"
+- "Not sure / Skip" — "I'll proceed with what we have"
+
+Mark the goals most aligned with the selected pain points with "(Recommended)".
+Do not proceed to Step 4 until you receive the user's response.
+</ASK_USER>
+
+### Step 4: Infer features
+
+Based on the prospect's pain points and context from Step 3, infer which Datadog features to showcase. Map pain points to features:
+- "slow MTTR" / "incident response" / "bottlenecks" → `profiling`
+- "database performance" / "slow queries" → `dbm:postgresql`
+- "security" / "compliance" / "vulnerabilities" → `security:code`
+- "SIEM migration" / "security operations" / "threat detection" → `siem`
+- If no pain points were provided, recommend `dbm:postgresql` as the default — it produces the most visually compelling Datadog demo with minimal setup
+
+**Worked examples:**
+
+> Prospect says: "Java shop migrating from Splunk, slow incident resolution, no visibility into PostgreSQL performance."
+> → Check: `dbm:postgresql` (no DB visibility), `profiling` (slow incident resolution / MTTR)
+> → Uncheck: `security:code`, `siem`
+> → Note in `siem` line: "Splunk migration may indicate future SIEM interest — worth flagging"
+
+> Prospect says: "Python/React on K8s, worried about security compliance."
+> → Check: `security:code` (security/compliance concern)
+> → Uncheck: `dbm:postgresql`, `profiling`, `siem`
+
+Before calling `ask_user`, output a short text message listing the baseline: "**Baseline** (always active, not configurable): APM with distributed tracing, Log Management with trace correlation, Infrastructure Monitoring [+ RUM if a frontend is likely]."
+
+Then use `ask_user` for the additional features.
+
+<ASK_USER>
+Call the `ask_user` tool with a **multi-select** question. Do NOT present the features as text.
+
+Question: "Which additional features should this demo showcase? (Baseline: APM, Logs, Infra, RUM are always included)"
+Options (all 4, with descriptions that include your reasoning tied to the prospect's context):
+- Database Monitoring (dbm:postgresql) — [reason tied to prospect context]
+- Continuous Profiling (profiling) — [reason tied to prospect context]
+- Code Security / IAST (security:code) — [reason tied to prospect context]
+- Cloud SIEM (siem) — [reason tied to prospect context]
+
+Mark recommended options with "(Recommended)" in the label.
+Do not proceed to Step 5 until you receive the user's response.
+</ASK_USER>
+
+### Step 5: Infer app stack
+
+Based on the prospect's tech stack from Step 3, infer backends, frontend, and service count. Use the options discovered in Step 1.
+
+Inference guidelines:
+- If the prospect runs a specific language/framework, use the matching backend (e.g., Java Spring → `java:spring`)
+- Always include at least 2 different backend languages to demonstrate cross-language distributed tracing
+- If the prospect has a web app/portal, include a frontend matching their stack (React → `react:vite`, Angular → `angular:esbuild`, Vue → `vue:vite`)
+- If the prospect's tech stack is unknown, default to `java:spring` + `python:flask` (best cross-language tracing story) and `react:vite`
+- Service count: 3 for simple domains, 4 for moderate, 5+ for complex
+
+**Worked examples:**
+
+> Prospect runs: "Java Spring monolith, migrating to microservices, React frontend"
+> → Backends: `java:spring` (matches their primary stack) + `python:flask` (cross-language tracing)
+> → Frontend: `react:vite` (matches their React stack, enables RUM)
+> → Services: 4 (moderate complexity for a migration story)
+
+> Prospect runs: "Go + Python data pipeline, no frontend"
+> → Backends: `go:gin` (matches Go stack) + `python:flask` (matches Python stack)
+> → Frontend: none (backend-only pipeline)
+> → Services: 3 (pipeline is inherently linear)
+
+> Unknown tech stack or too vague:
+> → Default to `java:spring` + `python:flask` + `react:vite` with 4 services — the most battle-tested combination for cross-language tracing demos.
+
+Based on the domain (Step 2) and tech stack (Step 3a), infer concrete service names and assign each a backend framework. Also infer whether a frontend is needed.
+
+Output the recommended stack as a text message. Example for a fintech domain:
+
+"Here's what I'd build:
+
+**Backends:** `java:spring` + `python:flask` (cross-language distributed tracing)
+**Frontend:** `react:vite` (RUM for browser monitoring)"
+
+Then use `ask_user` with a **multi-select** question listing the proposed services. The user selects the ones they want to keep.
+
+<ASK_USER>
+Call the `ask_user` tool with a **multi-select** question.
+
+Question: "Select the services to include in the demo (minimum 2 with a dependency between them):"
+Options (all proposed services, each with its framework and role):
+- "[service-name] ([framework]) (Recommended)" — "[domain role + dependency info, e.g., 'Routes requests to account-service and transaction-service']"
+- (repeat for each proposed service)
+
+Mark all recommended services with "(Recommended)" in the label. Always propose at least 3 services.
+
+**Validation after user responds:**
+- If fewer than 2 services are selected: stop and tell the user "At least 2 services with a dependency between them are required for distributed tracing. Please select more services." Then re-ask.
+- If the selected services have no inter-service dependency (e.g., two completely independent services): stop and tell the user which services call which, and ask them to include at least one caller-callee pair.
+
+Do not proceed to Step 6 until you receive a valid selection.
+</ASK_USER>
+
+### Step 6: Deploy stack
+
+Ask how to package the demo. Use the deploy targets discovered in Step 1 via `d-scribe list deploy`.
+
+<ASK_USER>
+Call the `ask_user` tool with a single-select question.
+
+Question: "How should we package the demo?"
+Options:
+- "Docker Compose (Recommended)" — "Simplest setup, runs with `docker compose up`" [If prospect runs K8s, swap recommendation to Kubernetes instead]
+- "Kubernetes" — "Runs on Minikube, closer to production K8s environments"
+
+Do not proceed to Step 7 until you receive the user's response.
+</ASK_USER>
+
+### Step 7: Deploy location
+
+Based on the stack chosen in Step 6, ask where it should run. Show only the relevant subset from `d-scribe list deploy`.
+
+<ASK_USER>
+Call the `ask_user` tool with a single-select question. Show only the options relevant to the deploy stack chosen in Step 6.
+
+If Docker Compose was chosen:
+  Question: "Where should the demo run? (Output directory: [. if CWD is empty, or ./suggested-name])"
+  Options:
+  - "Local (compose:local) (Recommended)" — "Runs on your laptop with Docker"
+  - "AWS EC2 (compose:aws:ec2)" — "Provisions an EC2 instance with Terraform"
+
+If Kubernetes was chosen:
+  Question: "Where should the Kubernetes cluster run? (Namespace: [default to project dir name]. Output directory: [. if CWD is empty, or ./suggested-name])"
+  Options:
+  - "Local Minikube (k8s:local:minikube) (Recommended)" — "Runs on your laptop"
+  - "AWS EC2 (k8s:aws:ec2)" — "Minikube on an EC2 instance"
+  - "AWS EKS (k8s:aws:eks)" — "Managed EKS cluster (coming soon)"
+
+Do not proceed to Step 8 until you receive the user's response.
+</ASK_USER>
+
+### Step 8: Propose architecture
+
+Based on all confirmed choices from Steps 2-7, propose a concrete architecture. The proposal must include:
+
+1. **Services** — list each service with its framework and domain role (use the services confirmed in Step 5)
+2. **Demo scenarios** — golden path + failure scenarios mapped to the selected features
+3. **Tailored to your prospect** — always include this section when prospect context was gathered in Step 3; tie scenarios to their specific pain points
+
+Example (fintech domain):
+- Services: api-gateway (java:spring), account-service (java:spring), transaction-service (python:flask), fraud-detection (python:flask)
+- Golden path: Customer logs in → checks balance → transfers funds → receives confirmation
+- Failure: Slow query on transaction history (DBM), SQL injection on search (Code Security), CPU spike during fraud analysis (Profiling)
+- Tailored: "Since they're migrating from Splunk, I'll emphasize log correlation with traces"
+
+<ASK_USER>
+Output the full architecture proposal as a text message, then immediately call the `ask_user` tool with a single-select question.
+
+Question: "Does this architecture look right?"
+Options:
+- "Looks good, let's build it (Recommended)" — "Proceed to scaffolding and code generation"
+- "Adjust something" — "I want to change services, scenarios, or focus areas"
+
+Do not proceed to Step 9 until you receive the user's confirmation.
+</ASK_USER>
+
+### Step 9: Execute the CLI
+
+Map the confirmed choices from Steps 2-8 to CLI arguments and run:
+
+    d-scribe init demo --backend java:spring,python:flask --frontend react:vite --features dbm:postgresql,security:code,profiling --services 4 --deploy k8s --dest .
+
+### Step 10: Read the generated context
 
 Read the generated `AGENTS.md` to understand the project structure, available patterns, and features configured.
 
-### Step 6: Build the application
+### Step 11: Build the application
 
 Read `references/patterns/index.md` to see available instrumentation patterns.
 
@@ -126,13 +300,13 @@ For each service, one at a time:
 
 After all services are built, update `docker-compose.yml` (or the K8s manifests in `k8s/` if using a K8s deploy target) to reflect the renamed services.
 
-### Step 7: Create demo scenarios (if available)
+### Step 12: Create demo scenarios (if available)
 
 Read `skills/dd-create-scenarios/SKILL.md`. If it contains actual instructions, follow them to create golden paths and failure scenarios.
 
 If the skill is a stub (contains "coming in a future release"), skip this step.
 
-### Step 8: Validate the demo
+### Step 13: Validate the demo
 
 1. Read and follow `skills/dd-check-preflight/SKILL.md` but SKIP the teardown step — leave the stack running.
 
@@ -143,7 +317,7 @@ If the skill is a stub (contains "coming in a future release"), skip this step.
 
 3. If preflight failed: attempt to fix, re-run. After 2 failed attempts, stop and present the errors to the user instead of continuing.
 
-### Step 9: Present the summary
+### Step 14: Present the summary
 
 Tell the user:
 1. What was created: list each service with its domain role and which Datadog features it demonstrates
@@ -156,13 +330,17 @@ Tell the user:
    - `dd-check-telemetry` — if it was skipped: explain what's needed (configure MCP, set DD_API_KEY in .env)
    - `dd-check-preflight` — to re-run the full validation cycle
    - Datadog-as-Code: `dd-add-monitor` → `dd-add-slo` → `dd-add-dashboard` — generate Terraform for monitors, SLOs, and dashboards
-7. If prospect context was provided: key talking points tailored to their pain points
+7. Key talking points tailored to the prospect's pain points
 
 ## Notes
 
-- Steps 1-8 execute automatically in sequence
-- Step 9 hands control back to the user
+- Step 1 executes automatically
+- Steps 2-8 are a progressive conversation — each step (and sub-step) uses `ask_user` and waits for a response before continuing
+- Step 3 has three sub-steps (3a, 3b, 3c) — each with its own `ask_user` stop
+- Steps 9-13 execute automatically after the architecture is confirmed in Step 8
+- Step 14 hands control back to the user
+- Steps 4-5 use inference: the agent proposes based on prospect context, the user confirms or adjusts
+- If the SE gives minimal input, the agent makes reasonable assumptions, states them explicitly, and asks for confirmation
+- The prospect context in Step 3 is optional but significantly improves demo relevance
 - The CLI handles all infrastructure deterministically — this skill adds AI judgment for domain modeling, code generation, and scenario design
-- If the SE gives minimal input ("banking demo, APM + DBM"), infer the rest and state assumptions in Step 3
-- The prospect context in Step 2 is optional but improves demo relevance when available
 - The CLI auto-populates `.env` from host environment variables ($DD_API_KEY, $DD_SITE, $DD_APP_KEY) — most SEs already have these set on their machine
