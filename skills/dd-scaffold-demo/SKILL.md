@@ -12,6 +12,30 @@ tools:
 
 Create a Datadog demo project using the `d-scribe` CLI and domain-specific code generation. The CLI produces deterministic infrastructure (Docker, agent, instrumentation). You produce the business logic, guided by instrumentation patterns.
 
+## Tool Mapping (if available)
+
+| Capability | Tool | Fallback |
+|------------|------|----------|
+| Structured questions | `AskUserQuestion` | Ask as numbered text options, wait for response |
+| Progress tracking | `TaskCreate` / `TaskUpdate` | Output checklist as text, update with checkmarks |
+| Plan approval | `AskUserQuestion` (single-select: approve/adjust) | Ask as text, wait for response |
+
+If these tools are available, use them for ALL interactive steps below.
+Each `<ASK_USER>` block contains the question, options, and type needed to construct a tool call.
+
+## Progress Tracking
+
+At the start of this workflow, create the following tasks.
+Mark each as in_progress when starting, completed when done.
+
+1. Gather prospect context
+2. Choose features
+3. Choose app stack
+4. Choose deployment target
+5. Review architecture proposal
+6. Build demo
+7. Validate and present summary
+
 ## IMPORTANT — What This Skill Does NOT Do
 
 - Do NOT ask about visual design, color schemes, or styling
@@ -246,27 +270,51 @@ If Kubernetes was chosen:
 Do not proceed to Step 8 until you receive the user's response.
 </ASK_USER>
 
-### Step 8: Propose architecture
+### Step 8: Review architecture (PLAN GATE)
 
-Based on all confirmed choices from Steps 2-7, propose a concrete architecture. The proposal must include:
+Based on all confirmed choices from Steps 2-7, present a structured architecture summary. This is a hard gate — no execution begins until the user approves.
 
-1. **Services** — list each service with its framework and domain role (use the services confirmed in Step 5)
-2. **Demo scenarios** — golden path + failure scenarios mapped to the selected features
-3. **Tailored to your prospect** — always include this section when prospect context was gathered in Step 3; tie scenarios to their specific pain points
+#### Summary template
 
-Example (fintech domain):
-- Services: api-gateway (java:spring), account-service (java:spring), transaction-service (python:flask), fraud-detection (python:flask)
-- Golden path: Customer logs in → checks balance → transfers funds → receives confirmation
-- Failure: Slow query on transaction history (DBM), SQL injection on search (Code Security), CPU spike during fraud analysis (Profiling)
-- Tailored: "Since they're migrating from Splunk, I'll emphasize log correlation with traces"
+Present the following sections as a text message:
+
+**Domain:** [confirmed domain from Step 2]
+**Prospect context:** [pain points from 3b, goals from 3c — if gathered]
+
+**Stack:**
+- Backends: [list with frameworks]
+- Frontend: [framework or "none"]
+- Services: [count]
+- Deploy: [target from Steps 6-7]
+
+**Services:**
+| Name | Framework | Domain Role |
+|------|-----------|-------------|
+| [service-name] | [framework] | [role + dependencies] |
+
+**Features:**
+- Baseline (always active): APM, Logs, Infra [+ RUM if frontend]
+- Configured: [selected features from Step 4 with brief rationale]
+
+**Demo scenarios:**
+- Golden path: [description]
+- Failure scenarios: [list, each mapped to a feature]
+
+**Tailored to prospect:** [how scenarios map to pain points — only if Step 3 context was gathered]
+
+#### Gate rule
+
+**HARD GATE:** Do NOT run `d-scribe init`, generate code, or modify any files until the user explicitly approves this summary. If the user says "adjust," loop back to the relevant gathering step (2-7).
 
 <ASK_USER>
-Output the full architecture proposal as a text message, then immediately call the `ask_user` tool with a single-select question.
+Output the full architecture summary as a text message using the template above, then immediately call the `ask_user` tool with a single-select question.
 
 Question: "Does this architecture look right?"
 Options:
 - "Looks good, let's build it (Recommended)" — "Proceed to scaffolding and code generation"
 - "Adjust something" — "I want to change services, scenarios, or focus areas"
+
+If the user selects "Adjust something," ask which section they want to change (domain, stack, services, features, deploy, or scenarios) and loop back to the corresponding step.
 
 Do not proceed to Step 9 until you receive the user's confirmation.
 </ASK_USER>
@@ -337,6 +385,7 @@ Tell the user:
 - Step 1 executes automatically
 - Steps 2-8 are a progressive conversation — each step (and sub-step) uses `ask_user` and waits for a response before continuing
 - Step 3 has three sub-steps (3a, 3b, 3c) — each with its own `ask_user` stop
+- Step 8 is a formal plan gate — no execution until the user approves the architecture summary
 - Steps 9-13 execute automatically after the architecture is confirmed in Step 8
 - Step 14 hands control back to the user
 - Steps 4-5 use inference: the agent proposes based on prospect context, the user confirms or adjusts
