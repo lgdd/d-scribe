@@ -6,6 +6,7 @@ import { resolve } from '../core/resolver.js';
 import { composeDockerCompose, composeK8s } from '../core/composer.js';
 import { renderToFile } from '../core/renderer.js';
 import { catalogPath, skillsPath, templatesPath } from '../helpers/catalog.js';
+import { writeProjectManifest } from '../core/project-manifest.js';
 
 export function registerInitCommand(program: Command): void {
   const init = program.command('init').description('Initialize a new project');
@@ -202,6 +203,15 @@ export function registerInitCommand(program: Command): void {
         );
       }
       fs.writeFileSync(path.join(outputDir, '.gitignore'), gitignoreEntries.join('\n') + '\n');
+
+      // Write project manifest
+      writeProjectManifest(outputDir, {
+        backends,
+        frontend: opts.frontend || null,
+        features,
+        deploy: opts.deploy,
+        services: serviceCount,
+      });
 
       // Copy skills
       const skPath = skillsPath();
