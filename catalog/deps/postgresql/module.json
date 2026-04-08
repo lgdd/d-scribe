@@ -1,0 +1,6 @@
+{
+  "label": "PostgreSQL",
+  "category": "db",
+  "type": "postgresql",
+  "version": "16"
+}

@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+cd "$(dirname "$0")"
+
+PUBLIC_IP=$(terraform output -raw public_ip)
+PROJECT_DIR="{{projectName}}"
+
+echo ">>> Uploading project to EC2 instance ($PUBLIC_IP)..."
+rsync -avz --exclude '.terraform' --exclude 'terraform.tfstate*' --exclude '.git' \
+  -e "ssh -o StrictHostKeyChecking=no" \
+  ../ "ec2-user@$PUBLIC_IP:/opt/$PROJECT_DIR/"
+
+echo ">>> Project uploaded. The EC2 instance is bootstrapping via user_data."
+echo ">>> Monitor progress: aws ssm start-session --target $(terraform output -raw instance_id)"
+echo ">>> App URL: $(terraform output -raw app_url)"

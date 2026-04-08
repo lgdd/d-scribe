@@ -1,0 +1,13 @@
+{
+  "label": "Ruby on Rails",
+  "language": "ruby",
+  "framework": "rails",
+  "supported_features": [
+    "dbm:postgresql",
+    "security:code",
+    "profiling",
+    "siem"
+  ],
+  "ruby_version": "3.3",
+  "rails_version": "8.0.x"
+}

@@ -1,0 +1,18 @@
+# Build-only compose file — use `docker compose build` to build all images.
+# This file is not used for running services; K8s manifests handle that.
+services:
+{{#each services}}
+  {{this.name}}:
+    build: ./services/{{this.name}}
+    image: {{../projectName}}/{{this.name}}:latest
+
+{{/each}}
+{{#if frontend}}
+  frontend:
+    build: ./frontend
+    image: {{projectName}}/frontend:latest
+
+{{/if}}
+  traffic:
+    build: ./traffic
+    image: {{projectName}}/traffic:latest

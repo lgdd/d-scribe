@@ -1,55 +1,48 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to Claude Code when working in this repository.
 
 ## What This Is
 
-d-scribe is a **distribution toolkit** for Cursor IDE — not an application. It ships Markdown-based rules, skills, agents, and commands that get symlinked into `~/.cursor/` for use across other projects. There is no build step, no runtime, no dependencies, and no tests. Content is Markdown (with YAML frontmatter), shell scripts, and a version file.
+d-scribe is a **CLI toolkit** for Datadog Sales Engineers that assembles pre-instrumented microservice demo projects. It is an npm monorepo with three components: the CLI (`cli/`), a module catalogue (`catalog/`), and portable AI agent skills (`skills/`).
 
-The toolkit helps Datadog Sales Engineers scaffold, validate, and present demo projects that send telemetry to a Datadog sandbox org.
+## Build & Test
 
-## No Build/Test/Lint Commands
-
-There are no package managers, build scripts, test frameworks, or linters. Do not add any. The only executable scripts are `install.sh` and `uninstall.sh`. The only CI pipeline is `.github/workflows/review-templates.yml` (monthly template freshness review).
+```bash
+cd cli && npm install    # Install dependencies
+cd cli && npm run build  # Build CLI (tsup + copy catalog/skills/templates to dist/)
+cd cli && npm test       # Run tests (Vitest)
+cd cli && npm run dev -- <args>  # Run CLI in dev mode via tsx
+```
 
 ## Commit Convention
 
 All commits use **Conventional Commits 1.0.0**: `<type>(<scope>): <description>`
 
-Types: `feat`, `fix`, `docs`, `style`, `refactor`, `chore`, `ci`, `test`, `perf`, `revert`. Description is lowercase, imperative mood, no trailing period, under 72 chars. Common scopes: `skills`, `agents`, `rules`, `commands`, `install`.
+Types: `feat`, `fix`, `docs`, `style`, `refactor`, `chore`, `ci`, `test`, `perf`, `revert`. Description is lowercase, imperative mood, no trailing period, under 72 chars. Common scopes: `cli`, `catalog`, `skills`.
 
 ## Architecture
 
-### Component Types
+| Component | Location | Purpose |
+|-----------|----------|---------|
+| CLI | `cli/src/` | TypeScript CLI (commander.js + Handlebars) |
+| Manifest | `catalog/manifest.json` | Central registry of all available modules |
+| Backends | `catalog/backends/<lang>-<framework>/` | Service template + instrumentation patterns |
+| Frontends | `catalog/frontends/<framework>-<bundler>/` | Frontend template + RUM patterns |
+| Deps | `catalog/deps/<name>/` | Infrastructure dependency configs |
+| Infra | `catalog/infra/compose/` | Reference compose overlays (not merged at runtime) |
+| Traffic | `catalog/traffic/` | Locust load generator |
+| Templates | `cli/src/templates/` | Handlebars templates for generated files |
+| Skills | `skills/` | agentskills.io format AI agent workflows |
+| Tests | `cli/tests/` | Vitest unit tests |
 
+### Key Design Decisions
 
-| Type         | Location                 | Format                                                                                          | Installed by                                                                    |
-| ------------ | ------------------------ | ----------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
-| **Rules**    | `rules/*.mdc`            | `.mdc` with YAML frontmatter (`description`, `alwaysApply`, optional `globs`)                   | Copied into demo projects by scaffold skill — **not** symlinked by `install.sh` |
-| **Skills**   | `skills/<name>/SKILL.md` | Directory with `SKILL.md` (YAML frontmatter: `name`, `description`) + `templates/` subdirectory | Symlinked to `~/.cursor/skills/`                                                |
-| **Agents**   | `agents/<name>.md`       | Single `.md` with YAML frontmatter (`name`, `description`, `model`, optional `readonly`)        | Symlinked to `~/.cursor/agents/`                                                |
-| **Commands** | `commands/<name>.md`     | Single `.md`, **no frontmatter**, under 20 lines, delegates to a skill or agent                 | Symlinked to `~/.cursor/commands/`                                              |
-
-
-Shared includes in `skills/`: `_auto-update.md` (auto-update procedure) and `_doc-lookup.md` (documentation lookup procedure) — prefixed with `_` to indicate they are not standalone skills.
-
-### Dispatcher Pattern
-
-Every skill SKILL.md must be a **lean dispatcher** (~80–120 lines) that defines the workflow and loads sub-documents from `templates/` on demand. Reference data (topologies, failure scenarios, instrumentation patterns) lives in `templates/`, not alongside SKILL.md. This keeps context usage low — only the material needed for the current step is loaded.
-
-### Naming Convention
-
-All artifacts use a `dd-` prefix.
-
-### Repo-Local Cursor Config (`.cursor/`)
-
-The `.cursor/` directory contains repo-scoped rules and a `review-templates` agent/command for validating toolkit content against Datadog docs. These are **not** installed globally — they only apply when working inside this repo.
-
-### Keeping Things in Sync
-
-When adding, removing, or renaming a component:
-
-- Update the matching table in `README.md`
-- `install.sh` / `uninstall.sh` iterate with `for` loops over each directory type, so adding a new file within an existing type requires **no script change** — only edit them when introducing a new directory type or changing the symlink strategy
-- Rules are never added to `install.sh` or `uninstall.sh` (they are copied per-project by the scaffold skill)
-
+- **Infra is deterministic, domain is creative** — the CLI scaffolds minimal services (compile, start, /health, JSON logs, APM) with no business logic. AI generates domain-specific code guided by instrumentation patterns.
+- **Manifest is the source of truth** — backends, frontends, features, and deps are all declared in `catalog/manifest.json`
+- **Service templates + patterns** — each backend has a `service-template/` (minimal scaffold) and `patterns/` (instrumentation reference files ~30 lines each). The CLI copies the template N times; the AI reads patterns when generating business logic.
+- **Features are configuration, not code** — service templates ship with all feature code baked in (SQL injection, slow queries, CPU endpoints). Enabling a Datadog feature (DBM, Profiling, Code Security) is purely configuration: Agent env vars, infrastructure deps, and `.env` variables. The `customize-domain` skill only renames entities, never adds/removes feature code.
+- **Deploy target format** — the `--deploy` flag uses `stack[:provider[:service]]` with default resolution: `compose` → `compose:local`, `k8s` → `k8s:local:minikube`. Service templates and Dockerfiles remain orchestration-agnostic; features map to Helm values for K8s instead of Compose env vars.
+- **Project manifest** — `init demo` writes `.d-scribe.json` tracking backends, frontend, features, deploy target, and service count. `add feature` reads and updates it for surgical in-place patching (idempotent YAML/manifest updates).
+- **Compose overlays are reference docs** — files in `catalog/infra/compose/overlays/` document configs but are not merged at runtime
+- **No manual version bumps** — release-please handles versioning

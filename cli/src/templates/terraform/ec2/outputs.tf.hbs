@@ -1,0 +1,23 @@
+output "instance_id" {
+  description = "EC2 instance ID"
+  value       = aws_instance.demo.id
+}
+
+output "public_ip" {
+  description = "Public IP of the demo instance"
+  value       = aws_instance.demo.public_ip
+}
+
+output "app_url" {
+  description = "URL to access the demo"
+{{#if (eq deploy.stack "k8s")}}
+  value       = "http://${aws_instance.demo.public_ip}:9080"
+{{else}}
+  value       = "http://${aws_instance.demo.public_ip}:{{firstServicePort}}"
+{{/if}}
+}
+
+output "ssm_connect" {
+  description = "Connect via SSM (no SSH key needed)"
+  value       = "aws ssm start-session --target ${aws_instance.demo.id}"
+}

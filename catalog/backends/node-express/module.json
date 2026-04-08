@@ -1,0 +1,13 @@
+{
+  "label": "Node.js Express",
+  "language": "node",
+  "framework": "express",
+  "supported_features": [
+    "dbm:postgresql",
+    "security:code",
+    "profiling",
+    "siem"
+  ],
+  "node_version": "22",
+  "express_version": "5.x"
+}

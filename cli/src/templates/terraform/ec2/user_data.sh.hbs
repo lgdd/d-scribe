@@ -1,0 +1,116 @@
+#!/usr/bin/env bash
+set -euo pipefail
+exec > >(tee /var/log/demo-setup.log) 2>&1
+
+PROJECT_DIR="{{projectName}}"
+
+echo ">>> Installing Docker & Git"
+dnf install -y docker git conntrack-tools
+systemctl enable --now docker
+usermod -aG docker ec2-user
+
+# Install Docker Compose & BuildX plugins
+mkdir -p /usr/local/lib/docker/cli-plugins
+curl -SL "https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64" \
+  -o /usr/local/lib/docker/cli-plugins/docker-compose
+chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
+
+BUILDX_VERSION=$(curl -s https://api.github.com/repos/docker/buildx/releases/latest | grep '"tag_name"' | cut -d'"' -f4)
+curl -SL "https://github.com/docker/buildx/releases/download/$BUILDX_VERSION/buildx-$BUILDX_VERSION.linux-amd64" \
+  -o /usr/local/lib/docker/cli-plugins/docker-buildx
+chmod +x /usr/local/lib/docker/cli-plugins/docker-buildx
+
+{{#if (eq deploy.stack "k8s")}}
+echo ">>> Installing kubectl"
+curl -LO "https://dl.k8s.io/release/$(curl -Ls https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+rm -f kubectl
+
+echo ">>> Installing minikube"
+curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+install minikube-linux-amd64 /usr/local/bin/minikube
+rm -f minikube-linux-amd64
+
+echo ">>> Installing Helm"
+curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+{{/if}}
+
+echo ">>> Writing .env"
+cat > /opt/$PROJECT_DIR/.env <<DOTENV
+DD_API_KEY=${dd_api_key}
+DD_SITE=${dd_site}
+DD_ENV=${dd_env}
+DD_VERSION=1.0.0
+DOTENV
+
+RUN="sudo -u ec2-user -i"
+
+{{#if (eq deploy.stack "k8s")}}
+echo ">>> Starting minikube (as ec2-user)"
+$RUN minikube start --driver=docker --cpus=max --memory=max --wait=all
+
+echo ">>> Enabling ingress addon"
+$RUN minikube addons enable ingress
+$RUN kubectl wait --namespace ingress-nginx \
+  --for=condition=ready pod \
+  --selector=app.kubernetes.io/component=controller \
+  --timeout=300s
+
+echo ">>> Building images inside minikube's Docker daemon"
+cat > /opt/$PROJECT_DIR/build-images.sh <<'BUILDSCRIPT'
+#!/usr/bin/env bash
+set -euo pipefail
+eval $(minikube -p minikube docker-env)
+cd /opt/{{projectName}}
+docker compose build
+BUILDSCRIPT
+chmod +x /opt/$PROJECT_DIR/build-images.sh
+chown ec2-user:ec2-user /opt/$PROJECT_DIR/build-images.sh
+$RUN /opt/$PROJECT_DIR/build-images.sh
+
+echo ">>> Deploying K8s manifests"
+MK_NS="{{namespace}}"
+
+$RUN kubectl create secret generic datadog-secret \
+  --from-literal=api-key=${dd_api_key} \
+  -n $MK_NS --dry-run=client -o yaml | $RUN kubectl apply -f -
+
+find /opt/$PROJECT_DIR/k8s -name '*.yaml' ! -name 'values.yaml' \
+  -exec $RUN kubectl apply -f {} \;
+
+echo ">>> Installing Datadog agent via Helm"
+$RUN helm repo add datadog https://helm.datadoghq.com
+$RUN helm upgrade --install datadog datadog/datadog -n $MK_NS \
+  -f /opt/$PROJECT_DIR/k8s/datadog/values.yaml
+
+echo ">>> Waiting for rollouts"
+{{#each services}}
+$RUN kubectl rollout status deployment/{{this.name}} -n {{../namespace}} --timeout=300s
+{{/each}}
+
+echo ">>> Setting up port-forward service"
+cat > /etc/systemd/system/demo-port-forward.service <<UNIT
+[Unit]
+Description={{projectName}} K8s port-forward
+After=network.target
+
+[Service]
+Type=simple
+User=ec2-user
+ExecStart=/usr/local/bin/kubectl port-forward -n {{namespace}} svc/service-1 9080:{{firstServicePort}} --address=0.0.0.0
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+UNIT
+
+systemctl daemon-reload
+systemctl enable --now demo-port-forward
+{{else}}
+echo ">>> Starting Docker Compose"
+cd /opt/$PROJECT_DIR
+$RUN docker compose up -d
+{{/if}}
+
+echo ">>> Done — {{projectName}} demo is ready"

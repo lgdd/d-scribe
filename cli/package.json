@@ -1,0 +1,35 @@
+{
+  "name": "d-scribe",
+  "version": "0.1.0",
+  "description": "CLI toolkit for assembling Datadog demo projects",
+  "type": "module",
+  "bin": {
+    "d-scribe": "./dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "postbuild": "rm -rf dist/catalog dist/skills dist/templates; [ -d ../catalog ] && cp -r ../catalog dist/catalog || true; [ -d ../skills ] && cp -r ../skills dist/skills || true; [ -d src/templates ] && cp -r src/templates dist/templates || true",
+    "dev": "tsx src/index.ts",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@inquirer/prompts": "^8.3.2",
+    "@types/diff": "^7.0.2",
+    "commander": "^13.0.0",
+    "diff": "^8.0.4",
+    "fs-extra": "^11.2.0",
+    "handlebars": "^4.7.8",
+    "yaml": "^2.0.0"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^11.0.0",
+    "tsup": "^8.0.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.7.0",
+    "vitest": "^3.0.0"
+  }
+}

@@ -1,0 +1,32 @@
+datadog:
+  apiKeyExistingSecret: datadog-secret
+  site: {{ddSite}}
+  env:
+    - name: DD_ENV
+      value: "{{ddEnv}}"
+  apm:
+    portEnabled: true
+    socketEnabled: true
+  logs:
+    enabled: true
+    containerCollectAll: true
+  processAgent:
+    enabled: true
+    processCollection: true
+{{#if hasProfiler}}
+  profiling:
+    enabled: true
+{{/if}}
+{{#if hasDbm}}
+  dbm:
+    enabled: true
+{{/if}}
+{{#if hasNetworkMonitoring}}
+  networkMonitoring:
+    enabled: true
+{{/if}}
+
+clusterAgent:
+  enabled: true
+  admissionController:
+    mutateUnlabelled: true

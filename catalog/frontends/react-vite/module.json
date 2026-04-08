@@ -1,0 +1,8 @@
+{
+  "label": "React (Vite)",
+  "framework": "react",
+  "bundler": "vite",
+  "react_version": "18",
+  "vite_version": "6",
+  "template_path": "template"
+}

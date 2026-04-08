@@ -1,0 +1,107 @@
+{
+  "version": "1.0.0",
+  "features": {
+    "dbm:postgresql": {
+      "label": "Database Monitoring (PostgreSQL)",
+      "requires_deps": ["db:postgresql"],
+      "datadog_products": ["dbm"],
+      "agent_config": "dbm-postgresql"
+    },
+    "security:code": {
+      "label": "Code Security / IAST",
+      "requires_deps": [],
+      "datadog_products": ["code_security", "asm"],
+      "agent_env": { "DD_IAST_ENABLED": "true", "DD_ASM_ENABLED": "true" }
+    },
+    "profiling": {
+      "label": "Continuous Profiling",
+      "requires_deps": [],
+      "datadog_products": ["profiling"],
+      "agent_env": { "DD_PROFILING_ENABLED": "true" }
+    },
+    "siem": {
+      "label": "Cloud SIEM",
+      "requires_deps": ["auth:keycloak"],
+      "datadog_products": ["siem", "cloud_siem"]
+    }
+  },
+  "backends": {
+    "java:spring": {
+      "label": "Java Spring Boot",
+      "path": "backends/java-spring"
+    },
+    "java:quarkus": {
+      "label": "Java Quarkus",
+      "path": "backends/java-quarkus"
+    },
+    "python:flask": {
+      "label": "Python Flask",
+      "path": "backends/python-flask"
+    },
+    "python:django": {
+      "label": "Python Django",
+      "path": "backends/python-django"
+    },
+    "node:express": {
+      "label": "Node.js Express",
+      "path": "backends/node-express"
+    },
+    "ruby:rails": {
+      "label": "Ruby on Rails",
+      "path": "backends/ruby-rails"
+    },
+    "php:laravel": {
+      "label": "PHP Laravel",
+      "path": "backends/php-laravel"
+    },
+    "dotnet:aspnetcore": {
+      "label": ".NET ASP.NET Core",
+      "path": "backends/dotnet-aspnetcore"
+    },
+    "go:gin": {
+      "label": "Go Gin",
+      "path": "backends/go-gin"
+    }
+  },
+  "frontends": {
+    "react:vite": {
+      "label": "React (Vite)",
+      "path": "frontends/react-vite"
+    },
+    "angular:esbuild": {
+      "label": "Angular (esbuild)",
+      "path": "frontends/angular-esbuild"
+    },
+    "vue:vite": {
+      "label": "Vue (Vite)",
+      "path": "frontends/vue-vite"
+    }
+  },
+  "deps": {
+    "db:postgresql": {
+      "path": "deps/postgresql"
+    },
+    "cache:redis": {
+      "path": "deps/redis"
+    },
+    "auth:keycloak": {
+      "path": "deps/keycloak"
+    }
+  },
+  "infra": {
+    "deploy": {
+      "compose:local": { "label": "Docker Compose (local)" },
+      "compose:aws:ec2": { "label": "Docker Compose on AWS EC2" },
+      "k8s:local:minikube": { "label": "Kubernetes (local Minikube)" },
+      "k8s:aws:ec2": { "label": "Kubernetes on AWS EC2 (Minikube)" },
+      "k8s:aws:eks": { "label": "Kubernetes on AWS EKS", "status": "future" }
+    },
+    "defaults": {
+      "compose": "compose:local",
+      "compose:aws": "compose:aws:ec2",
+      "k8s": "k8s:local:minikube",
+      "k8s:local": "k8s:local:minikube",
+      "k8s:aws": "k8s:aws:ec2"
+    }
+  }
+}

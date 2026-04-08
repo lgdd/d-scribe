@@ -1,0 +1,13 @@
+{
+  "label": "PHP Laravel",
+  "language": "php",
+  "framework": "laravel",
+  "supported_features": [
+    "dbm:postgresql",
+    "security:code",
+    "profiling",
+    "siem"
+  ],
+  "php_version": "8.4",
+  "laravel_version": "12.x"
+}

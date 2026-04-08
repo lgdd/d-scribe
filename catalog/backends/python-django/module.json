@@ -1,0 +1,13 @@
+{
+  "label": "Python Django",
+  "language": "python",
+  "framework": "django",
+  "supported_features": [
+    "dbm:postgresql",
+    "security:code",
+    "profiling",
+    "siem"
+  ],
+  "python_version": "3.12",
+  "django_version": "5.1.x"
+}

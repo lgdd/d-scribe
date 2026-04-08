@@ -1,0 +1,124 @@
+# {{projectName}} — Datadog Demo
+
+## Stack
+{{#each servicesByBackend}}
+- {{this.label}}: {{#each this.services}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}
+{{/each}}
+{{#if frontend}}
+- Frontend: {{frontend.label}} (frontend/)
+{{/if}}
+{{#if (eq deploy.stack "compose")}}
+- Infrastructure: Docker Compose ({{deploy.provider}})
+{{else}}
+- Infrastructure: Kubernetes ({{deploy.provider}}{{#if deploy.service}}, {{deploy.service}}{{/if}})
+{{/if}}
+{{#if deps.length}}
+- Dependencies: {{#each deps}}{{this.key}}{{#unless @last}}, {{/unless}}{{/each}}
+{{/if}}
+
+## Launch
+
+{{#if (eq deploy.provider "aws")}}
+```bash
+cd terraform && terraform init && terraform apply
+./terraform/deploy.sh
+```
+{{else}}
+{{#if (eq deploy.stack "compose")}}
+```bash
+docker compose up -d
+```
+{{else}}
+```bash
+minikube start
+eval $(minikube docker-env)
+docker compose build
+helm repo add datadog https://helm.datadoghq.com
+helm install datadog datadog/datadog -f k8s/datadog/values.yaml -n {{namespace}} --create-namespace
+kubectl apply -f k8s/ --recursive
+```
+{{/if}}
+{{/if}}
+
+## Architecture
+
+The scaffolded services are minimal — each compiles, starts, exposes `/health`, logs in JSON, and is instrumented for APM. They have no business logic yet. The AI generates domain-specific code using the instrumentation patterns as reference.
+
+| Service | Port | Backend |
+|---------|------|---------|
+{{#each services}}
+| {{this.name}} | {{this.port}} | {{this.backend}} |
+{{/each}}
+
+## Instrumentation references
+
+Instrumentation patterns are available in `references/patterns/`.
+See `index.md` for the full list with feature mapping.
+Only load the patterns needed for the service you're currently building.
+
+{{#if features.length}}
+## Datadog features requested
+{{#each features}}
+- **{{this.label}}**
+{{/each}}
+
+When generating business logic, integrate the patterns matching the features above into each service where relevant.
+{{/if}}
+
+## Datadog — Baseline Instrumentation
+
+These are always active (no configuration needed):
+- **APM**: Auto-instrumented on all services. Distributed traces propagate across service boundaries.
+- **Logs**: JSON on stdout, collected by the Datadog Agent. Correlated with traces via dd.trace_id/dd.span_id.
+- **Infrastructure**: Container metrics and host metrics via the Agent.
+{{#if frontend}}
+- **RUM**: Browser SDK initialized. Sessions captured and connected to backend traces.
+{{/if}}
+
+## Available Skills
+
+The following skills are available in the `skills/` directory:
+
+- `dd-scaffold-demo`: Create a new demo project (you already used this one)
+- `dd-customize-domain`: Adapt an existing demo to a different business domain or prospect
+- `dd-create-scenarios`: Create realistic golden and failure paths
+- `dd-check-telemetry`: Verify data arrives in Datadog (requires running stack + Datadog MCP)
+- `dd-check-preflight`: Build, deploy, test, validate, cleanup
+- `dd-create-runbook`: Create DEMO-RUNBOOK.md with talking points
+- `dd-lookup-docs`: Look up current Datadog documentation
+- `dd-add-monitor`: Generate Terraform monitors for this demo
+- `dd-add-slo`: Generate Terraform SLOs for this demo
+- `dd-add-dashboard`: Generate Terraform dashboards for this demo
+
+## Project Rules
+
+### Unified Service Tagging
+
+All telemetry must include `env`, `service`, and `version` tags:
+
+- **env**: Set via `DD_ENV` in `.env`. Use `{project}-{YYMMDD}` format (e.g., `ecommerce-260310`). Prevents collision in shared Datadog orgs.
+- **service**: Unique per service, consistent across traces/logs/metrics. Set via `DD_SERVICE`.
+- **version**: Set via `DD_VERSION`. Use `1.0.0` or git SHA.
+
+Tags are configured via environment variables in docker-compose.yml — do not hardcode in application code.
+
+### Secrets Management
+
+- **Never** commit API keys or secrets to version control.
+- All credentials live in `.env` (gitignored). `.env.example` documents required variables.
+- Required: `DD_API_KEY`, `DD_SITE`{{#if frontend}}, `DD_RUM_APPLICATION_ID`, `DD_RUM_CLIENT_TOKEN`{{/if}}
+
+### Logging
+
+- All services emit **JSON logs to stdout** (one object per line).
+- Required fields: `message`, `level`, `timestamp`.
+- Trace correlation fields (`dd.trace_id`, `dd.span_id`) are injected automatically by the tracer.
+- Do not use plain-text log formats — JSON enables zero-config parsing by the Datadog Agent.
+
+### Telemetry Validation
+
+After any code change, verify telemetry is flowing:
+1. Check service appears in APM Service Catalog
+2. Check logs are correlated with traces (dd.trace_id present)
+3. Check distributed traces span multiple services
+4. Use the `verify-telemetry` skill for automated checks (requires Datadog MCP)

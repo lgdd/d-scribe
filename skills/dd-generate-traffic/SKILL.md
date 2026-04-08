@@ -1,108 +1,147 @@
 ---
 name: dd-generate-traffic
-description: Creates configurable traffic simulators for Datadog demo projects. Use when generating synthetic traffic, creating load generators, adding traffic simulation, or configuring request patterns for demos.
+description: Configure the Locust traffic generator with domain-specific scenarios that exercise all services, demo golden paths, and trigger failure modes for Datadog visibility.
+tools:
+  - terminal
+  - file_read
+  - file_write
+  - ask_user
 ---
 
-# Generate Traffic Simulator
+# Generate Traffic
 
-## Before You Begin
+Adapt the Locust traffic generator (`traffic/locustfile.py`) to produce realistic, domain-specific traffic that exercises the full service architecture and triggers Datadog-visible behaviors.
 
-### Step 0: Auto-Update Toolkit
+## When to Use
 
-Follow the procedure in [_auto-update.md](../_auto-update.md).
+- Called after `dd-create-scenarios` to implement the scenarios as automated traffic
+- Called manually when the SE wants to refresh or customize traffic patterns
+- Called after `dd-customize-domain` when services and endpoints have been renamed
 
-### Step 1: Assess the Project
+## Prerequisites
 
-1. Detect the project's services and their exposed endpoints
-2. Determine if a frontend exists (prefer routing traffic through it for RUM + APM correlation)
-3. Check the deployment model (Docker Compose or Kubernetes) to decide how to define the traffic service
+- Project scaffolded with services built and running (or at least code is finalized)
+- `traffic/locustfile.py` exists (included by default via d-scribe)
+- `traffic/scenario-templates/` contains reusable patterns
 
-## Traffic Generator Workflow
+## Workflow
 
-### Step 2: Create the Locustfile
+### Step 1: Discover the project
 
-Use [templates/locustfile.py](templates/locustfile.py) as the starting point. Adapt the endpoints and scenarios to match the project's actual API surface.
+Read `AGENTS.md` for:
+- Service names, ports, and backends
+- Active Datadog features
+- Whether a frontend exists
 
-### Step 3: Define Scenarios
+Read service source code (controllers/routes) to find:
+- Actual endpoint paths (e.g., `/api/accounts`, `/api/transactions`)
+- Entity field names and required payloads (what JSON body each POST expects)
+- Magic value patterns for failure triggers (`*-fail-500`, `*-fail-timeout`)
+- Any feature-specific endpoints (search for SQL injection, SSRF fetch-url, aggregation)
 
-Every traffic generator must include at minimum:
+Read `DEMO-SCENARIOS.md` if it exists — use the golden path and failure scenarios as the basis for traffic tasks.
 
-**Golden path** — successful end-to-end request:
+### Step 2: Design traffic tasks
 
-- Hits the API gateway (or frontend)
-- Propagates through all downstream services
-- Returns 2xx
-- Produces a complete distributed trace
+Map the discovered endpoints to Locust task methods with these weight distributions:
 
-**Named failure scenarios** — deterministic errors triggered by magic values:
+| Task | Weight | Purpose | Datadog signal |
+|------|--------|---------|----------------|
+| `golden_path` | 70 | Full CRUD cycle through multiple services | Distributed traces, Service Map |
+| `error_500` | 5 | Trigger 500 via magic value | Error Tracking |
+| `slow_request` | 5 | Trigger timeout via magic value | APM latency spike |
+| `not_found` | 10 | Hit nonexistent resource | 404 traces |
+| `search_injection` | 5 | SQL injection attempt (if security:code active) | Code Security findings |
+| `ssrf_attempt` | 5 | SSRF attempt (if security:code active) | Code Security findings |
 
-- Each scenario uses a specific business input (product ID, coupon code, email) that deterministically causes a named failure — never random probability or debug headers
-- The magic values are the same ones a demoer uses manually during a live presentation
-- Each scenario gets its own Locust task with a descriptive name tag (e.g., `[retry-storm]`, `[timeout]`)
-- Failure frequency is controlled by task weights, not an error-rate coin flip
+Omit tasks for features that aren't active. Adjust weights so they sum to 100.
 
-Use the failure scenarios already defined in the project's service code and README (established during scaffolding). Only consult the [failure scenarios catalog](../../skills/dd-scaffold-demo/failure-scenarios.md) if the project was not scaffolded by d-scribe or if failure scenarios are missing from the project. Adapt the scenarios to match the project's actual topology and endpoints.
+**Stop here.** Use `ask_user` to present the task design and wait for user confirmation. Do not write any files until they reply.
 
-### Step 4: Configure Parameters
+### Step 3: Write the locustfile
 
-All parameters must be configurable via environment variables:
+Replace `traffic/locustfile.py` with a domain-specific version:
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `TRAFFIC_RATE` | `10` | Requests per second |
-| `TRAFFIC_LATENCY_MS` | `0` | Additional latency injected per request (ms) |
-| `TRAFFIC_DURATION` | `0` | Duration in seconds (0 = run forever) |
-| `TRAFFIC_TARGET` | (auto-detect) | Base URL of the entry point |
+```python
+import os
+from locust import HttpUser, task, between
 
-Failure scenario frequency is controlled by Locust task weights in the locustfile, not by an environment variable. Adjust the `@task(N)` weight on each scenario task to control how often it fires relative to the golden path.
+class DemoUser(HttpUser):
+    wait_time = between(1, 3)
 
-### Step 5: Traffic Patterns
+    @task(70)
+    def golden_path(self):
+        """Full CRUD cycle exercising distributed traces"""
+        # Step 1: Create entity through first service
+        resp = self.client.post("/api/<entities>", json={<domain fields>})
+        if resp.status_code not in (200, 201):
+            return
+        entity_id = resp.json().get("id")
 
-When applicable, implement patterns that produce interesting Datadog visualizations:
+        # Step 2: Create related entity through second service
+        ...
 
-- **Periodic ramp** — traffic increases over 5 minutes, holds, then drops. Produces clear trends.
-- **Seasonal wave** — sinusoidal request rate. Supports Watchdog anomaly detection.
-- **Burst spike** — sudden 10x traffic increase for 30 seconds. Demonstrates auto-scaling or saturation.
+        # Step 3: Read operations
+        self.client.get("/api/<entities>")
+        ...
 
-### Step 6: Deploy as a Service
+    @task(5)
+    def error_500(self):
+        """Trigger 500 error via magic value"""
+        self.client.post("/api/<entities>", json={"name": "<entity>-fail-500"})
 
-The traffic generator must be deployed as a service alongside the application stack so it produces consistent traffic for the entire lifetime of the deployment.
+    # ... additional tasks per design
+```
 
-**Docker Compose** — add a `traffic` service to `docker-compose.yml`. See [templates/docker-compose-traffic.yml](templates/docker-compose-traffic.yml) for the reference snippet.
+Rules:
+- Use actual endpoint paths discovered in Step 1
+- Use actual entity field names from the service code
+- Golden path should hit at least 2 different services to produce distributed traces
+- Magic values must match what the service code expects
+- All requests go through the entry point (first service, port 8080 by default)
+- Keep `wait_time = between(1, 3)` for realistic pacing
 
-**Kubernetes** — add a `traffic` Deployment to the K8s manifests. See [templates/k8s-traffic.yml](templates/k8s-traffic.yml) for the reference manifest.
+### Step 4: Validate the locustfile
 
-### Step 7: Exclude from Datadog Monitoring
+Verify the Python file parses:
 
-The traffic service must be explicitly excluded from Datadog monitoring so it does not add noise to demo telemetry.
+    python3 -m py_compile traffic/locustfile.py
 
-**Docker Compose:**
+If syntax errors, fix them and re-validate.
 
-- Do **not** add Unified Service Tagging labels (`com.datadoghq.tags.*`)
-- Add the label `com.datadoghq.ad.logs` with a rule that excludes all logs from collection
-- See the template for the exact label syntax
+### Step 5: Test the traffic (if stack is running)
 
-**Kubernetes:**
+If the demo stack is already running (`docker compose ps` shows services up):
 
-- Do **not** add UST pod labels (`tags.datadoghq.com/*`)
-- Add the annotation `admission.datadoghq.com/enabled: "false"` to prevent automatic library injection
-- Add a log exclusion annotation to suppress log collection
-- See the template for the exact annotation syntax
+    docker compose restart traffic
 
-### Step 8: Makefile & Documentation
+Wait 10 seconds, then check logs:
 
-- Add `make traffic-up` and `make traffic-down` targets to the Makefile (or include the traffic service in the default `make up` / `make down` targets)
-- Update the project README:
-  - **Demo Scenarios — Failure Paths** — if the traffic generator introduces failure scenarios not already listed (e.g., burst spike causing saturation, error rate triggering alerts), add them as rows in the Failure Paths table with Trigger, Expected Behavior, and Datadog Signal
-  - **Makefile Targets** — add the new traffic targets to the Makefile Targets table
+    docker compose logs traffic --tail 20
 
-### Step 9: Preflight (Optional)
+Verify:
+- Requests are being sent
+- Golden path requests succeed (2xx responses)
+- Failure tasks produce expected error codes (500, timeout)
 
-After all changes are applied, ask the SE if they want to run preflight validation. If they agree, run the `dd-demo-preflight` subagent to validate the project end-to-end (build, deploy, health checks, smoke test, telemetry validation, and teardown). If the SE declines, proceed to the next step.
+If the stack isn't running, skip this step.
 
-## Important
+### Step 6: Report
 
-- All traffic must be **fully synthetic** — no real user data or PII
-- Label generated data clearly (e.g., user agents like `dd-demo-traffic/1.0`)
-- Traffic should be **safe to run repeatedly** without side effects (idempotent endpoints or cleanup logic)
-- The traffic service must **never** be instrumented with Datadog tracing or logging
+Tell the user:
+1. What traffic tasks were configured (name, weight, purpose)
+2. Which endpoints and magic values are being exercised
+3. Whether validation passed
+4. How to start/stop traffic:
+   - Start: `docker compose up -d traffic`
+   - Stop: `docker compose stop traffic`
+   - Logs: `docker compose logs -f traffic`
+   - Scale: `LOCUST_USERS=10 docker compose up -d traffic`
+
+## Constraints
+
+- **Read actual code** to discover endpoints — do not assume default paths
+- **All failures use magic values already in the service code** — do not create new failure mechanisms
+- **Golden path must cross service boundaries** — single-service traffic doesn't demonstrate distributed tracing
+- **Keep it simple** — 5-7 tasks max. The SE needs predictable traffic, not a stress test
+- **Locustfile must parse** — always validate with `py_compile` before reporting success

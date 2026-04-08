@@ -1,0 +1,6 @@
+{
+  "label": "Redis",
+  "category": "cache",
+  "type": "redis",
+  "version": "7"
+}

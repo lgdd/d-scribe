@@ -1,0 +1,7 @@
+{
+  "label": "Angular (esbuild)",
+  "framework": "angular",
+  "bundler": "esbuild",
+  "angular_version": "19",
+  "template_path": "template"
+}

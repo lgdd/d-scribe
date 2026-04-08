@@ -2,107 +2,82 @@
   <img src="https://github.com/lgdd/doc-assets/blob/main/d-scribe/d-scribe.png?raw=true" alt="d-scribe" width="400">
 </p>
 
-<h1 align="center">Datadog Sales Engineer Cursor Toolkit</h1>
+<h1 align="center">AI-first CLI toolkit for Datadog Sales Engineers</h1>
 
-Provides rules, skills, subagents, and commands to rapidly scaffold, validate, and present demo projects that send telemetry to a Datadog sandbox organization.
-
-## Prerequisites
-
-- [Cursor](https://cursor.com/) with the [Datadog Extension](https://marketplace.visualstudio.com/items?itemName=Datadog.datadog-vscode) installed
-- Access to the [Datadog MCP Server](https://docs.datadoghq.com/bits_ai/mcp_server/) for your sandbox organization
-- [Docker](https://docs.docker.com/get-started/get-docker/) installed
+Scaffolds pre-instrumented microservice architectures that AI coding agents then bring to life with domain-specific business logic, guided by instrumentation patterns and portable skills.
 
 ## Quick Start
 
 ```bash
-git clone https://github.com/lgdd/d-scribe.git
-cd d-scribe
-chmod +x install.sh
-./install.sh
+# Install skills for your AI coding agent
+npx d-scribe install skills
 ```
 
-The installer symlinks skills, subagents, and commands into `~/.cursor/` so they are available across all Cursor projects.
+Ask your AI coding agent to build a demo
+> "Build me a Datadog demo for an online shop selling dog food & toys"
 
-## What's Included
+Your agent scaffolds the project, generates domain-specific business logic, and walks you through running it — all guided by bundled patterns and skills.
 
-### Rules (15 templates)
+## What Gets Generated
 
-Project-scoped guardrails copied into each demo project by the scaffold skill. Not installed globally.
+A scaffolded project includes:
 
-| Rule | Scope | Purpose |
-|------|-------|---------|
-| `dd-demo-architecture` | Always apply | Microservice topology, prohibited patterns, deterministic failure triggers |
-| `dd-unified-tagging` | Always apply | Unified Service Tagging (env, service, version) |
-| `dd-secrets-env` | Always apply | .env handling, credential safety, DD_SITE awareness |
-| `dd-deployment` | Always apply | Deployment model selection, Agent ownership |
-| `dd-cursor-guidelines` | Always apply | Cursor interaction behavior, incremental scaffolding, build-after-change |
-| `dd-preflight` | docker-compose + k8s + services + Makefile | Preflight validation rules (on-demand via `/dd-preflight`) |
-| `dd-telemetry-correlation` | docker-compose + service source | Correlation wiring for all signal pairs (Logs+Traces, DBM+Traces, RUM+Traces, Profiles+Traces) |
-| `dd-auth-sso` | docker-compose + api-gateway + keycloak | Keycloak OIDC identity provider, auth event logs for Cloud SIEM, RUM user identity |
-| `dd-docker-compose` | docker-compose files | Agent container config, service labels, networking, exclusions |
-| `dd-docker-compose-postgres` | docker-compose files | PostgreSQL DBM setup (user, extensions, Autodiscovery labels) |
-| `dd-docker-compose-mysql` | docker-compose files | MySQL DBM setup (Performance Schema, user, Autodiscovery labels) |
-| `dd-docker-compose-mongo` | docker-compose files | MongoDB DBM setup (monitoring user, Autodiscovery labels) |
-| `dd-kubernetes` | K8s manifests | DaemonSet/Helm Agent, pod annotations, audit logs, exclusions |
-| `dd-logging` | Services and source files | JSON-formatted application logging for Datadog log collection and trace correlation |
-| `dd-terraform` | `terraform/**` | Terraform conventions for Datadog dashboards, monitors, and SLOs |
+- **N minimal microservices** (configurable via `--services`, default 4) — each compiles, starts, exposes `/health`, logs JSON, and is instrumented for APM, but has no business logic. AI generates domain-specific code guided by instrumentation patterns.
+- **Instrumentation patterns** in `references/patterns/` — compact reference files (~30 lines each) for DBM, Code Security, Profiling, SIEM, and inter-service calls
+- **Datadog Agent** pre-configured for APM, Logs, and Infrastructure Monitoring
+- **Traffic generator** (Locust) with golden paths and failure scenarios
+- **docker-compose.yml** with all services wired together
+- **AGENTS.md** with project context, architecture, and pattern references for AI coding agents
+- **Skills** for domain customization, preflight checks, traffic generation, telemetry verification, and runbook generation
 
-### Skills (5)
+## Available Backends
 
-Domain knowledge with supporting reference files. Installed to `~/.cursor/skills/`.
+| Key | Framework |
+|-----|-----------|
+| `java:spring` | Java Spring Boot 3.4.x |
+| `java:quarkus` | Java Quarkus 3.17.x |
+| `python:flask` | Python Flask 3.x |
+| `python:django` | Python Django 5.1.x |
+| `node:express` | Node.js Express 5.x |
+| `ruby:rails` | Ruby on Rails 8.0.x |
+| `php:laravel` | PHP Laravel 12.x |
+| `dotnet:aspnetcore` | .NET ASP.NET Core 9.0 |
+| `go:gin` | Go Gin 1.10.x |
 
-| Skill | Trigger | Description |
-|-------|---------|-------------|
-| `dd-scaffold-demo` | "scaffold a demo" | Creates a full demo project from scratch |
-| `dd-add-product` | "add RUM", "add SIEM" | Adds a DD product to an existing demo |
-| `dd-generate-traffic` | "generate traffic" | Creates Locust traffic service with named failure scenarios (excluded from DD monitoring) |
-| `dd-terraform` | "add Terraform" | Generates Terraform HCL for Datadog dashboards, monitors, and SLOs |
-| `dd-demo-narrator` | "generate runbook" | Generates a DEMO-RUNBOOK.md with talking points, DD UI nav, and failure playbooks |
+## Available Frontends
 
-### Subagents (2)
+| Key | Framework |
+|-----|-----------|
+| `react:vite` | React 18 (Vite) |
+| `angular:esbuild` | Angular 19 (esbuild) |
+| `vue:vite` | Vue 3 (Vite) |
 
-Context-isolated workflows. Installed to `~/.cursor/agents/`.
+## Available Features
 
-| Subagent | Trigger | Description |
-|----------|---------|-------------|
-| `dd-validate-telemetry` | "validate telemetry" | Readonly check that telemetry is flowing — use on an already-running stack |
-| `dd-demo-preflight` | "preflight check" | Full build/deploy/test/validate cycle that always tears down after |
+| Key | Description | Requires |
+|-----|-------------|----------|
+| `dbm:postgresql` | Database Monitoring | PostgreSQL |
+| `security:code` | Code Security / IAST | — |
+| `profiling` | Continuous Profiling | — |
+| `siem` | Cloud SIEM | Keycloak |
 
-### Commands (7)
+## Architecture
 
-Discoverable `/` entry points. Installed to `~/.cursor/commands/`.
+d-scribe is a monorepo with three components:
 
-| Command | Usage |
-|---------|-------|
-| `/dd-scaffold` | Scaffold a new demo project |
-| `/dd-validate` | Validate telemetry is flowing |
-| `/dd-preflight` | Run pre-demo readiness check |
-| `/dd-add-product` | Add a DD product to the demo |
-| `/dd-traffic` | Configure the Locust traffic service |
-| `/dd-narrator` | Generate demo runbook |
-| `/dd-terraform` | Generate Terraform for DD dashboards, monitors, and SLOs |
+- **`cli/`** — TypeScript CLI that reads a manifest, resolves dependencies, copies service templates N times, and renders Handlebars templates. Deterministic — no LLM code generation.
+- **`catalog/`** — Minimal service templates (`service-template/`), instrumentation patterns (`patterns/`), infrastructure configs, and a traffic generator.
+- **`skills/`** — Portable AI agent workflows (agentskills.io format) for scaffolding, domain customization, validation, and runbook generation.
 
-## Usage
+## Commands
 
-### Create a new demo
-
-Type `/dd-scaffold` in Cursor chat (or just say "scaffold a new Datadog demo"). The agent will ask for your language, deployment model, and product preferences, then generate a complete project.
-
-### Validate your setup
-
-With the stack already running, type `/dd-validate` to check that all services are sending telemetry to Datadog. This is readonly and non-destructive — it queries the Datadog API without starting or stopping anything. Requires the Datadog MCP Server (Datadog Cursor Extension) to be enabled.
-
-### Pre-demo check
-
-Preflight runs automatically at the end of each skill workflow (scaffolding, product addition, traffic generation). It builds, deploys, smoke-tests, validates telemetry, and **always cleans up** all containers and processes it started. It does not run after individual file edits — only when a skill completes its work. Type `/dd-preflight` to trigger it manually at any time.
-
-### Maintaining the toolkit
-
-When working in the **d-scribe repo**, Cursor also loads repo-local agents and commands from `.cursor/agents/` and `.cursor/commands/`. These include `review-templates` — use it (or type `/review-templates`) to review and optionally fix the rules and skill templates for Datadog config correctness and doc alignment. This agent is not installed globally; it only runs in this repository.
-
-## Uninstall
-
-```bash
-cd d-scribe
-./uninstall.sh
-```
+| Command | Description |
+|---------|-------------|
+| `d-scribe init demo` | Create a complete demo project |
+| `d-scribe install skills` | Install skills globally for Cursor and/or Claude Code |
+| `d-scribe list backends` | List available backend frameworks |
+| `d-scribe list frontends` | List available frontend frameworks |
+| `d-scribe list features` | List available Datadog features |
+| `d-scribe list deps` | List available infrastructure dependencies |
+| `d-scribe add feature` | Add a feature to existing project (coming soon) |
+| `d-scribe add dep` | Add a dependency to existing project (coming soon) |

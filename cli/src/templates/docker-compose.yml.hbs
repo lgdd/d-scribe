@@ -1,0 +1,147 @@
+networks:
+  dd-demo:
+    driver: bridge
+
+volumes:
+  dd-agent-data:
+{{#if hasPostgresql}}
+  postgres-data:
+{{/if}}
+{{#if hasRedis}}
+  redis-data:
+{{/if}}
+
+services:
+  datadog-agent:
+    image: gcr.io/datadoghq/agent:7
+    container_name: {{projectName}}-datadog-agent
+    environment:
+      - DD_API_KEY=${DD_API_KEY}
+      - DD_SITE={{ddSite}}
+      - DD_APM_ENABLED=true
+      - DD_APM_NON_LOCAL_TRAFFIC=true
+      - DD_LOGS_ENABLED=true
+      - DD_LOGS_CONFIG_CONTAINER_COLLECT_ALL=true
+      - DD_PROCESS_AGENT_ENABLED=true
+      - DD_DOGSTATSD_NON_LOCAL_TRAFFIC=true
+{{#each envVarEntries}}
+      - {{this.[0]}}={{this.[1]}}
+{{/each}}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - dd-agent-data:/opt/datadog-agent/run
+    networks:
+      - dd-demo
+    healthcheck:
+      test: ["CMD-SHELL", "agent health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+{{#each services}}
+  {{this.name}}:
+    build: ./services/{{this.name}}
+    container_name: {{../projectName}}-{{this.name}}
+    environment:
+      - DD_SERVICE={{this.name}}
+      - DD_ENV=${DD_ENV}
+      - DD_VERSION=1.0.0
+      - DD_AGENT_HOST=datadog-agent
+      - PORT={{this.port}}
+{{#if @first}}
+    ports:
+      - "{{this.port}}:{{this.port}}"
+{{/if}}
+    depends_on:
+      datadog-agent:
+        condition: service_healthy
+    networks:
+      - dd-demo
+    labels:
+      com.datadoghq.tags.service: {{this.name}}
+      com.datadoghq.tags.env: ${DD_ENV}
+      com.datadoghq.tags.version: "1.0.0"
+
+{{/each}}
+{{#if frontend}}
+  frontend:
+    build: ./frontend
+    container_name: {{projectName}}-frontend
+    ports:
+      - "3000:80"
+    environment:
+      - DD_ENV=${DD_ENV}
+    depends_on:
+      service-1:
+        condition: service_started
+    networks:
+      - dd-demo
+
+{{/if}}
+{{#if hasPostgresql}}
+  postgresql:
+    image: postgres:16
+    container_name: {{projectName}}-postgresql
+    environment:
+      - POSTGRES_USER=demo
+      - POSTGRES_PASSWORD=demo
+      - POSTGRES_DB=demo
+    volumes:
+      - ./deps/postgresql/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U demo"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - dd-demo
+
+{{/if}}
+{{#if hasRedis}}
+  redis:
+    image: redis:7-alpine
+    container_name: {{projectName}}-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - dd-demo
+
+{{/if}}
+{{#if hasKeycloak}}
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    container_name: {{projectName}}-keycloak
+    ports:
+      - "8180:8080"
+    command: start-dev --import-realm
+    environment:
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=admin
+    volumes:
+      - ./deps/keycloak/realm-export.json:/opt/keycloak/data/import/realm-export.json
+    networks:
+      - dd-demo
+
+{{/if}}
+  traffic:
+    build: ./traffic
+    container_name: {{projectName}}-traffic
+    environment:
+      - TARGET_HOST=http://service-1:8080
+      - LOCUST_USERS=5
+      - LOCUST_SPAWN_RATE=1
+    depends_on:
+{{#each services}}
+      {{this.name}}:
+        condition: service_started
+{{/each}}
+    networks:
+      - dd-demo
