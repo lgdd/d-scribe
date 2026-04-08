@@ -28,7 +28,7 @@ Each `<ASK_USER>` block contains the question, options, and type needed to const
 At the start of this workflow, create the following tasks.
 Mark each as in_progress when starting, completed when done.
 
-1. Gather prospect context
+1. Confirm domain & context
 2. Choose features
 3. Choose app stack
 4. Choose deployment target
@@ -76,73 +76,31 @@ Options:
 Do not proceed to Step 3 until you receive the user's response.
 </ASK_USER>
 
-### Step 3: Prospect context
+### Step 3: Quick context (optional)
 
-Gather prospect context in three focused sub-steps. All sub-steps use selectable options inferred from the confirmed domain and available CLI options (discovered in Step 1). Each `ask_user` call is **multi-select** so the SE can pick all that apply. All sub-steps are optional — if the SE skips or gives minimal input, proceed with reasonable defaults.
-
-#### Step 3a: Tech stack
-
-Based on the backends and frontends discovered in Step 1, infer which stacks are most likely for the confirmed domain and present them as options.
+Give the SE one chance to share prospect context. This is optional — skipping uses smart defaults downstream.
 
 <ASK_USER>
-Call the `ask_user` tool with a **multi-select** question.
+Call the `ask_user` tool with a single-select question.
 
-Question: "What's the prospect's tech stack? (select all that apply)"
-Options — infer 4-6 options that are realistic for the domain, drawn from the backends/frontends discovered in Step 1. Always include a "Skip" option. Examples for a fintech domain:
-- "Java / Spring (Recommended)" — "Common in financial services backends"
-- "Python / Flask or Django" — "Used for data processing, ML, APIs"
-- "Go" — "High-performance services, payment processing"
-- "React frontend" — "Customer-facing web portal"
-- "Not sure / Skip" — "I'll use defaults (Java + Python + React)"
+Question: "Any quick context about this prospect? (helps tailor the demo, or skip to move fast)"
+Options:
+- "Skip — use smart defaults" (Recommended) — "Jump straight to picking features and stack"
+- "Let me share some context" — "I'll describe their tech stack, pain points, or priorities"
 
-Mark the most likely options for the domain with "(Recommended)".
-Do not proceed to Step 3b until you receive the user's response.
-</ASK_USER>
+If the SE chooses to share context, read their free-text input and extract:
+- **Tech stack** (if mentioned) → feed into Step 5 stack inference
+- **Pain points** (if mentioned) → feed into Step 4 feature inference
+- **Goals** (if mentioned) → use for demo scenario flavor in Step 11
 
-#### Step 3b: Pain points
+If skipped, proceed with defaults in Steps 4 and 5.
 
-Based on the confirmed domain and the Datadog features available, infer the most common pain points and present them as options.
-
-<ASK_USER>
-Call the `ask_user` tool with a **multi-select** question.
-
-Question: "What's driving the eval? What's not working today? (select all that apply)"
-Options — infer 5-7 pain points that are realistic for the domain and map to Datadog capabilities. Always include a "Skip" option. Examples for a fintech domain:
-- "Slow incident response / high MTTR" — "Takes too long to find root cause during outages"
-- "No correlation between logs and traces" — "Jumping between tools to debug issues"
-- "Database performance blind spots" — "Slow queries, no visibility into PostgreSQL/MySQL"
-- "Security / compliance concerns" — "Need vulnerability detection, audit trails"
-- "Migrating off another tool (Splunk, ELK, etc.)" — "Consolidating onto a single platform"
-- "No proactive alerting" — "Reactive firefighting instead of catching issues early"
-- "Not sure / Skip" — "I'll pick features in the next step"
-
-Mark the most likely pain points for the domain with "(Recommended)".
-Do not proceed to Step 3c until you receive the user's response.
-</ASK_USER>
-
-#### Step 3c: Future state
-
-Based on the domain and selected pain points from Step 3b, infer the most relevant goals and present them as options.
-
-<ASK_USER>
-Call the `ask_user` tool with a **multi-select** question.
-
-Question: "Where does the prospect want to be? (select all that apply)"
-Options — infer 4-6 goals that logically follow from the selected pain points. Always include a "Skip" option. Examples for a fintech domain with MTTR + database pain points:
-- "Full observability across all microservices" — "End-to-end visibility from frontend to database"
-- "Unified platform replacing multiple tools" — "Single pane of glass for logs, traces, metrics"
-- "Proactive alerting and anomaly detection" — "Catch issues before customers are impacted"
-- "Faster incident resolution (MTTR < 15 min)" — "Quick root cause analysis with correlated telemetry"
-- "Security and compliance visibility" — "Runtime threat detection, vulnerability scanning"
-- "Not sure / Skip" — "I'll proceed with what we have"
-
-Mark the goals most aligned with the selected pain points with "(Recommended)".
 Do not proceed to Step 4 until you receive the user's response.
 </ASK_USER>
 
 ### Step 4: Infer features
 
-Based on the prospect's pain points and context from Step 3, infer which Datadog features to showcase. Map pain points to features:
+If the SE shared prospect context in Step 3, use it to infer which Datadog features to showcase. If skipped, recommend defaults. Map pain points to features:
 - "slow MTTR" / "incident response" / "bottlenecks" → `profiling`
 - "database performance" / "slow queries" → `dbm:postgresql`
 - "security" / "compliance" / "vulnerabilities" → `security:code`
@@ -160,14 +118,14 @@ Based on the prospect's pain points and context from Step 3, infer which Datadog
 > → Check: `security:code` (security/compliance concern)
 > → Uncheck: `dbm:postgresql`, `profiling`, `siem`
 
-Before calling `ask_user`, output a short text message listing the baseline: "**Baseline** (always active, not configurable): APM with distributed tracing, Log Management with trace correlation, Infrastructure Monitoring [+ RUM if a frontend is likely]."
+Before calling `ask_user`, output a short text message listing the baseline: "**Baseline:** APM with distributed tracing, Log Management with trace correlation, Infrastructure Monitoring [+ RUM if a frontend is likely]."
 
 Then use `ask_user` for the additional features.
 
 <ASK_USER>
 Call the `ask_user` tool with a **multi-select** question. Do NOT present the features as text.
 
-Question: "Which additional features should this demo showcase? (Baseline: APM, Logs, Infra, RUM are always included)"
+Question: "Which additional features should this demo showcase? (Baseline: APM, Logs, Infra, RUM)"
 Options (all 4, with descriptions that include your reasoning tied to the prospect's context):
 - Database Monitoring (dbm:postgresql) — [reason tied to prospect context]
 - Continuous Profiling (profiling) — [reason tied to prospect context]
@@ -180,7 +138,7 @@ Do not proceed to Step 5 until you receive the user's response.
 
 ### Step 5: Infer app stack
 
-Based on the prospect's tech stack from Step 3, infer backends, frontend, and service count. Use the options discovered in Step 1.
+If the SE shared tech stack context in Step 3, use it to infer backends, frontend, and service count. Otherwise, use smart defaults. Use the options discovered in Step 1.
 
 Inference guidelines:
 - If the prospect runs a specific language/framework, use the matching backend (e.g., Java Spring → `java:spring`)
@@ -204,7 +162,7 @@ Inference guidelines:
 > Unknown tech stack or too vague:
 > → Default to `java:spring` + `python:flask` + `react:vite` with 4 services — the most battle-tested combination for cross-language tracing demos.
 
-Based on the domain (Step 2) and tech stack (Step 3a), infer concrete service names and assign each a backend framework. Also infer whether a frontend is needed.
+Based on the domain (Step 2) and any tech stack context from Step 3, infer concrete service names and assign each a backend framework. Also infer whether a frontend is needed.
 
 Output the recommended stack as a text message. Example for a fintech domain:
 
@@ -279,7 +237,7 @@ Based on all confirmed choices from Steps 2-7, present a structured architecture
 Present the following sections as a text message:
 
 **Domain:** [confirmed domain from Step 2]
-**Prospect context:** [pain points from 3b, goals from 3c — if gathered]
+**Prospect context:** [context from Step 3 — omit this line if Step 3 was skipped]
 
 **Stack:**
 - Backends: [list with frameworks]
@@ -293,7 +251,7 @@ Present the following sections as a text message:
 | [service-name] | [framework] | [role + dependencies] |
 
 **Features:**
-- Baseline (always active): APM, Logs, Infra [+ RUM if frontend]
+- Baseline: APM, Logs, Infra [+ RUM if frontend]
 - Configured: [selected features from Step 4 with brief rationale]
 
 **Demo scenarios:**
