@@ -22,14 +22,14 @@
     "commander": "^13.0.0",
     "diff": "^8.0.4",
     "fs-extra": "^11.2.0",
-    "handlebars": "^4.7.8"
+    "handlebars": "^4.7.8",
+    "yaml": "^2.0.0"
   },
   "devDependencies": {
     "@types/fs-extra": "^11.0.0",
     "tsup": "^8.0.0",
     "tsx": "^4.0.0",
     "typescript": "^5.7.0",
-    "vitest": "^3.0.0",
-    "yaml": "^2.0.0"
+    "vitest": "^3.0.0"
   }
 }
