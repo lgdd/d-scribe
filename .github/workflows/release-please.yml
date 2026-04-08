@@ -1,3 +1,5 @@
+name: Release
+
 on:
   push:
     branches:
@@ -6,13 +8,43 @@ on:
 permissions:
   contents: write
   pull-requests: write
-
-name: release-please
+  id-token: write
 
 jobs:
   release-please:
     runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.release.outputs['cli--release_created'] }}
+      tag_name: ${{ steps.release.outputs['cli--tag_name'] }}
     steps:
       - uses: googleapis/release-please-action@v4
+        id: release
+
+  validate:
+    uses: ./.github/workflows/validate.yml
+
+  publish:
+    needs: [release-please, validate]
+    if: needs.release-please.outputs.release_created == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
         with:
-          release-type: simple
+          node-version: "22"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Install dependencies
+        working-directory: cli
+        run: npm install
+
+      - name: Build
+        working-directory: cli
+        run: npm run build
+
+      - name: Publish to npm
+        working-directory: cli
+        run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
