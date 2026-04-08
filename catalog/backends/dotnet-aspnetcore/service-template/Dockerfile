@@ -5,11 +5,11 @@ RUN dotnet restore
 COPY . .
 RUN dotnet publish -c Release -o /out
 
+FROM datadog/dd-lib-dotnet-init AS dd-tracer
+
 FROM mcr.microsoft.com/dotnet/aspnet:9.0
 WORKDIR /app
-RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/* \
-    && curl -fSLo /tmp/dd.deb https://github.com/DataDog/dd-trace-dotnet/releases/latest/download/datadog-dotnet-apm_amd64.deb \
-    && dpkg -i /tmp/dd.deb && rm /tmp/dd.deb
+COPY --from=dd-tracer /datadog-init/monitoring-home /opt/datadog
 COPY --from=build /out .
 ENV DD_LOGS_INJECTION=true
 ENV CORECLR_ENABLE_PROFILING=1
