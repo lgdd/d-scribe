@@ -61,7 +61,7 @@ A scaffolded project includes:
 | `dbm:mongodb` | Database Monitoring (MongoDB) | MongoDB |
 | `security:code` | Code Security (IAST) | — |
 | `security:sast` | Static Analysis (SAST) | — |
-| `security:app-protection` | App & API Protection | — |
+| `security:app` | App & API Protection | — |
 | `security:workload` | Workload Protection | — |
 | `security:siem` | Cloud SIEM | Keycloak |
 | `apm:profiling` | Continuous Profiling | — |

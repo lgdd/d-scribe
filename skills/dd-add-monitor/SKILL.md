@@ -157,7 +157,7 @@ Based on the discovered services and active features, compose the monitor plan u
 | `security:code` active | `[env] Security Threat Signal` | `event-v2 alert` | ASM threat signal on `env:<dd_env>` | any |
 | `apm:profiling` active | `[env] CPU Anomaly` | `metric alert` | `avg(last_15m):anomalies(avg:runtime.cpu.utilization{env:<dd_env>}, "basic", 2) >= 1` | anomaly |
 | `security:siem` active | `[env] Failed Auth Spike` | `log alert` | `logs("env:<dd_env> @source:keycloak @outcome:failure").index("*").rollup("count").last("5m") > 20` | 20 |
-| `security:app-protection` active | `[env] Security Threat Signal` | `event-v2 alert` | ASM threat signal on `env:<dd_env>` | any |
+| `security:app` active | `[env] Security Threat Signal` | `event-v2 alert` | ASM threat signal on `env:<dd_env>` | any |
 | `ai:llmobs` active | `[env] LLM Error Rate` | `metric alert` | LLM error rate on `env:<dd_env>` | 5% |
 | `dsm:kafka` active | `[env] Consumer Lag` | `metric alert` | Kafka consumer lag on `env:<dd_env>` | 1000 |
 | Frontend (RUM) active | `[env] Frontend Error Rate` | `rum alert` | `rum("env:<dd_env> @type:error").rollup("count").last("5m") > 10` | 10 |

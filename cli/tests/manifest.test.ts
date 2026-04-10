@@ -51,7 +51,7 @@ describe('loadManifest', () => {
     expect(keys).toContain('apm:profiling');
     expect(keys).toContain('security:code');
     expect(keys).toContain('security:sast');
-    expect(keys).toContain('security:app-protection');
+    expect(keys).toContain('security:app');
     expect(keys).toContain('security:workload');
     expect(keys).toContain('security:siem');
     expect(keys).toContain('ai:llmobs');

@@ -8,7 +8,7 @@
     "dbm:mongodb",
     "security:code",
     "security:sast",
-    "security:app-protection",
+    "security:app",
     "security:workload",
     "security:siem",
     "apm:profiling",

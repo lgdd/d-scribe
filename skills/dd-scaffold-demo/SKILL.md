@@ -106,7 +106,7 @@ If the SE shared prospect context in Step 3, use it to infer which Datadog featu
 - "MySQL" / "document store" → `dbm:mysql` or `dbm:mongodb`
 - "security" / "compliance" / "vulnerabilities" → `security:code`
 - "SIEM migration" / "security operations" / "threat detection" → `security:siem`
-- "WAF" / "threat detection" / "API protection" → `security:app-protection`
+- "WAF" / "threat detection" / "API protection" → `security:app`
 - "container security" / "runtime protection" → `security:workload`
 - "static analysis" / "code quality" / "SAST" → `security:sast`
 - "AI" / "LLM" / "chatbot" / "generative AI" → `ai:llmobs`
@@ -141,7 +141,7 @@ Options (with descriptions that include your reasoning tied to the prospect's co
 - Continuous Profiling (apm:profiling) — [reason tied to prospect context]
 - Code Security / IAST (security:code) — [reason tied to prospect context]
 - Static Analysis / SAST (security:sast) — [reason tied to prospect context]
-- App & API Protection / WAF (security:app-protection) — [reason tied to prospect context]
+- App & API Protection / WAF (security:app) — [reason tied to prospect context]
 - Workload Protection (security:workload) — [reason tied to prospect context]
 - Cloud SIEM (security:siem) — [reason tied to prospect context]
 - LLM Observability (ai:llmobs) — [reason tied to prospect context]

@@ -161,7 +161,7 @@ Based on the discovered services and active features, determine which dashboards
 | `security:code` active | `[<project>] Application Security` | ASM threat signals, IAST vulnerabilities, attack attempts |
 | `apm:profiling` active | `[<project>] Continuous Profiling` | CPU/memory profile top functions per service |
 | `security:siem` active | `[<project>] Security Signals` | Auth events, failed logins, suspicious activity |
-| `security:app-protection` active | `[<project>] App & API Protection` | ASM threat signals, WAF events, IP blocking |
+| `security:app` active | `[<project>] App & API Protection` | ASM threat signals, WAF events, IP blocking |
 | `security:workload` active | `[<project>] Workload Protection` | Container vulnerabilities, runtime threats |
 | `ai:llmobs` active | `[<project>] LLM Observability` | LLM call latency, token usage, error rate |
 | `dsm:kafka` active | `[<project>] Data Streams` | Pipeline latency, consumer lag, throughput |
