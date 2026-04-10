@@ -20,3 +20,4 @@
 | UnindexedQueryMongoRepository.java | dbm:mongodb | Collection scan on unindexed field (MongoDB) |
 | RagSeedMongoResource.java | ai:llmobs | Embed and store documents in MongoDB for RAG |
 | RagChatMongoResource.java | ai:llmobs | RAG chat using MongoDB vector search |
+| SparkEtlJob.java | djm:spark | Spark ETL job reading from project database |
