@@ -1,0 +1,6 @@
+{
+  "label": "Apache Spark",
+  "category": "compute",
+  "type": "spark",
+  "version": "latest"
+}

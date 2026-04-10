@@ -1,0 +1,6 @@
+{
+  "label": "Apache Airflow",
+  "category": "compute",
+  "type": "airflow",
+  "version": "latest"
+}

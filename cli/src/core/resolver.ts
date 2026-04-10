@@ -104,6 +104,15 @@ export function resolve(options: ResolveOptions, manifest: Manifest): ResolvedPl
     }
   }
 
+  // Infer vector store dep for ai:llmobs
+  if (options.features.includes('ai:llmobs')) {
+    if (options.features.includes('dbm:mongodb')) {
+      depKeys.add('db:mongodb');
+    } else {
+      depKeys.add('db:postgresql');
+    }
+  }
+
   const deps: ResolvedDep[] = [...depKeys].map(key => {
     const entry = manifest.deps[key];
     return { key, path: entry.path };

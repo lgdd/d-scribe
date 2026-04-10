@@ -7,6 +7,8 @@ export interface FeatureEntry {
   datadog_products: string[];
   agent_env?: Record<string, string>;
   agent_config?: string;
+  supported_backends?: string[];
+  supported_frontends?: string[];
 }
 
 export interface BackendEntry {

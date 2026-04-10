@@ -4,9 +4,18 @@
   "framework": "django",
   "supported_features": [
     "dbm:postgresql",
+    "dbm:mysql",
+    "dbm:mongodb",
     "security:code",
-    "profiling",
-    "siem"
+    "security:sast",
+    "security:app-protection",
+    "security:workload-protection",
+    "security:siem",
+    "apm:profiling",
+    "ai:llmobs",
+    "djm:spark",
+    "djm:airflow",
+    "dsm:kafka"
   ],
   "python_version": "3.12",
   "django_version": "5.1.x"

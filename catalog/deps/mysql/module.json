@@ -1,0 +1,6 @@
+{
+  "label": "MySQL",
+  "category": "db",
+  "type": "mysql",
+  "version": "8"
+}

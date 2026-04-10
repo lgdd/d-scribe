@@ -1,6 +1,7 @@
 import path from 'node:path';
 import { renderToFile } from './renderer.js';
 import type { ResolvedPlan } from './resolver.js';
+import { getDepSpec } from './patcher.js';
 
 export function composeDockerCompose(
   plan: ResolvedPlan,
@@ -10,17 +11,37 @@ export function composeDockerCompose(
 ): void {
   const templatePath = path.join(templatesDir, 'docker-compose.yml.hbs');
 
+  const depSpecs = plan.deps
+    .map(d => {
+      const spec = getDepSpec(d.key);
+      if (!spec) return null;
+      return {
+        serviceName: spec.serviceName,
+        image: spec.image,
+        command: spec.command ?? null,
+        ports: spec.ports ?? null,
+        environment: spec.environment
+          ? Object.entries(spec.environment).map(([k, v]) => `${k}=${v}`)
+          : null,
+        volumes: [
+          ...(spec.extraVolumeMounts ?? []).map(m => `${m.hostPath}:${m.containerPath}`),
+          ...(spec.volumes ?? []).map(v => `${v.name}:${v.mountPath}`),
+        ],
+        namedVolumes: (spec.volumes ?? []).map(v => v.name),
+        healthcheck: spec.healthcheck ?? null,
+      };
+    })
+    .filter(Boolean);
+
   const data = {
     projectName,
     services: plan.services,
     frontend: plan.frontend,
     features: plan.features,
     deps: plan.deps,
+    depSpecs,
     envVars: plan.envVars,
     envVarEntries: Object.entries(plan.envVars),
-    hasPostgresql: plan.deps.some(d => d.key === 'db:postgresql'),
-    hasRedis: plan.deps.some(d => d.key === 'cache:redis'),
-    hasKeycloak: plan.deps.some(d => d.key === 'auth:keycloak'),
     ddSite: plan.ddSite,
   };
   renderToFile(templatePath, data, outputPath);
@@ -43,8 +64,8 @@ export function composeK8s(
     ddSite: plan.ddSite,
     envVars: plan.envVars,
     envVarEntries: Object.entries(plan.envVars),
-    hasProfiler: plan.features.some(f => f.key === 'profiling'),
-    hasDbm: plan.features.some(f => f.key === 'dbm:postgresql'),
+    hasProfiler: plan.features.some(f => f.key === 'apm:profiling'),
+    hasDbm: plan.features.some(f => f.key.startsWith('dbm:')),
     hasNetworkMonitoring: false,
   };
 
@@ -95,20 +116,13 @@ export function composeK8s(
     );
   }
 
-  // Deps
-  const hasPostgresql = plan.deps.some(d => d.key === 'db:postgresql');
-  const hasRedis = plan.deps.some(d => d.key === 'cache:redis');
-
-  if (hasPostgresql) {
-    const pgData = { ...baseData, name: 'postgresql', image: 'postgres:16', port: 5432 };
-    renderToFile(path.join(k8sDir, 'deployment.yaml.hbs'), pgData, path.join(outputDir, 'deps', 'postgresql-deployment.yaml'));
-    renderToFile(path.join(k8sDir, 'service.yaml.hbs'), pgData, path.join(outputDir, 'deps', 'postgresql-service.yaml'));
-  }
-
-  if (hasRedis) {
-    const redisData = { ...baseData, name: 'redis', image: 'redis:7-alpine', port: 6379 };
-    renderToFile(path.join(k8sDir, 'deployment.yaml.hbs'), redisData, path.join(outputDir, 'deps', 'redis-deployment.yaml'));
-    renderToFile(path.join(k8sDir, 'service.yaml.hbs'), redisData, path.join(outputDir, 'deps', 'redis-service.yaml'));
+  // Deps — generic loop
+  for (const dep of plan.deps) {
+    const spec = getDepSpec(dep.key);
+    if (!spec) continue;
+    const depData = { ...baseData, name: spec.serviceName, image: spec.image, port: spec.port };
+    renderToFile(path.join(k8sDir, 'deployment.yaml.hbs'), depData, path.join(outputDir, 'deps', `${spec.serviceName}-deployment.yaml`));
+    renderToFile(path.join(k8sDir, 'service.yaml.hbs'), depData, path.join(outputDir, 'deps', `${spec.serviceName}-service.yaml`));
   }
 
   // Traffic

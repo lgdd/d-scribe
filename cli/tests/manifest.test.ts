@@ -18,6 +18,8 @@ describe('loadManifest', () => {
     const manifest = loadManifest(CATALOG_PATH);
     expect(manifest.features['dbm:postgresql'].requires_deps).toContain('db:postgresql');
     expect(manifest.features['security:code'].requires_deps).toEqual([]);
+    expect(manifest.features['apm:profiling']).toBeDefined();
+    expect(manifest.features['security:siem']).toBeDefined();
   });
 
   it('has backends with paths', () => {
@@ -31,6 +33,31 @@ describe('loadManifest', () => {
     expect(manifest.infra.deploy['compose:local'].label).toBe('Docker Compose (local)');
     expect(manifest.infra.defaults).toHaveProperty('compose');
     expect(manifest.infra.defaults['compose']).toBe('compose:local');
+  });
+
+  it('has features with optional supported_backends arrays', () => {
+    const manifest = loadManifest(CATALOG_PATH);
+    // dbm:postgresql has no supported_backends (means all)
+    expect(manifest.features['dbm:postgresql'].supported_backends).toBeUndefined();
+  });
+
+  it('has all 13 features defined', () => {
+    const manifest = loadManifest(CATALOG_PATH);
+    const keys = Object.keys(manifest.features);
+    expect(keys).toHaveLength(13);
+    expect(keys).toContain('dbm:postgresql');
+    expect(keys).toContain('dbm:mysql');
+    expect(keys).toContain('dbm:mongodb');
+    expect(keys).toContain('apm:profiling');
+    expect(keys).toContain('security:code');
+    expect(keys).toContain('security:sast');
+    expect(keys).toContain('security:app-protection');
+    expect(keys).toContain('security:workload-protection');
+    expect(keys).toContain('security:siem');
+    expect(keys).toContain('ai:llmobs');
+    expect(keys).toContain('djm:spark');
+    expect(keys).toContain('djm:airflow');
+    expect(keys).toContain('dsm:kafka');
   });
 
   it('throws on missing manifest', () => {

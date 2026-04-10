@@ -4,9 +4,15 @@
   "framework": "gin",
   "supported_features": [
     "dbm:postgresql",
+    "dbm:mysql",
+    "dbm:mongodb",
     "security:code",
-    "profiling",
-    "siem"
+    "security:sast",
+    "security:app-protection",
+    "security:workload-protection",
+    "security:siem",
+    "apm:profiling",
+    "dsm:kafka"
   ],
   "go_version": "1.23",
   "gin_version": "1.10.x"

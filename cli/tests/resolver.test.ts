@@ -110,7 +110,7 @@ describe('resolve', () => {
   it('collects agent_env from features', () => {
     const plan = resolve({
       backends: ['java:spring'],
-      features: ['security:code', 'profiling'],
+      features: ['security:code', 'apm:profiling'],
       deploy: 'compose',
       ddSite: 'datadoghq.com',
       serviceCount: 4,
@@ -118,9 +118,9 @@ describe('resolve', () => {
 
     expect(plan.envVars).toMatchObject({
       DD_IAST_ENABLED: 'true',
-      DD_ASM_ENABLED: 'true',
       DD_PROFILING_ENABLED: 'true',
     });
+    expect(plan.envVars).not.toHaveProperty('DD_ASM_ENABLED');
   });
 
   it('includes backendPath with service-template for each service', () => {
@@ -190,5 +190,30 @@ describe('resolve', () => {
     }, manifest);
 
     expect(plan.deploy).toEqual({ stack: 'k8s', provider: 'aws', service: 'ec2' });
+  });
+
+  it('infers db:postgresql for ai:llmobs when dbm:mongodb is not selected', () => {
+    const plan = resolve({
+      backends: ['python:flask'],
+      features: ['ai:llmobs'],
+      deploy: 'compose',
+      ddSite: 'datadoghq.com',
+      serviceCount: 2,
+    }, manifest);
+
+    expect(plan.deps.some(d => d.key === 'db:postgresql')).toBe(true);
+    expect(plan.deps.some(d => d.key === 'db:mongodb')).toBe(false);
+  });
+
+  it('infers db:mongodb for ai:llmobs when dbm:mongodb is also selected', () => {
+    const plan = resolve({
+      backends: ['python:flask'],
+      features: ['ai:llmobs', 'dbm:mongodb'],
+      deploy: 'compose',
+      ddSite: 'datadoghq.com',
+      serviceCount: 2,
+    }, manifest);
+
+    expect(plan.deps.some(d => d.key === 'db:mongodb')).toBe(true);
   });
 });

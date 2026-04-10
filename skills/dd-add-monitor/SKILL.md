@@ -101,14 +101,14 @@ If `terraform/provider.tf` already exists, skip creation and proceed. This step 
 
 Read the following files:
 
-- `AGENTS.md` → service names, active Datadog features (APM, DBM, RUM, profiling, security:code, siem), whether a frontend exists
+- `AGENTS.md` → service names, active Datadog features (APM, DBM, RUM, apm:profiling, security:code, security:siem), whether a frontend exists
 - `docker-compose.yml` → canonical list of application service names (exclude `datadog-agent`, `traffic`, `postgresql`, `redis`, `keycloak`)
 - `.env` → `DD_ENV` value (used to scope all queries and Terraform variables)
 
 Build a working model:
 - **Services**: list of application service names
 - **DD_ENV**: environment tag value
-- **Active features**: which of `dbm:postgresql`, `security:code`, `profiling`, `siem`, `rum` are enabled
+- **Active features**: which of `dbm:postgresql`, `security:code`, `apm:profiling`, `security:siem`, `rum` are enabled
 - **Frontend**: whether a frontend service exists (for RUM monitor)
 
 ### Step 3: Enrich with real telemetry (soft — proceed with defaults if unavailable)
@@ -155,8 +155,11 @@ Based on the discovered services and active features, compose the monitor plan u
 | `dbm:postgresql` active | `[env] Slow Query` | `metric alert` | `avg(last_5m):avg:postgresql.queries.duration{env:<dd_env>} > 1000` | 1000 ms |
 | `dbm:postgresql` active | `[env] Connection Pool Near Limit` | `metric alert` | `avg(last_5m):avg:postgresql.connections{env:<dd_env>} > 80` | 80 |
 | `security:code` active | `[env] Security Threat Signal` | `event-v2 alert` | ASM threat signal on `env:<dd_env>` | any |
-| `profiling` active | `[env] CPU Anomaly` | `metric alert` | `avg(last_15m):anomalies(avg:runtime.cpu.utilization{env:<dd_env>}, "basic", 2) >= 1` | anomaly |
-| `siem` active | `[env] Failed Auth Spike` | `log alert` | `logs("env:<dd_env> @source:keycloak @outcome:failure").index("*").rollup("count").last("5m") > 20` | 20 |
+| `apm:profiling` active | `[env] CPU Anomaly` | `metric alert` | `avg(last_15m):anomalies(avg:runtime.cpu.utilization{env:<dd_env>}, "basic", 2) >= 1` | anomaly |
+| `security:siem` active | `[env] Failed Auth Spike` | `log alert` | `logs("env:<dd_env> @source:keycloak @outcome:failure").index("*").rollup("count").last("5m") > 20` | 20 |
+| `security:app-protection` active | `[env] Security Threat Signal` | `event-v2 alert` | ASM threat signal on `env:<dd_env>` | any |
+| `ai:llmobs` active | `[env] LLM Error Rate` | `metric alert` | LLM error rate on `env:<dd_env>` | 5% |
+| `dsm:kafka` active | `[env] Consumer Lag` | `metric alert` | Kafka consumer lag on `env:<dd_env>` | 1000 |
 | Frontend (RUM) active | `[env] Frontend Error Rate` | `rum alert` | `rum("env:<dd_env> @type:error").rollup("count").last("5m") > 10` | 10 |
 
 Replace `<dd_env>` and `<svc>` with actual values. When real telemetry baselines are available from Step 3, substitute the computed thresholds.
@@ -258,4 +261,4 @@ Tell the user:
 - **Tag every monitor** with `managed_by:terraform`
 - **Export all monitor IDs** in `terraform/outputs.tf` so `dd-add-slo` can reference them
 - **Thresholds are demo-friendly** — lower than production to trigger during demo traffic; document this in a comment at the top of `monitors.tf`
-- **Feature-gated monitors** — only generate monitors for active features; check `AGENTS.md` before adding DBM, security, profiling, siem, or RUM monitors
+- **Feature-gated monitors** — only generate monitors for active features; check `AGENTS.md` before adding DBM, security, apm:profiling, security:siem, or RUM monitors

@@ -105,7 +105,7 @@ If `terraform/provider.tf` already exists, skip file creation but confirm its pr
 Read `AGENTS.md` for:
 - Project name (used in dashboard titles for identification in shared orgs)
 - Service names and what each service does
-- Active Datadog features (APM, Logs, DBM, RUM, security:code, profiling, siem)
+- Active Datadog features (APM, Logs, DBM, RUM, security:code, apm:profiling, security:siem)
 - Whether a frontend exists
 
 Read `docker-compose.yml` for:
@@ -159,8 +159,14 @@ Based on the discovered services and active features, determine which dashboards
 | Always (Logs active) | `[<project>] Log Analytics` | Log volume by service, error log rate, top error patterns |
 | `dbm:postgresql` active | `[<project>] Database Performance` | Query throughput, slow queries, wait events, connections |
 | `security:code` active | `[<project>] Application Security` | ASM threat signals, IAST vulnerabilities, attack attempts |
-| `profiling` active | `[<project>] Continuous Profiling` | CPU/memory profile top functions per service |
-| `siem` active | `[<project>] Security Signals` | Auth events, failed logins, suspicious activity |
+| `apm:profiling` active | `[<project>] Continuous Profiling` | CPU/memory profile top functions per service |
+| `security:siem` active | `[<project>] Security Signals` | Auth events, failed logins, suspicious activity |
+| `security:app-protection` active | `[<project>] App & API Protection` | ASM threat signals, WAF events, IP blocking |
+| `security:workload-protection` active | `[<project>] Workload Protection` | Container vulnerabilities, runtime threats |
+| `ai:llmobs` active | `[<project>] LLM Observability` | LLM call latency, token usage, error rate |
+| `dsm:kafka` active | `[<project>] Data Streams` | Pipeline latency, consumer lag, throughput |
+| `djm:spark` active | `[<project>] Data Jobs (Spark)` | Job duration, stage performance, executor metrics |
+| `djm:airflow` active | `[<project>] Data Jobs (Airflow)` | DAG duration, task success rate, scheduler performance |
 | Frontend service present (RUM) | `[<project>] Frontend Performance` | Page load time, Core Web Vitals, RUM error rate |
 
 Rules for the proposal:

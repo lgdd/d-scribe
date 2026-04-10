@@ -53,6 +53,8 @@ Map the discovered endpoints to Locust task methods with these weight distributi
 | `not_found` | 10 | Hit nonexistent resource | 404 traces |
 | `search_injection` | 5 | SQL injection attempt (if security:code active) | Code Security findings |
 | `ssrf_attempt` | 5 | SSRF attempt (if security:code active) | Code Security findings |
+| `kafka_produce` | 5 | Produce messages to Kafka (if dsm:kafka active) | DSM pipeline visibility |
+| `llm_chat` | 5 | Send chat requests to LLM endpoint (if ai:llmobs active) | LLM Observability traces |
 
 Omit tasks for features that aren't active. Adjust weights so they sum to 100.
 

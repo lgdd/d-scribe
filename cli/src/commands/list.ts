@@ -37,12 +37,24 @@ export function registerListCommand(program: Command): void {
 
   list.command('features').description('List available features').action(() => {
     const manifest = loadManifest(catalogPath());
-    console.log('Name'.padEnd(20) + 'Label'.padEnd(40) + 'Requires');
-    console.log('-'.repeat(80));
-    for (const [key, val] of Object.entries(manifest.features)) {
-      const deps = val.requires_deps.length ? val.requires_deps.join(', ') : '-';
-      console.log(key.padEnd(20) + val.label.padEnd(40) + deps);
+    const entries = Object.entries(manifest.features);
+
+    // Group by key prefix (text before the colon)
+    const groups = new Map<string, Array<[string, typeof entries[0][1]]>>();
+    for (const [key, val] of entries) {
+      const prefix = key.includes(':') ? key.split(':')[0] : key;
+      if (!groups.has(prefix)) groups.set(prefix, []);
+      groups.get(prefix)!.push([key, val]);
     }
+
+    for (const [group, features] of groups) {
+      console.log(`\n  ${group.toUpperCase()}`);
+      for (const [key, val] of features) {
+        const deps = val.requires_deps.length ? val.requires_deps.join(', ') : '-';
+        console.log(`    ${key.padEnd(32)}${val.label.padEnd(40)}${deps}`);
+      }
+    }
+    console.log();
   });
 
   list.command('deps').description('List available infrastructure dependencies').action(() => {

@@ -4,9 +4,15 @@
   "framework": "aspnetcore",
   "supported_features": [
     "dbm:postgresql",
+    "dbm:mysql",
+    "dbm:mongodb",
     "security:code",
-    "profiling",
-    "siem"
+    "security:sast",
+    "security:app-protection",
+    "security:workload-protection",
+    "security:siem",
+    "apm:profiling",
+    "dsm:kafka"
   ],
   "dotnet_version": "9.0",
   "aspnetcore_version": "9.0"

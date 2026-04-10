@@ -1,0 +1,6 @@
+{
+  "label": "Apache Kafka",
+  "category": "queue",
+  "type": "kafka",
+  "version": "latest"
+}

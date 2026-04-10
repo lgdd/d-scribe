@@ -10,19 +10,75 @@
     "security:code": {
       "label": "Code Security / IAST",
       "requires_deps": [],
-      "datadog_products": ["code_security", "asm"],
-      "agent_env": { "DD_IAST_ENABLED": "true", "DD_ASM_ENABLED": "true" }
+      "datadog_products": ["code_security"],
+      "agent_env": { "DD_IAST_ENABLED": "true" }
     },
-    "profiling": {
+    "apm:profiling": {
       "label": "Continuous Profiling",
       "requires_deps": [],
       "datadog_products": ["profiling"],
       "agent_env": { "DD_PROFILING_ENABLED": "true" }
     },
-    "siem": {
+    "security:siem": {
       "label": "Cloud SIEM",
       "requires_deps": ["auth:keycloak"],
       "datadog_products": ["siem", "cloud_siem"]
+    },
+    "dbm:mysql": {
+      "label": "Database Monitoring (MySQL)",
+      "requires_deps": ["db:mysql"],
+      "datadog_products": ["dbm"],
+      "agent_config": "dbm-mysql"
+    },
+    "dbm:mongodb": {
+      "label": "Database Monitoring (MongoDB)",
+      "requires_deps": ["db:mongodb"],
+      "datadog_products": ["dbm"],
+      "agent_config": "dbm-mongodb"
+    },
+    "security:sast": {
+      "label": "Static Analysis (SAST)",
+      "requires_deps": [],
+      "datadog_products": ["code_security"]
+    },
+    "security:app-protection": {
+      "label": "App & API Protection",
+      "requires_deps": [],
+      "datadog_products": ["asm", "application_security"],
+      "agent_env": { "DD_ASM_ENABLED": "true" }
+    },
+    "security:workload-protection": {
+      "label": "Workload Protection",
+      "requires_deps": [],
+      "datadog_products": ["cwpp", "workload_security"],
+      "agent_env": { "DD_RUNTIME_SECURITY_CONFIG_ENABLED": "true", "DD_SYSTEM_PROBE_ENABLED": "true" }
+    },
+    "ai:llmobs": {
+      "label": "LLM Observability",
+      "requires_deps": [],
+      "datadog_products": ["llm_observability"],
+      "agent_env": { "DD_LLMOBS_ENABLED": "true", "DD_LLMOBS_AGENTLESS_ENABLED": "true" },
+      "supported_backends": ["java:spring", "java:quarkus", "python:flask", "python:django", "node:express"],
+      "supported_frontends": ["react:vite", "angular:esbuild", "vue:vite"]
+    },
+    "djm:spark": {
+      "label": "Data Jobs Monitoring (Spark)",
+      "requires_deps": ["compute:spark"],
+      "datadog_products": ["data_jobs_monitoring"],
+      "supported_backends": ["java:spring", "java:quarkus", "python:flask", "python:django"]
+    },
+    "djm:airflow": {
+      "label": "Data Jobs Monitoring (Airflow)",
+      "requires_deps": ["compute:airflow"],
+      "datadog_products": ["data_jobs_monitoring"],
+      "supported_backends": ["python:flask", "python:django"]
+    },
+    "dsm:kafka": {
+      "label": "Data Streams Monitoring (Kafka)",
+      "requires_deps": ["queue:kafka"],
+      "datadog_products": ["data_streams_monitoring"],
+      "agent_env": { "DD_DATA_STREAMS_ENABLED": "true" },
+      "supported_backends": ["java:spring", "java:quarkus", "python:flask", "python:django", "node:express", "dotnet:aspnetcore", "go:gin"]
     }
   },
   "backends": {
@@ -86,6 +142,21 @@
     },
     "auth:keycloak": {
       "path": "deps/keycloak"
+    },
+    "db:mysql": {
+      "path": "deps/mysql"
+    },
+    "db:mongodb": {
+      "path": "deps/mongodb"
+    },
+    "queue:kafka": {
+      "path": "deps/kafka"
+    },
+    "compute:spark": {
+      "path": "deps/spark"
+    },
+    "compute:airflow": {
+      "path": "deps/airflow"
     }
   },
   "infra": {

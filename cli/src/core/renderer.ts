@@ -16,6 +16,8 @@ Handlebars.registerHelper('includes', (list: string[], item: string) => {
   return list.includes(item);
 });
 
+Handlebars.registerHelper('json', (context: unknown) => JSON.stringify(context));
+
 export function renderTemplate(templatePath: string, data: Record<string, unknown>): string {
   const raw = fs.readFileSync(templatePath, 'utf-8');
   const template = Handlebars.compile(raw, { noEscape: true });

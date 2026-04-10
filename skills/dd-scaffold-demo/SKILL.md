@@ -101,22 +101,30 @@ Do not proceed to Step 4 until you receive the user's response.
 ### Step 4: Infer features
 
 If the SE shared prospect context in Step 3, use it to infer which Datadog features to showcase. If skipped, recommend defaults. Map pain points to features:
-- "slow MTTR" / "incident response" / "bottlenecks" → `profiling`
+- "slow MTTR" / "incident response" / "bottlenecks" → `apm:profiling`
 - "database performance" / "slow queries" → `dbm:postgresql`
+- "MySQL" / "document store" → `dbm:mysql` or `dbm:mongodb`
 - "security" / "compliance" / "vulnerabilities" → `security:code`
-- "SIEM migration" / "security operations" / "threat detection" → `siem`
+- "SIEM migration" / "security operations" / "threat detection" → `security:siem`
+- "WAF" / "threat detection" / "API protection" → `security:app-protection`
+- "container security" / "runtime protection" → `security:workload-protection`
+- "static analysis" / "code quality" / "SAST" → `security:sast`
+- "AI" / "LLM" / "chatbot" / "generative AI" → `ai:llmobs`
+- "data pipeline" / "Spark" / "batch processing" → `djm:spark`
+- "workflow orchestration" / "Airflow" / "DAGs" → `djm:airflow`
+- "event streaming" / "Kafka" / "message queue" → `dsm:kafka`
 - If no pain points were provided, recommend `dbm:postgresql` as the default — it produces the most visually compelling Datadog demo with minimal setup
 
 **Worked examples:**
 
-> Prospect says: "Java shop migrating from Splunk, slow incident resolution, no visibility into PostgreSQL performance."
-> → Check: `dbm:postgresql` (no DB visibility), `profiling` (slow incident resolution / MTTR)
-> → Uncheck: `security:code`, `siem`
-> → Note in `siem` line: "Splunk migration may indicate future SIEM interest — worth flagging"
+> Prospect says: "Java shop migrating SIEM tooling, slow incident resolution, no visibility into PostgreSQL performance."
+> → Check: `dbm:postgresql` (no DB visibility), `apm:profiling` (slow incident resolution / MTTR)
+> → Uncheck: `security:code`, `security:siem`
+> → Note in `security:siem` line: "SIEM migration may indicate future Cloud SIEM interest — worth flagging"
 
 > Prospect says: "Python/React on K8s, worried about security compliance."
 > → Check: `security:code` (security/compliance concern)
-> → Uncheck: `dbm:postgresql`, `profiling`, `siem`
+> → Uncheck: `dbm:postgresql`, `apm:profiling`, `security:siem`
 
 Before calling `ask_user`, output a short text message listing the baseline: "**Baseline:** APM with distributed tracing, Log Management with trace correlation, Infrastructure Monitoring [+ RUM if a frontend is likely]."
 
@@ -126,11 +134,20 @@ Then use `ask_user` for the additional features.
 Call the `ask_user` tool with a **multi-select** question. Do NOT present the features as text.
 
 Question: "Which additional features should this demo showcase? (Baseline: APM, Logs, Infra, RUM)"
-Options (all 4, with descriptions that include your reasoning tied to the prospect's context):
-- Database Monitoring (dbm:postgresql) — [reason tied to prospect context]
-- Continuous Profiling (profiling) — [reason tied to prospect context]
+Options (with descriptions that include your reasoning tied to the prospect's context):
+- Database Monitoring — PostgreSQL (dbm:postgresql) — [reason tied to prospect context]
+- Database Monitoring — MySQL (dbm:mysql) — [reason tied to prospect context]
+- Database Monitoring — MongoDB (dbm:mongodb) — [reason tied to prospect context]
+- Continuous Profiling (apm:profiling) — [reason tied to prospect context]
 - Code Security / IAST (security:code) — [reason tied to prospect context]
-- Cloud SIEM (siem) — [reason tied to prospect context]
+- Static Analysis / SAST (security:sast) — [reason tied to prospect context]
+- App & API Protection / WAF (security:app-protection) — [reason tied to prospect context]
+- Workload Protection (security:workload-protection) — [reason tied to prospect context]
+- Cloud SIEM (security:siem) — [reason tied to prospect context]
+- LLM Observability (ai:llmobs) — [reason tied to prospect context]
+- Data Streams — Kafka (dsm:kafka) — [reason tied to prospect context]
+- Data Jobs — Spark (djm:spark) — [reason tied to prospect context]
+- Data Jobs — Airflow (djm:airflow) — [reason tied to prospect context]
 
 Mark recommended options with "(Recommended)" in the label.
 Do not proceed to Step 5 until you receive the user's response.
@@ -281,7 +298,7 @@ Do not proceed to Step 9 until you receive the user's confirmation.
 
 Map the confirmed choices from Steps 2-8 to CLI arguments and run:
 
-    d-scribe init demo --backend java:spring,python:flask --frontend react:vite --features dbm:postgresql,security:code,profiling --services 4 --deploy k8s --dest .
+    d-scribe init demo --backend java:spring,python:flask --frontend react:vite --features dbm:postgresql,security:code,apm:profiling --services 4 --deploy k8s --dest .
 
 ### Step 10: Read the generated context
 

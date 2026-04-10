@@ -4,9 +4,14 @@
   "framework": "rails",
   "supported_features": [
     "dbm:postgresql",
+    "dbm:mysql",
+    "dbm:mongodb",
     "security:code",
-    "profiling",
-    "siem"
+    "security:sast",
+    "security:app-protection",
+    "security:workload-protection",
+    "security:siem",
+    "apm:profiling"
   ],
   "ruby_version": "3.3",
   "rails_version": "8.0.x"

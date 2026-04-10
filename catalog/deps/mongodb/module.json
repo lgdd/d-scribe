@@ -1,0 +1,6 @@
+{
+  "label": "MongoDB",
+  "category": "db",
+  "type": "mongodb",
+  "version": "7"
+}

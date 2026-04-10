@@ -4,9 +4,16 @@
   "framework": "express",
   "supported_features": [
     "dbm:postgresql",
+    "dbm:mysql",
+    "dbm:mongodb",
     "security:code",
-    "profiling",
-    "siem"
+    "security:sast",
+    "security:app-protection",
+    "security:workload-protection",
+    "security:siem",
+    "apm:profiling",
+    "ai:llmobs",
+    "dsm:kafka"
   ],
   "node_version": "22",
   "express_version": "5.x"

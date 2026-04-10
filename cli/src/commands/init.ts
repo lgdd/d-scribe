@@ -7,6 +7,7 @@ import { composeDockerCompose, composeK8s } from '../core/composer.js';
 import { renderToFile } from '../core/renderer.js';
 import { catalogPath, skillsPath, templatesPath } from '../helpers/catalog.js';
 import { writeProjectManifest } from '../core/project-manifest.js';
+import { getDepSpec } from '../core/patcher.js';
 
 export function registerInitCommand(program: Command): void {
   const init = program.command('init').description('Initialize a new project');
@@ -105,6 +106,29 @@ export function registerInitCommand(program: Command): void {
       // Group services by backend for AGENTS.md
       const servicesByBackend = groupServicesByBackend(plan.services, manifest);
 
+      // Build generic depSpecs for templates
+      const depSpecs = plan.deps
+        .map(d => {
+          const spec = getDepSpec(d.key);
+          if (!spec) return null;
+          return {
+            serviceName: spec.serviceName,
+            image: spec.image,
+            command: spec.command ?? null,
+            ports: spec.ports ?? null,
+            environment: spec.environment
+              ? Object.entries(spec.environment).map(([k, v]) => `${k}=${v}`)
+              : null,
+            volumes: [
+              ...(spec.extraVolumeMounts ?? []).map(m => `${m.hostPath}:${m.containerPath}`),
+              ...(spec.volumes ?? []).map(v => `${v.name}:${v.mountPath}`),
+            ],
+            namedVolumes: (spec.volumes ?? []).map(v => v.name),
+            healthcheck: spec.healthcheck ?? null,
+          };
+        })
+        .filter(Boolean);
+
       // Template data (shared across all templates)
       const data = {
         projectName,
@@ -114,11 +138,9 @@ export function registerInitCommand(program: Command): void {
         frontend: plan.frontend,
         features: plan.features,
         deps: plan.deps,
+        depSpecs,
         envVars: plan.envVars,
         envVarEntries: Object.entries(plan.envVars),
-        hasPostgresql: plan.deps.some(d => d.key === 'db:postgresql'),
-        hasRedis: plan.deps.some(d => d.key === 'cache:redis'),
-        hasKeycloak: plan.deps.some(d => d.key === 'auth:keycloak'),
         ddSite: plan.ddSite,
         deploy: plan.deploy,
         servicesByBackend,

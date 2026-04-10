@@ -4,9 +4,17 @@
   "framework": "spring",
   "supported_features": [
     "dbm:postgresql",
+    "dbm:mysql",
+    "dbm:mongodb",
     "security:code",
-    "profiling",
-    "siem"
+    "security:sast",
+    "security:app-protection",
+    "security:workload-protection",
+    "security:siem",
+    "apm:profiling",
+    "ai:llmobs",
+    "djm:spark",
+    "dsm:kafka"
   ],
   "java_version": "21",
   "spring_boot_version": "3.4.x"

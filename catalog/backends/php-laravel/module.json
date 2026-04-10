@@ -4,9 +4,14 @@
   "framework": "laravel",
   "supported_features": [
     "dbm:postgresql",
+    "dbm:mysql",
+    "dbm:mongodb",
     "security:code",
-    "profiling",
-    "siem"
+    "security:sast",
+    "security:app-protection",
+    "security:workload-protection",
+    "security:siem",
+    "apm:profiling"
   ],
   "php_version": "8.4",
   "laravel_version": "12.x"

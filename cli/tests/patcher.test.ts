@@ -144,6 +144,46 @@ describe('getDepSpec', () => {
   it('returns undefined for unknown dep key', () => {
     expect(getDepSpec('unknown:dep')).toBeUndefined();
   });
+
+  it('returns DepSpec for db:mysql', () => {
+    const spec = getDepSpec('db:mysql');
+    expect(spec).toBeDefined();
+    expect(spec!.serviceName).toBe('mysql');
+    expect(spec!.image).toBe('mysql:8');
+    expect(spec!.port).toBe(3306);
+  });
+
+  it('returns DepSpec for db:mongodb', () => {
+    const spec = getDepSpec('db:mongodb');
+    expect(spec).toBeDefined();
+    expect(spec!.serviceName).toBe('mongodb');
+    expect(spec!.image).toBe('mongo:7');
+    expect(spec!.port).toBe(27017);
+  });
+
+  it('returns DepSpec for queue:kafka', () => {
+    const spec = getDepSpec('queue:kafka');
+    expect(spec).toBeDefined();
+    expect(spec!.serviceName).toBe('kafka');
+    expect(spec!.image).toBe('apache/kafka:latest');
+    expect(spec!.port).toBe(9092);
+  });
+
+  it('returns DepSpec for compute:spark', () => {
+    const spec = getDepSpec('compute:spark');
+    expect(spec).toBeDefined();
+    expect(spec!.serviceName).toBe('spark');
+    expect(spec!.image).toBe('apache/spark:latest');
+    expect(spec!.port).toBe(8090);
+  });
+
+  it('returns DepSpec for compute:airflow', () => {
+    const spec = getDepSpec('compute:airflow');
+    expect(spec).toBeDefined();
+    expect(spec!.serviceName).toBe('airflow');
+    expect(spec!.image).toBe('apache/airflow:latest');
+    expect(spec!.port).toBe(8280);
+  });
 });
 
 describe('patchK8sForDep', () => {

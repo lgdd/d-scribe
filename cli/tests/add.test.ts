@@ -43,8 +43,8 @@ describe('add feature (compose)', () => {
     expect(manifest.features).toContain('dbm:postgresql');
   });
 
-  it('adds profiling — patches agent env vars, no deps', () => {
-    run(['add', 'feature', 'profiling'], tmpDir);
+  it('adds apm:profiling — patches agent env vars, no deps', () => {
+    run(['add', 'feature', 'apm:profiling'], tmpDir);
 
     const content = fs.readFileSync(path.join(tmpDir, 'docker-compose.yml'), 'utf-8');
     expect(content).toContain('DD_PROFILING_ENABLED=true');
@@ -54,26 +54,25 @@ describe('add feature (compose)', () => {
 
     // Manifest updated
     const manifest = JSON.parse(fs.readFileSync(path.join(tmpDir, '.d-scribe.json'), 'utf-8'));
-    expect(manifest.features).toContain('profiling');
+    expect(manifest.features).toContain('apm:profiling');
   });
 
-  it('adds security:code — patches multiple agent env vars', () => {
+  it('adds security:code — patches agent env vars', () => {
     run(['add', 'feature', 'security:code'], tmpDir);
 
     const content = fs.readFileSync(path.join(tmpDir, 'docker-compose.yml'), 'utf-8');
     expect(content).toContain('DD_IAST_ENABLED=true');
-    expect(content).toContain('DD_ASM_ENABLED=true');
   });
 
   it('is idempotent — adding same feature twice does not error', () => {
-    run(['add', 'feature', 'profiling'], tmpDir);
-    const output = run(['add', 'feature', 'profiling'], tmpDir);
+    run(['add', 'feature', 'apm:profiling'], tmpDir);
+    const output = run(['add', 'feature', 'apm:profiling'], tmpDir);
 
     expect(output).toContain('already');
 
     // Only listed once in manifest
     const manifest = JSON.parse(fs.readFileSync(path.join(tmpDir, '.d-scribe.json'), 'utf-8'));
-    expect(manifest.features.filter((f: string) => f === 'profiling')).toHaveLength(1);
+    expect(manifest.features.filter((f: string) => f === 'apm:profiling')).toHaveLength(1);
   });
 
   it('errors on unknown feature', () => {
@@ -84,7 +83,7 @@ describe('add feature (compose)', () => {
 describe('add feature (no project)', () => {
   it('errors when .d-scribe.json is missing', () => {
     const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'd-scribe-add-empty-'));
-    expect(() => run(['add', 'feature', 'profiling'], tmpDir)).toThrow();
+    expect(() => run(['add', 'feature', 'apm:profiling'], tmpDir)).toThrow();
   });
 });
 

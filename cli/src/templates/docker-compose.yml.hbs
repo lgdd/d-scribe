@@ -4,12 +4,11 @@ networks:
 
 volumes:
   dd-agent-data:
-{{#if hasPostgresql}}
-  postgres-data:
-{{/if}}
-{{#if hasRedis}}
-  redis-data:
-{{/if}}
+{{#each depSpecs}}
+{{#each this.namedVolumes}}
+  {{this}}:
+{{/each}}
+{{/each}}
 
 services:
   datadog-agent:
@@ -78,59 +77,42 @@ services:
       - dd-demo
 
 {{/if}}
-{{#if hasPostgresql}}
-  postgresql:
-    image: postgres:16
-    container_name: {{projectName}}-postgresql
-    environment:
-      - POSTGRES_USER=demo
-      - POSTGRES_PASSWORD=demo
-      - POSTGRES_DB=demo
-    volumes:
-      - ./deps/postgresql/init.sql:/docker-entrypoint-initdb.d/init.sql
-      - postgres-data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U demo"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - dd-demo
-
+{{#each depSpecs}}
+  {{this.serviceName}}:
+    image: {{this.image}}
+    container_name: {{../projectName}}-{{this.serviceName}}
+{{#if this.command}}
+    command: {{this.command}}
 {{/if}}
-{{#if hasRedis}}
-  redis:
-    image: redis:7-alpine
-    container_name: {{projectName}}-redis
+{{#if this.ports}}
     ports:
-      - "6379:6379"
-    volumes:
-      - redis-data:/data
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-    networks:
-      - dd-demo
-
+{{#each this.ports}}
+      - "{{this}}"
+{{/each}}
 {{/if}}
-{{#if hasKeycloak}}
-  keycloak:
-    image: quay.io/keycloak/keycloak:latest
-    container_name: {{projectName}}-keycloak
-    ports:
-      - "8180:8080"
-    command: start-dev --import-realm
+{{#if this.environment}}
     environment:
-      - KEYCLOAK_ADMIN=admin
-      - KEYCLOAK_ADMIN_PASSWORD=admin
+{{#each this.environment}}
+      - {{this}}
+{{/each}}
+{{/if}}
+{{#if this.volumes}}
     volumes:
-      - ./deps/keycloak/realm-export.json:/opt/keycloak/data/import/realm-export.json
+{{#each this.volumes}}
+      - {{this}}
+{{/each}}
+{{/if}}
+{{#if this.healthcheck}}
+    healthcheck:
+      test: {{{json this.healthcheck.test}}}
+      interval: {{this.healthcheck.interval}}
+      timeout: {{this.healthcheck.timeout}}
+      retries: {{this.healthcheck.retries}}
+{{/if}}
     networks:
       - dd-demo
 
-{{/if}}
+{{/each}}
   traffic:
     build: ./traffic
     container_name: {{projectName}}-traffic

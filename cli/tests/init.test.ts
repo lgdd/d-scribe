@@ -115,13 +115,13 @@ describe('init demo (compose)', () => {
   });
 
   it('writes .d-scribe.json project manifest', () => {
-    run(['init', 'demo', '--backend', 'java:spring', '--frontend', 'react:vite', '--features', 'profiling', '--services', '3'], tmpDir);
+    run(['init', 'demo', '--backend', 'java:spring', '--frontend', 'react:vite', '--features', 'apm:profiling', '--services', '3'], tmpDir);
 
     const manifest = JSON.parse(fs.readFileSync(path.join(tmpDir, '.d-scribe.json'), 'utf-8'));
     expect(manifest).toEqual({
       backends: ['java:spring'],
       frontend: 'react:vite',
-      features: ['profiling'],
+      features: ['apm:profiling'],
       deploy: 'compose',
       services: 3,
     });
