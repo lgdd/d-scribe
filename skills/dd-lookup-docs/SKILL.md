@@ -11,7 +11,7 @@ description: >
   LLM observability, etc. Also trigger when another dd- prefixed skill needs
   to reference official documentation.
 tools:
-  - web_fetch (or any HTTP fetching capability)
+  - web_fetch
 ---
 
 # Datadog Documentation Lookup

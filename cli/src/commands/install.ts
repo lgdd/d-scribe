@@ -82,8 +82,10 @@ function getFileDiffs(src: string, dest: string): string[] {
   return diffs;
 }
 
-function copySkill(src: string, skillsDir: string): void {
-  const dest = path.join(skillsDir, 'dd-scaffold-demo');
+const INSTALLABLE_SKILLS = ['dd-scaffold-demo', 'dd-lookup-docs'];
+
+function copySkill(src: string, skillsDir: string, skillName: string): void {
+  const dest = path.join(skillsDir, skillName);
   fs.ensureDirSync(skillsDir);
   fs.removeSync(dest);
   fs.copySync(src, dest);
@@ -94,16 +96,21 @@ export function registerInstallCommand(program: Command): void {
 
   install
     .command('skills')
-    .description('Install dd-scaffold-demo skill globally for detected AI coding tools')
+    .description('Install d-scribe skills globally for detected AI coding tools')
     .option('--tool <name>', 'Force install for a specific tool (cursor, claude, windsurf, gemini, opencode, goose)')
     .option('-y, --yes', 'Skip prompts and accept all defaults')
     .action(async (opts) => {
       const skPath = skillsPath();
-      const skillSrc = path.join(skPath, 'dd-scaffold-demo');
 
-      if (!fs.existsSync(skillSrc)) {
-        console.error('Error: dd-scaffold-demo skill not found in bundle.');
-        process.exit(1);
+      // Validate all installable skills exist in the bundle
+      const skillSources: { name: string; src: string }[] = [];
+      for (const skillName of INSTALLABLE_SKILLS) {
+        const src = path.join(skPath, skillName);
+        if (!fs.existsSync(src)) {
+          console.error(`Error: ${skillName} skill not found in bundle.`);
+          process.exit(1);
+        }
+        skillSources.push({ name: skillName, src });
       }
 
       const homeDir = process.env.HOME || process.env.USERPROFILE || '';
@@ -145,61 +152,64 @@ export function registerInstallCommand(program: Command): void {
         process.exit(1);
       }
 
-      // Classify each tool
-      const notInstalled: Tool[] = [];
-      const upToDate: Tool[] = [];
-      const changed: { tool: Tool; diffs: string[] }[] = [];
+      // Process each skill
+      for (const skill of skillSources) {
+        // Classify each tool for this skill
+        const notInstalled: Tool[] = [];
+        const upToDate: Tool[] = [];
+        const changed: { tool: Tool; diffs: string[] }[] = [];
 
-      for (const tool of detected) {
-        const dest = path.join(tool.skillsDir, 'dd-scaffold-demo');
-        if (!fs.existsSync(dest)) {
-          notInstalled.push(tool);
-        } else if (dirsAreEqual(skillSrc, dest)) {
-          upToDate.push(tool);
-        } else {
-          changed.push({ tool, diffs: getFileDiffs(skillSrc, dest) });
+        for (const tool of detected) {
+          const dest = path.join(tool.skillsDir, skill.name);
+          if (!fs.existsSync(dest)) {
+            notInstalled.push(tool);
+          } else if (dirsAreEqual(skill.src, dest)) {
+            upToDate.push(tool);
+          } else {
+            changed.push({ tool, diffs: getFileDiffs(skill.src, dest) });
+          }
         }
-      }
 
-      console.log('\ndd-scaffold-demo skill:');
+        console.log(`\n${skill.name} skill:`);
 
-      // Print up-to-date
-      for (const tool of upToDate) {
-        console.log(`  ○ ${tool.name.padEnd(8)} — already up to date`);
-      }
-
-      // Prompt for new installs
-      if (notInstalled.length > 0) {
-        let toInstall = notInstalled;
-        if (!opts.yes) {
-          const selected = await checkbox({
-            message: 'Select where to install dd-scaffold-demo',
-            choices: notInstalled.map(t => ({
-              name: `${t.name} → ${t.skillsDir}/dd-scaffold-demo`,
-              value: t.name,
-              checked: true,
-            })),
-          });
-          toInstall = notInstalled.filter(t => selected.includes(t.name));
+        // Print up-to-date
+        for (const tool of upToDate) {
+          console.log(`  ○ ${tool.name.padEnd(8)} — already up to date`);
         }
-        for (const tool of toInstall) {
-          copySkill(skillSrc, tool.skillsDir);
-          console.log(`  ✓ ${tool.name.padEnd(8)} — installed`);
-        }
-      }
 
-      // Prompt for changed — show actual content diff
-      for (const { tool, diffs } of changed) {
-        console.log(`\n  ~ ${tool.name} — changes detected:\n`);
-        for (const d of diffs) {
-          console.log(d);
+        // Prompt for new installs
+        if (notInstalled.length > 0) {
+          let toInstall = notInstalled;
+          if (!opts.yes) {
+            const selected = await checkbox({
+              message: `Select where to install ${skill.name}`,
+              choices: notInstalled.map(t => ({
+                name: `${t.name} → ${t.skillsDir}/${skill.name}`,
+                value: t.name,
+                checked: true,
+              })),
+            });
+            toInstall = notInstalled.filter(t => selected.includes(t.name));
+          }
+          for (const tool of toInstall) {
+            copySkill(skill.src, tool.skillsDir, skill.name);
+            console.log(`  ✓ ${tool.name.padEnd(8)} — installed`);
+          }
         }
-        const override = opts.yes || await confirm({ message: `Override in ${tool.name}?`, default: true });
-        if (override) {
-          copySkill(skillSrc, tool.skillsDir);
-          console.log(`  ✓ ${tool.name.padEnd(8)} — updated`);
-        } else {
-          console.log(`  ○ ${tool.name.padEnd(8)} — skipped`);
+
+        // Prompt for changed — show actual content diff
+        for (const { tool, diffs } of changed) {
+          console.log(`\n  ~ ${tool.name} — changes detected:\n`);
+          for (const d of diffs) {
+            console.log(d);
+          }
+          const override = opts.yes || await confirm({ message: `Override ${skill.name} in ${tool.name}?`, default: true });
+          if (override) {
+            copySkill(skill.src, tool.skillsDir, skill.name);
+            console.log(`  ✓ ${tool.name.padEnd(8)} — updated`);
+          } else {
+            console.log(`  ○ ${tool.name.padEnd(8)} — skipped`);
+          }
         }
       }
 
