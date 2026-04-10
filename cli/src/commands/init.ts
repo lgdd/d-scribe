@@ -8,6 +8,7 @@ import { renderToFile } from '../core/renderer.js';
 import { catalogPath, skillsPath, templatesPath } from '../helpers/catalog.js';
 import { writeProjectManifest } from '../core/project-manifest.js';
 import { getDepSpec } from '../core/patcher.js';
+import { getSastRulesets } from '../core/sast.js';
 
 export function registerInitCommand(program: Command): void {
   const init = program.command('init').description('Initialize a new project');
@@ -208,6 +209,16 @@ export function registerInitCommand(program: Command): void {
       fs.writeFileSync(path.join(outputDir, '.env'), envContent, 'utf-8');
 
       renderToFile(path.join(tplDir, 'README.md.hbs'), data, path.join(outputDir, 'README.md'));
+
+      // Generate static-analysis.datadog.yml if SAST is enabled
+      if (plan.features.some(f => f.key === 'security:sast')) {
+        const rulesets = getSastRulesets(backends);
+        renderToFile(
+          path.join(tplDir, 'static-analysis.datadog.yml.hbs'),
+          { rulesets },
+          path.join(outputDir, 'static-analysis.datadog.yml'),
+        );
+      }
 
       // Write .gitignore
       const gitignoreEntries = [
