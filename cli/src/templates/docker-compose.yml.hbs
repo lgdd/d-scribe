@@ -14,6 +14,18 @@ services:
   datadog-agent:
     image: gcr.io/datadoghq/agent:7
     container_name: {{projectName}}-datadog-agent
+    pid: host
+    security_opt:
+      - apparmor:unconfined
+    cap_add:
+      - SYS_ADMIN
+      - SYS_RESOURCE
+      - SYS_PTRACE
+      - NET_ADMIN
+      - NET_BROADCAST
+      - NET_RAW
+      - IPC_LOCK
+      - CHOWN
     environment:
       - DD_API_KEY=${DD_API_KEY}
       - DD_SITE={{ddSite}}
@@ -29,6 +41,13 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - dd-agent-data:/opt/datadog-agent/run
+      - /proc/:/host/proc/:ro
+      - /sys/fs/cgroup/:/host/sys/fs/cgroup:ro
+      - /etc/passwd:/etc/passwd:ro
+      - /etc/group:/etc/group:ro
+      - /:/host/root:ro
+      - /sys/kernel/debug:/sys/kernel/debug
+      - /etc/os-release:/etc/os-release
     networks:
       - dd-demo
     healthcheck:
