@@ -10,3 +10,13 @@
 | memory_leak_service.py | profiling | Gradual allocation in a cache |
 | audit_log_middleware.py | siem | Structured audit log for auth events |
 | inter_service_client.py | (base) | HTTP call with tracing headers propagated |
+| kafka_producer_route.py | dsm:kafka | Kafka producer for pipeline monitoring |
+| kafka_consumer_service.py | dsm:kafka | Kafka consumer with optional lag simulation |
+| rag_seed_route.py | ai:llmobs | Embed and store documents in pgvector for RAG |
+| rag_chat_route.py | ai:llmobs | RAG chat: embed query, search pgvector, generate response |
+| slow_query_mysql_repository.py | dbm:mysql | Slow SELECT with artificial delay (MySQL) |
+| n_plus_one_mysql_route.py | dbm:mysql | N+1 query on related entities (MySQL) |
+| slow_aggregation_mongo_repository.py | dbm:mongodb | Expensive aggregation pipeline (MongoDB) |
+| unindexed_query_mongo_repository.py | dbm:mongodb | Collection scan on unindexed field (MongoDB) |
+| rag_seed_mongo_route.py | ai:llmobs | Embed and store documents in MongoDB for RAG |
+| rag_chat_mongo_route.py | ai:llmobs | RAG chat using MongoDB vector search |

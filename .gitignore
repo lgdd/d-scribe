@@ -17,3 +17,6 @@ package-lock.json
 # Python
 __pycache__/
 *.pyc
+
+# Superpowers
+docs/superpowers

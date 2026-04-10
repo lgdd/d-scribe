@@ -10,3 +10,7 @@
 | MemoryLeakService.php | profiling | Gradual allocation in a cache |
 | AuditLogMiddleware.php | siem | Structured audit log for auth events |
 | InterServiceClient.php | (base) | HTTP call with tracing headers propagated |
+| SlowQueryMysqlRepository.php | dbm:mysql | Slow SELECT with artificial delay (MySQL) |
+| NplusOneMysqlController.php | dbm:mysql | N+1 query on related entities (MySQL) |
+| SlowAggregationMongoRepository.php | dbm:mongodb | Expensive aggregation pipeline (MongoDB) |
+| UnindexedQueryMongoRepository.php | dbm:mongodb | Collection scan on unindexed field (MongoDB) |

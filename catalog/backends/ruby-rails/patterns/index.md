@@ -10,3 +10,7 @@
 | memory_leak_service.rb | profiling | Gradual allocation in a cache |
 | audit_log_middleware.rb | siem | Structured audit log for auth events |
 | inter_service_client.rb | (base) | HTTP call with tracing headers propagated |
+| slow_query_mysql_repository.rb | dbm:mysql | Slow SELECT with artificial delay (MySQL) |
+| n_plus_one_mysql_concern.rb | dbm:mysql | N+1 query on related entities (MySQL) |
+| slow_aggregation_mongo_repository.rb | dbm:mongodb | Expensive aggregation pipeline (MongoDB) |
+| unindexed_query_mongo_repository.rb | dbm:mongodb | Collection scan on unindexed field (MongoDB) |
