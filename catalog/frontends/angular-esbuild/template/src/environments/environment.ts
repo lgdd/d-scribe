@@ -5,4 +5,5 @@ export const environment = {
   ddService: 'frontend',
   ddEnv: 'local',
   apiUrl: 'http://localhost:8080',
+  featureChat: false,
 };

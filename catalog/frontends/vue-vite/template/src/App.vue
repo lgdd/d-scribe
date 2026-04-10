@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import { RouterView, RouterLink } from 'vue-router';
+import ChatWidget from './components/ChatWidget.vue';
+
+const featureChat = import.meta.env.VITE_FEATURE_CHAT === 'true';
 </script>
 
 <template>
@@ -9,6 +12,7 @@ import { RouterView, RouterLink } from 'vue-router';
   <main>
     <RouterView />
   </main>
+  <ChatWidget v-if="featureChat" />
 </template>
 
 <style>
