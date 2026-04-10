@@ -23,7 +23,7 @@ Your agent scaffolds the project, generates domain-specific business logic, and 
 A scaffolded project includes:
 
 - **N minimal microservices** (configurable via `--services`, default 4) — each compiles, starts, exposes `/health`, logs JSON, and is instrumented for APM, but has no business logic. AI generates domain-specific code guided by instrumentation patterns.
-- **Instrumentation patterns** in `references/patterns/` — compact reference files (~30 lines each) for DBM, Code Security, Profiling, SIEM, and inter-service calls
+- **Instrumentation patterns** in `references/patterns/` — compact reference files (~30 lines each) for DBM (PostgreSQL, MySQL, MongoDB), Code Security, Profiling, SIEM, Data Streams (Kafka), LLM Observability (RAG), and inter-service calls
 - **Datadog Agent** pre-configured for APM, Logs, and Infrastructure Monitoring
 - **Traffic generator** (Locust) with golden paths and failure scenarios
 - **docker-compose.yml** with all services wired together
@@ -56,10 +56,19 @@ A scaffolded project includes:
 
 | Key | Description | Requires |
 |-----|-------------|----------|
-| `dbm:postgresql` | Database Monitoring | PostgreSQL |
-| `security:code` | Code Security / IAST | — |
-| `profiling` | Continuous Profiling | — |
-| `siem` | Cloud SIEM | Keycloak |
+| `dbm:postgresql` | Database Monitoring (PostgreSQL) | PostgreSQL |
+| `dbm:mysql` | Database Monitoring (MySQL) | MySQL |
+| `dbm:mongodb` | Database Monitoring (MongoDB) | MongoDB |
+| `security:code` | Code Security (IAST) | — |
+| `security:sast` | Static Analysis (SAST) | — |
+| `security:app-protection` | App & API Protection | — |
+| `security:workload-protection` | Workload Protection | — |
+| `security:siem` | Cloud SIEM | Keycloak |
+| `apm:profiling` | Continuous Profiling | — |
+| `ai:llmobs` | LLM Observability | PostgreSQL or MongoDB |
+| `djm:spark` | Data Jobs Monitoring (Spark) | Apache Spark |
+| `djm:airflow` | Data Jobs Monitoring (Airflow) | Apache Airflow |
+| `dsm:kafka` | Data Streams Monitoring (Kafka) | Apache Kafka |
 
 ## Architecture
 
