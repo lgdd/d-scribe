@@ -9,7 +9,7 @@
     "security:code",
     "security:sast",
     "security:app-protection",
-    "security:workload-protection",
+    "security:workload",
     "security:siem",
     "apm:profiling"
   ],

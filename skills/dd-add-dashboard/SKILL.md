@@ -162,7 +162,7 @@ Based on the discovered services and active features, determine which dashboards
 | `apm:profiling` active | `[<project>] Continuous Profiling` | CPU/memory profile top functions per service |
 | `security:siem` active | `[<project>] Security Signals` | Auth events, failed logins, suspicious activity |
 | `security:app-protection` active | `[<project>] App & API Protection` | ASM threat signals, WAF events, IP blocking |
-| `security:workload-protection` active | `[<project>] Workload Protection` | Container vulnerabilities, runtime threats |
+| `security:workload` active | `[<project>] Workload Protection` | Container vulnerabilities, runtime threats |
 | `ai:llmobs` active | `[<project>] LLM Observability` | LLM call latency, token usage, error rate |
 | `dsm:kafka` active | `[<project>] Data Streams` | Pipeline latency, consumer lag, throughput |
 | `djm:spark` active | `[<project>] Data Jobs (Spark)` | Job duration, stage performance, executor metrics |

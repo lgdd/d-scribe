@@ -52,7 +52,7 @@ describe('loadManifest', () => {
     expect(keys).toContain('security:code');
     expect(keys).toContain('security:sast');
     expect(keys).toContain('security:app-protection');
-    expect(keys).toContain('security:workload-protection');
+    expect(keys).toContain('security:workload');
     expect(keys).toContain('security:siem');
     expect(keys).toContain('ai:llmobs');
     expect(keys).toContain('djm:spark');

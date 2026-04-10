@@ -107,7 +107,7 @@ If the SE shared prospect context in Step 3, use it to infer which Datadog featu
 - "security" / "compliance" / "vulnerabilities" → `security:code`
 - "SIEM migration" / "security operations" / "threat detection" → `security:siem`
 - "WAF" / "threat detection" / "API protection" → `security:app-protection`
-- "container security" / "runtime protection" → `security:workload-protection`
+- "container security" / "runtime protection" → `security:workload`
 - "static analysis" / "code quality" / "SAST" → `security:sast`
 - "AI" / "LLM" / "chatbot" / "generative AI" → `ai:llmobs`
 - "data pipeline" / "Spark" / "batch processing" → `djm:spark`
@@ -142,7 +142,7 @@ Options (with descriptions that include your reasoning tied to the prospect's co
 - Code Security / IAST (security:code) — [reason tied to prospect context]
 - Static Analysis / SAST (security:sast) — [reason tied to prospect context]
 - App & API Protection / WAF (security:app-protection) — [reason tied to prospect context]
-- Workload Protection (security:workload-protection) — [reason tied to prospect context]
+- Workload Protection (security:workload) — [reason tied to prospect context]
 - Cloud SIEM (security:siem) — [reason tied to prospect context]
 - LLM Observability (ai:llmobs) — [reason tied to prospect context]
 - Data Streams — Kafka (dsm:kafka) — [reason tied to prospect context]

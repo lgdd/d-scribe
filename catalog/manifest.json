@@ -47,11 +47,18 @@
       "datadog_products": ["asm", "application_security"],
       "agent_env": { "DD_ASM_ENABLED": "true" }
     },
-    "security:workload-protection": {
+    "security:workload": {
       "label": "Workload Protection",
       "requires_deps": [],
       "datadog_products": ["cwpp", "workload_security"],
-      "agent_env": { "DD_RUNTIME_SECURITY_CONFIG_ENABLED": "true", "DD_SYSTEM_PROBE_ENABLED": "true" }
+      "agent_env": {
+        "DD_RUNTIME_SECURITY_CONFIG_ENABLED": "true",
+        "DD_SYSTEM_PROBE_ENABLED": "true",
+        "DD_COMPLIANCE_CONFIG_ENABLED": "true",
+        "DD_COMPLIANCE_CONFIG_HOST_BENCHMARKS_ENABLED": "true",
+        "DD_RUNTIME_SECURITY_CONFIG_REMOTE_CONFIGURATION_ENABLED": "true",
+        "HOST_ROOT": "/host/root"
+      }
     },
     "ai:llmobs": {
       "label": "LLM Observability",
