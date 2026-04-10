@@ -20,3 +20,5 @@
 | unindexed_query_mongo_repository.py | dbm:mongodb | Collection scan on unindexed field (MongoDB) |
 | rag_seed_mongo_route.py | ai:llmobs | Embed and store documents in MongoDB for RAG |
 | rag_chat_mongo_route.py | ai:llmobs | RAG chat using MongoDB vector search |
+| spark_etl_job.py | djm:spark | Spark ETL job reading from project database |
+| airflow_etl_dag.py | djm:airflow | Airflow ETL DAG processing project database |
