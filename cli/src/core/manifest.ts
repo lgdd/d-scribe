@@ -6,6 +6,7 @@ export interface FeatureEntry {
   requires_deps: string[];
   datadog_products: string[];
   agent_env?: Record<string, string>;
+  service_env?: Record<string, string>;
   agent_config?: string;
   supported_backends?: string[];
   supported_frontends?: string[];

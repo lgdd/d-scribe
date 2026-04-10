@@ -41,11 +41,11 @@
       "requires_deps": [],
       "datadog_products": ["code_security"]
     },
-    "security:app-protection": {
+    "security:app": {
       "label": "App & API Protection",
       "requires_deps": [],
       "datadog_products": ["asm", "application_security"],
-      "agent_env": { "DD_ASM_ENABLED": "true" }
+      "service_env": { "DD_APPSEC_ENABLED": "true" }
     },
     "security:workload": {
       "label": "Workload Protection",

@@ -40,6 +40,7 @@ export interface ResolvedPlan {
   features: ResolvedFeature[];
   deps: ResolvedDep[];
   envVars: Record<string, string>;
+  serviceEnvVars: Record<string, string>;
   deploy: DeployTarget;
   ddSite: string;
 }
@@ -127,12 +128,22 @@ export function resolve(options: ResolveOptions, manifest: Manifest): ResolvedPl
     }
   }
 
+  // Collect service_env from features (applied to service containers, not agent)
+  const serviceEnvVars: Record<string, string> = {};
+  for (const f of options.features) {
+    const entry = manifest.features[f];
+    if (entry.service_env) {
+      Object.assign(serviceEnvVars, entry.service_env);
+    }
+  }
+
   return {
     services,
     frontend,
     features,
     deps,
     envVars,
+    serviceEnvVars,
     deploy,
     ddSite: options.ddSite,
   };

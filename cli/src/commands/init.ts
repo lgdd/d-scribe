@@ -142,6 +142,7 @@ export function registerInitCommand(program: Command): void {
         depSpecs,
         envVars: plan.envVars,
         envVarEntries: Object.entries(plan.envVars),
+        serviceEnvVarEntries: Object.entries(plan.serviceEnvVars),
         ddSite: plan.ddSite,
         deploy: plan.deploy,
         servicesByBackend,

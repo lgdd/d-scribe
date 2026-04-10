@@ -42,6 +42,7 @@ export function composeDockerCompose(
     depSpecs,
     envVars: plan.envVars,
     envVarEntries: Object.entries(plan.envVars),
+    serviceEnvVarEntries: Object.entries(plan.serviceEnvVars),
     ddSite: plan.ddSite,
   };
   renderToFile(templatePath, data, outputPath);

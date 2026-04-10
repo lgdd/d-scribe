@@ -66,6 +66,9 @@ services:
       - DD_VERSION=1.0.0
       - DD_AGENT_HOST=datadog-agent
       - PORT={{this.port}}
+{{#each ../serviceEnvVarEntries}}
+      - {{this.[0]}}={{this.[1]}}
+{{/each}}
 {{#if @first}}
     ports:
       - "{{this.port}}:{{this.port}}"
