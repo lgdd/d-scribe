@@ -62,7 +62,7 @@ A scaffolded project includes:
 | `security:code` | Code Security (IAST) | — |
 | `security:sast` | Static Analysis (SAST) | — |
 | `security:app-protection` | App & API Protection | — |
-| `security:workload-protection` | Workload Protection | — |
+| `security:workload` | Workload Protection | — |
 | `security:siem` | Cloud SIEM | Keycloak |
 | `apm:profiling` | Continuous Profiling | — |
 | `ai:llmobs` | LLM Observability | PostgreSQL or MongoDB |
