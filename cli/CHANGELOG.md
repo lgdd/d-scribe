@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.1.0](https://github.com/lgdd/d-scribe/compare/d-scribe-v1.0.0...d-scribe-v1.1.0) (2026-04-10)
+
+
+### Features
+
+* **cli:** add dd-lookup-docs to globally installable skills ([c056b38](https://github.com/lgdd/d-scribe/commit/c056b3892b2bceb206c2a637c32c0ad1c58572af))
+* **cli:** add DJM config to spark and airflow DEP_SPECS ([af583fb](https://github.com/lgdd/d-scribe/commit/af583fbd4958df2c6e46c28327dec27b5d99d3c7))
+* **cli:** add SAST config generation with language-specific rulesets ([50bd4da](https://github.com/lgdd/d-scribe/commit/50bd4da2792c93c96c8a585e844c9654ae54d449))
+* **cli:** add service_env support, fix DD_APPSEC_ENABLED placement ([9a340ff](https://github.com/lgdd/d-scribe/commit/9a340ff820c7df3fb69594245bb2d24c3bb52ed4))
+* **cli:** add workload protection caps and volumes to agent template ([aca1ff2](https://github.com/lgdd/d-scribe/commit/aca1ff2a3de11fcc47544a7dd3be8531c9b75489))
+* expand feature catalog from 4 to 13 datadog features ([f053b42](https://github.com/lgdd/d-scribe/commit/f053b4281a231c7acf6b8c4c5565deced5cd6abb))
+
+
+### Bug Fixes
+
+* **cli:** scope package name to [@lgdd](https://github.com/lgdd) for npm publishing ([f78a5df](https://github.com/lgdd/d-scribe/commit/f78a5df616424f523c360b14ef6f70dc2c8f9b65))
+
 ## [1.0.0](https://github.com/lgdd/d-scribe/compare/d-scribe-v0.1.0...d-scribe-v1.0.0) (2026-04-08)
 
 
