@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:9.0-bookworm-slim AS build
 WORKDIR /app
 COPY *.csproj ./
 RUN dotnet restore
@@ -7,7 +7,7 @@ RUN dotnet publish -c Release -o /out
 
 FROM datadog/dd-lib-dotnet-init AS dd-tracer
 
-FROM mcr.microsoft.com/dotnet/aspnet:9.0
+FROM mcr.microsoft.com/dotnet/aspnet:9.0-bookworm-slim
 WORKDIR /app
 COPY --from=dd-tracer /datadog-init/monitoring-home /opt/datadog
 COPY --from=build /out .
