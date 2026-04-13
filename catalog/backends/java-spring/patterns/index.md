@@ -21,3 +21,5 @@
 | RagSeedMongoController.java | ai:llmobs | Embed and store documents in MongoDB for RAG |
 | RagChatMongoController.java | ai:llmobs | RAG chat using MongoDB vector search |
 | SparkEtlJob.java | djm:spark | Spark ETL job reading from project database |
+| FeatureFlagBooleanGate.java | delivery:feature-flags | OpenFeature boolean gate with user targeting context |
+| FeatureFlagStringVariant.java | delivery:feature-flags | OpenFeature string variant for A/B branching |
