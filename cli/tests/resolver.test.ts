@@ -216,4 +216,22 @@ describe('resolve', () => {
 
     expect(plan.deps.some(d => d.key === 'db:mongodb')).toBe(true);
   });
+
+  it('resolves delivery:feature-flags and injects all three agent env vars', () => {
+    const plan = resolve({
+      backends: ['java:spring'],
+      features: ['delivery:feature-flags'],
+      deploy: 'compose',
+      ddSite: 'datadoghq.com',
+      serviceCount: 1,
+    }, manifest);
+
+    expect(plan.features[0].key).toBe('delivery:feature-flags');
+    expect(plan.envVars).toMatchObject({
+      DD_REMOTE_CONFIG_ENABLED: 'true',
+      DD_EXPERIMENTAL_FLAGGING_PROVIDER_ENABLED: 'true',
+      DD_METRICS_OTEL_ENABLED: 'true',
+    });
+    expect(plan.deps).toHaveLength(0);
+  });
 });

@@ -41,10 +41,10 @@ describe('loadManifest', () => {
     expect(manifest.features['dbm:postgresql'].supported_backends).toBeUndefined();
   });
 
-  it('has all 13 features defined', () => {
+  it('has all 14 features defined', () => {
     const manifest = loadManifest(CATALOG_PATH);
     const keys = Object.keys(manifest.features);
-    expect(keys).toHaveLength(13);
+    expect(keys).toHaveLength(14);
     expect(keys).toContain('dbm:postgresql');
     expect(keys).toContain('dbm:mysql');
     expect(keys).toContain('dbm:mongodb');
@@ -58,6 +58,7 @@ describe('loadManifest', () => {
     expect(keys).toContain('djm:spark');
     expect(keys).toContain('djm:airflow');
     expect(keys).toContain('dsm:kafka');
+    expect(keys).toContain('delivery:feature-flags');
   });
 
   it('throws on missing manifest', () => {

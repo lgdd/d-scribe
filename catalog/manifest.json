@@ -86,6 +86,25 @@
       "datadog_products": ["data_streams_monitoring"],
       "agent_env": { "DD_DATA_STREAMS_ENABLED": "true" },
       "supported_backends": ["java:spring", "java:quarkus", "python:flask", "python:django", "node:express", "dotnet:aspnetcore", "go:gin"]
+    },
+    "delivery:feature-flags": {
+      "label": "Feature Flags",
+      "requires_deps": [],
+      "datadog_products": ["feature_flags"],
+      "agent_env": {
+        "DD_REMOTE_CONFIG_ENABLED": "true",
+        "DD_EXPERIMENTAL_FLAGGING_PROVIDER_ENABLED": "true",
+        "DD_METRICS_OTEL_ENABLED": "true"
+      },
+      "supported_backends": [
+        "java:spring", "java:quarkus",
+        "python:flask", "python:django",
+        "node:express",
+        "ruby:rails",
+        "dotnet:aspnetcore",
+        "go:gin"
+      ],
+      "supported_frontends": ["react:vite", "angular:esbuild", "vue:vite"]
     }
   },
   "backends": {
