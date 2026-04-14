@@ -12,7 +12,7 @@ public class FeatureFlagBooleanGate
     static FeatureFlagBooleanGate()
     {
         var provider = new DatadogProvider();
-        Api.Instance.SetProvider(provider);
+        Task.Run(() => Api.Instance.SetProviderAsync(provider)).GetAwaiter().GetResult();
         _client = Api.Instance.GetClient("service");
     }
 
