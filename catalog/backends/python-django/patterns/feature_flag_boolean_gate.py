@@ -1,15 +1,21 @@
+# Pattern: Feature Flags — boolean gate with user targeting context
+# Deps: ddtrace>=3.19.0, openfeature-sdk>=0.5.0
+# Django: call _init_feature_flags() from your AppConfig.ready() — avoid relying on import order
+# Adapt: replace "checkout-new-flow" with your flag key; add domain attributes to context
+
 from ddtrace import tracer
 from openfeature import api
 from ddtrace.openfeature import DataDogProvider
 from openfeature.evaluation_context import EvaluationContext
 
-# Pattern: Feature Flags — boolean gate with user targeting context
-# Deps: ddtrace>=3.19.0, openfeature-sdk>=0.5.0
-# Adapt: replace "checkout-new-flow" with your flag key; add domain attributes to context
+_client = None
 
-tracer.configure()
-api.set_provider(DataDogProvider())
-_client = api.get_client()
+
+def _init_feature_flags() -> None:
+    global _client
+    tracer.configure()
+    api.set_provider(DataDogProvider())
+    _client = api.get_client()
 
 
 def is_checkout_enabled(user_id: str, plan: str) -> bool:
