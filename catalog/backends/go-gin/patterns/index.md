@@ -16,3 +16,5 @@
 | n_plus_one_mysql_handler.go | dbm:mysql | N+1 query on related entities (MySQL) |
 | slow_aggregation_mongo_repository.go | dbm:mongodb | Expensive aggregation pipeline (MongoDB) |
 | unindexed_query_mongo_repository.go | dbm:mongodb | Collection scan on unindexed field (MongoDB) |
+| feature_flag_boolean_gate.go | delivery:feature-flags | OpenFeature boolean gate with user targeting context |
+| feature_flag_string_variant.go | delivery:feature-flags | OpenFeature string variant for A/B branching |
