@@ -22,3 +22,5 @@
 | rag_chat_mongo_route.py | ai:llmobs | RAG chat using MongoDB vector search |
 | spark_etl_job.py | djm:spark | Spark ETL job reading from project database |
 | airflow_etl_dag.py | djm:airflow | Airflow ETL DAG processing project database |
+| feature_flag_boolean_gate.py | delivery:feature-flags | OpenFeature boolean gate with user targeting context |
+| feature_flag_string_variant.py | delivery:feature-flags | OpenFeature string variant for A/B branching |
