@@ -16,3 +16,5 @@
 | NplusOneMysqlEndpoint.cs | dbm:mysql | N+1 query on related entities (MySQL) |
 | SlowAggregationMongoRepository.cs | dbm:mongodb | Expensive aggregation pipeline (MongoDB) |
 | UnindexedQueryMongoRepository.cs | dbm:mongodb | Collection scan on unindexed field (MongoDB) |
+| FeatureFlagBooleanGate.cs | delivery:feature-flags | OpenFeature boolean gate with user targeting context |
+| FeatureFlagStringVariant.cs | delivery:feature-flags | OpenFeature string variant for A/B branching |
