@@ -20,3 +20,5 @@
 | unindexed_query_mongo_repository.js | dbm:mongodb | Collection scan on unindexed field (MongoDB) |
 | rag_seed_mongo_route.js | ai:llmobs | Embed and store documents in MongoDB for RAG |
 | rag_chat_mongo_route.js | ai:llmobs | RAG chat using MongoDB vector search |
+| feature_flag_boolean_gate.js | delivery:feature-flags | OpenFeature boolean gate with user targeting context |
+| feature_flag_string_variant.js | delivery:feature-flags | OpenFeature string variant for A/B branching |
