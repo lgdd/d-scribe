@@ -21,7 +21,7 @@ spec:
         tags.datadoghq.com/service: "{{name}}"
         tags.datadoghq.com/version: "1.0.0"
       annotations:
-        ad.datadoghq.com/{{name}}.logs: '[{"source":"{{name}}","service":"{{name}}"}]'
+        ad.datadoghq.com/{{name}}.logs: '[{"source":"{{logSource}}","service":"{{name}}"}]'
     spec:
       containers:
         - name: {{name}}
@@ -42,5 +42,7 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: status.hostIP
+            - name: DD_TRACE_PROPAGATION_STYLE
+              value: "datadog,tracecontext"
             - name: PORT
               value: "{{port}}"

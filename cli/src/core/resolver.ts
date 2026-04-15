@@ -14,6 +14,7 @@ export interface ServiceAssignment {
   name: string;
   backend: string;
   backendPath: string;
+  language: string;
   port: number;
 }
 
@@ -87,6 +88,7 @@ export function resolve(options: ResolveOptions, manifest: Manifest): ResolvedPl
       name: `service-${i + 1}`,
       backend,
       backendPath: manifest.backends[backend].path,
+      language: backend.split(':')[0],
       port: BASE_PORT + i,
     });
   }

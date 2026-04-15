@@ -65,6 +65,7 @@
       "requires_deps": [],
       "datadog_products": ["llm_observability"],
       "agent_env": { "DD_LLMOBS_ENABLED": "true", "DD_LLMOBS_AGENTLESS_ENABLED": "true" },
+      "service_env": { "DD_LLMOBS_ENABLED": "true" },
       "supported_backends": ["java:spring", "java:quarkus", "python:flask", "python:django", "node:express"],
       "supported_frontends": ["react:vite", "angular:esbuild", "vue:vite"]
     },

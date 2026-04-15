@@ -84,6 +84,7 @@ export function composeK8s(
       name: svc.name,
       image: `${projectName}/${svc.name}:latest`,
       port: svc.port,
+      logSource: svc.language,
     };
     renderToFile(
       path.join(k8sDir, 'deployment.yaml.hbs'),
@@ -104,6 +105,7 @@ export function composeK8s(
       name: 'frontend',
       image: `${projectName}/frontend:latest`,
       port: 80,
+      logSource: 'nginx',
     };
     renderToFile(
       path.join(k8sDir, 'deployment.yaml.hbs'),
@@ -121,13 +123,13 @@ export function composeK8s(
   for (const dep of plan.deps) {
     const spec = getDepSpec(dep.key);
     if (!spec) continue;
-    const depData = { ...baseData, name: spec.serviceName, image: spec.image, port: spec.port };
+    const depData = { ...baseData, name: spec.serviceName, image: spec.image, port: spec.port, logSource: spec.serviceName };
     renderToFile(path.join(k8sDir, 'deployment.yaml.hbs'), depData, path.join(outputDir, 'deps', `${spec.serviceName}-deployment.yaml`));
     renderToFile(path.join(k8sDir, 'service.yaml.hbs'), depData, path.join(outputDir, 'deps', `${spec.serviceName}-service.yaml`));
   }
 
   // Traffic
-  const trafficData = { ...baseData, name: 'traffic', image: `${projectName}/traffic:latest`, port: 8089 };
+  const trafficData = { ...baseData, name: 'traffic', image: `${projectName}/traffic:latest`, port: 8089, logSource: 'python' };
   renderToFile(path.join(k8sDir, 'deployment.yaml.hbs'), trafficData, path.join(outputDir, 'traffic', 'traffic-deployment.yaml'));
 
   // Ingress
