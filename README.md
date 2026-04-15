@@ -24,6 +24,7 @@ A scaffolded project includes:
 
 - **N minimal microservices** (configurable via `--services`, default 4) — each compiles, starts, exposes `/health`, logs JSON, and is instrumented for APM, but has no business logic. AI generates domain-specific code guided by instrumentation patterns.
 - **Instrumentation patterns** in `references/patterns/` — compact reference files (~30 lines each) for DBM (PostgreSQL, MySQL, MongoDB), Code Security, Profiling, SIEM, Data Streams (Kafka), LLM Observability (RAG), and inter-service calls
+- **Design system** (when a frontend is included) — `src/theme.css` with the Datadog palette (DaisyUI v5 + Tailwind v4) + `patterns/design-system.md` with component class reference and rebrand instructions for AI coding agents
 - **Datadog Agent** pre-configured for APM, Logs, and Infrastructure Monitoring
 - **Traffic generator** (Locust) with golden paths and failure scenarios
 - **docker-compose.yml** with all services wired together
@@ -48,9 +49,9 @@ A scaffolded project includes:
 
 | Key | Framework |
 |-----|-----------|
-| `react:vite` | React 18 (Vite) |
-| `angular:esbuild` | Angular 19 (esbuild) |
-| `vue:vite` | Vue 3 (Vite) |
+| `react:vite` | React 18 (Vite) + DaisyUI v5 (Tailwind v4) |
+| `angular:esbuild` | Angular 19 (esbuild) + DaisyUI v5 (Tailwind v4) |
+| `vue:vite` | Vue 3 (Vite) + DaisyUI v5 (Tailwind v4) |
 
 ## Available Features
 
