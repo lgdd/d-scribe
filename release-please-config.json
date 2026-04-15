@@ -3,7 +3,7 @@
   "packages": {
     "cli": {
       "release-type": "node",
-      "package-name": "@lgdd/d-scribe"
+      "package-name": "d-scribe"
     }
   }
 }
