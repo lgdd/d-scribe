@@ -1,3 +1,4 @@
+import './theme.css';
 import { datadogRum } from '@datadog/browser-rum';
 import { createApp } from 'vue';
 import App from './App.vue';

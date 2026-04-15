@@ -14,7 +14,3 @@ const featureChat = import.meta.env.VITE_FEATURE_CHAT === 'true';
   </main>
   <ChatWidget v-if="featureChat" />
 </template>
-
-<style>
-@import './App.css';
-</style>
