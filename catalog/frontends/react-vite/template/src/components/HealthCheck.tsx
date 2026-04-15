@@ -12,10 +12,20 @@ export default function HealthCheck() {
       .catch(() => setStatus('unreachable'));
   }, []);
 
+  const badgeClass =
+    status === 'ok' ? 'badge-success' :
+    status === 'checking...' ? 'badge-ghost' :
+    'badge-error';
+
   return (
-    <div>
-      <h1>Demo Application</h1>
-      <p>API status: <strong>{status}</strong></p>
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-lg">
+      <div className="stat bg-base-100 rounded-box border border-base-300 shadow-sm">
+        <div className="stat-title">API Status</div>
+        <div className="stat-value text-base mt-1">
+          <span className={`badge ${badgeClass}`}>{status}</span>
+        </div>
+        <div className="stat-desc">Endpoint: {API_URL}/health</div>
+      </div>
     </div>
   );
 }
