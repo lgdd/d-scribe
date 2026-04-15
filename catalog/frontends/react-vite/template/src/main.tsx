@@ -1,9 +1,9 @@
+import './theme.css';
 import { datadogRum } from '@datadog/browser-rum';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App';
 
-// Initialize Datadog RUM
 const rumAppId = import.meta.env.VITE_DD_RUM_APPLICATION_ID;
 const rumClientToken = import.meta.env.VITE_DD_RUM_CLIENT_TOKEN;
 
