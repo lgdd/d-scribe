@@ -1,5 +1,5 @@
 {
-  "name": "d-scribe",
+  "name": "@lgdd/d-scribe",
   "version": "1.2.0",
   "description": "AI-first CLI toolkit for assembling Datadog demo projects",
   "type": "module",

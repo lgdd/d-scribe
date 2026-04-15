@@ -10,7 +10,7 @@ Scaffolds pre-instrumented microservice architectures that AI coding agents then
 
 ```bash
 # Install skills for your AI coding agent
-npx d-scribe install skills
+npx @lgdd/d-scribe install skills
 ```
 
 Ask your AI coding agent to build a demo

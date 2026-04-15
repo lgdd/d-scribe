@@ -48,7 +48,7 @@ This skill runs `d-scribe init demo` to generate pre-instrumented service scaffo
 
 ## Prerequisites
 
-- `d-scribe` CLI available via `npx d-scribe`
+- `d-scribe` CLI available via `npx @lgdd/d-scribe`
 - Docker and Docker Compose V2 installed
 - For K8s targets: minikube (or kind) and kubectl installed
 - For AWS targets: Terraform and AWS CLI configured
