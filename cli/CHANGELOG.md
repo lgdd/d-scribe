@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.2.0](https://github.com/lgdd/d-scribe/compare/d-scribe-v1.1.0...d-scribe-v1.2.0) (2026-04-15)
+
+
+### Features
+
+* **catalog:** add delivery:feature-flags manifest entry ([554acf0](https://github.com/lgdd/d-scribe/commit/554acf06d37fd771813e796046b7c441ed4c1fc8))
+
+
+### Bug Fixes
+
+* **catalog:** fix nginx upstream, locust headless, log source labels, llmobs env, and trace propagation ([f3ef5bc](https://github.com/lgdd/d-scribe/commit/f3ef5bcf93b6d93d657619bf287cfd8c428ec2cf))
+
 ## [1.1.0](https://github.com/lgdd/d-scribe/compare/d-scribe-v1.0.0...d-scribe-v1.1.0) (2026-04-10)
 
 
