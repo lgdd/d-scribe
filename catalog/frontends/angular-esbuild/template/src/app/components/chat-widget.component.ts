@@ -1,5 +1,4 @@
 import { Component, ViewChild, ElementRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { datadogRum } from '@datadog/browser-rum';
@@ -11,72 +10,84 @@ interface Message { role: 'user' | 'assistant'; content: string; sources?: Sourc
 @Component({
   selector: 'app-chat-widget',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [FormsModule],
   template: `
-    <button
-      *ngIf="!isOpen"
-      class="btn btn-circle btn-primary btn-lg shadow-lg fixed bottom-5 right-5 z-50 text-2xl"
-      (click)="isOpen = true"
-      aria-label="Open chat"
-    >💬</button>
+    @if (!isOpen) {
+      <button
+        class="btn btn-circle btn-primary btn-lg shadow-lg fixed bottom-5 right-5 z-50 text-2xl"
+        (click)="isOpen = true"
+        aria-label="Open chat"
+      >💬</button>
+    }
 
-    <div *ngIf="isOpen" class="card fixed bottom-5 right-5 w-80 h-[440px] shadow-xl flex flex-col overflow-hidden z-50">
-      <div class="bg-primary text-primary-content px-4 py-3 flex items-center gap-2 flex-shrink-0">
-        <div class="avatar placeholder">
-          <div class="bg-primary-content/20 text-primary-content rounded-full w-8 h-8 flex items-center justify-center text-xs font-bold">AI</div>
-        </div>
-        <div class="flex-1">
-          <p class="text-sm font-semibold leading-tight">AI Assistant</p>
-          <p class="text-xs opacity-70">Ask me anything</p>
-        </div>
-        <button
-          class="btn btn-ghost btn-circle btn-xs text-primary-content/80 hover:bg-primary-content/10"
-          (click)="isOpen = false"
-          aria-label="Close chat"
-        >✕</button>
-      </div>
-
-      <div class="flex-1 overflow-y-auto p-3 bg-base-200 flex flex-col gap-2" #messagesEl>
-        <ng-container *ngFor="let msg of messages">
-          <div *ngIf="msg.role === 'user'" class="chat chat-end">
-            <div class="chat-bubble chat-bubble-primary text-sm">{{ msg.content }}</div>
+    @if (isOpen) {
+      <div class="card fixed bottom-5 right-5 w-80 h-[440px] shadow-xl flex flex-col overflow-hidden z-50">
+        <div class="bg-primary text-primary-content px-4 py-3 flex items-center gap-2 flex-shrink-0">
+          <div class="avatar placeholder">
+            <div class="bg-primary-content/20 text-primary-content rounded-full w-8 h-8 flex items-center justify-center text-xs font-bold">AI</div>
           </div>
-          <div *ngIf="msg.role === 'assistant'" class="chat chat-start">
-            <div class="chat-image avatar placeholder">
-              <div class="bg-primary text-primary-content rounded-full w-7 h-7 flex items-center justify-center text-xs font-bold">AI</div>
-            </div>
-            <div>
-              <div class="chat-bubble bg-base-100 text-base-content text-sm">{{ msg.content }}</div>
-              <div *ngIf="msg.sources?.length" class="flex flex-wrap gap-1 mt-1 px-1">
-                <span *ngFor="let s of msg.sources" class="badge badge-ghost badge-xs text-primary">
-                  {{ s.title }} · {{ s.score.toFixed(2) }}
-                </span>
+          <div class="flex-1">
+            <p class="text-sm font-semibold leading-tight">AI Assistant</p>
+            <p class="text-xs opacity-70">Ask me anything</p>
+          </div>
+          <button
+            class="btn btn-ghost btn-circle btn-xs text-primary-content/80 hover:bg-primary-content/10"
+            (click)="isOpen = false"
+            aria-label="Close chat"
+          >✕</button>
+        </div>
+
+        <div class="flex-1 overflow-y-auto p-3 bg-base-200 flex flex-col gap-2" #messagesEl>
+          @for (msg of messages; track $index) {
+            @if (msg.role === 'user') {
+              <div class="chat chat-end">
+                <div class="chat-bubble chat-bubble-primary text-sm">{{ msg.content }}</div>
               </div>
+            } @else {
+              <div class="chat chat-start">
+                <div class="chat-image avatar placeholder">
+                  <div class="bg-primary text-primary-content rounded-full w-7 h-7 flex items-center justify-center text-xs font-bold">AI</div>
+                </div>
+                <div>
+                  <div class="chat-bubble bg-base-100 text-base-content text-sm">{{ msg.content }}</div>
+                  @if (msg.sources?.length) {
+                    <div class="flex flex-wrap gap-1 mt-1 px-1">
+                      @for (s of msg.sources!; track $index) {
+                        <span class="badge badge-ghost badge-xs text-primary">
+                          {{ s.title }} · {{ s.score.toFixed(2) }}
+                        </span>
+                      }
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+          }
+          @if (isLoading) {
+            <div class="chat chat-start">
+              <div class="chat-bubble bg-base-100 text-base-content/60 text-sm">Thinking…</div>
             </div>
-          </div>
-        </ng-container>
-        <div *ngIf="isLoading" class="chat chat-start">
-          <div class="chat-bubble bg-base-100 text-base-content/60 text-sm">Thinking…</div>
+          }
+        </div>
+
+        <div class="p-2 bg-base-100 border-t border-base-300 flex gap-2 items-center flex-shrink-0">
+          <input
+            type="text"
+            class="input input-bordered input-sm flex-1 rounded-full focus:outline-none focus:border-primary"
+            placeholder="Type your message…"
+            [(ngModel)]="input"
+            (keydown.enter)="handleSend()"
+            [disabled]="isLoading"
+          />
+          <button
+            class="btn btn-primary btn-sm btn-circle flex-shrink-0"
+            (click)="handleSend()"
+            [disabled]="isLoading || !input.trim()"
+            aria-label="Send"
+          >↑</button>
         </div>
       </div>
-
-      <div class="p-2 bg-base-100 border-t border-base-300 flex gap-2 items-center flex-shrink-0">
-        <input
-          type="text"
-          class="input input-bordered input-sm flex-1 rounded-full focus:outline-none focus:border-primary"
-          placeholder="Type your message…"
-          [(ngModel)]="input"
-          (keydown.enter)="handleSend()"
-          [disabled]="isLoading"
-        />
-        <button
-          class="btn btn-primary btn-sm btn-circle flex-shrink-0"
-          (click)="handleSend()"
-          [disabled]="isLoading || !input.trim()"
-          aria-label="Send"
-        >↑</button>
-      </div>
-    </div>
+    }
   `,
 })
 export class ChatWidgetComponent {
