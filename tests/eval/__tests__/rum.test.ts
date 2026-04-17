@@ -72,4 +72,23 @@ describe("deleteRumApp", () => {
     mockFetch.mockResolvedValueOnce({ ok: false, status: 404, statusText: "Not Found" });
     await expect(deleteRumApp("bad-id")).rejects.toThrow("Failed to delete RUM app: 404");
   });
+
+  it("retries once on network error (EPIPE from stale keep-alive)", async () => {
+    mockFetch
+      .mockRejectedValueOnce(new TypeError("fetch failed"))
+      .mockResolvedValueOnce({ ok: true });
+
+    await deleteRumApp("rum-123");
+
+    expect(mockFetch).toHaveBeenCalledTimes(2);
+  });
+
+  it("throws after two consecutive network errors", async () => {
+    mockFetch
+      .mockRejectedValueOnce(new TypeError("fetch failed"))
+      .mockRejectedValueOnce(new TypeError("fetch failed"));
+
+    await expect(deleteRumApp("rum-123")).rejects.toThrow("fetch failed");
+    expect(mockFetch).toHaveBeenCalledTimes(2);
+  });
 });

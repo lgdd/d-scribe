@@ -41,10 +41,24 @@ export async function createRumApp(name: string): Promise<RumApp> {
 }
 
 export async function deleteRumApp(id: string): Promise<void> {
-  const res = await fetch(`${apiBase()}/api/v2/rum/applications/${id}`, {
-    method: "DELETE",
-    headers: headers(),
-  });
+  const url = `${apiBase()}/api/v2/rum/applications/${id}`;
 
-  if (!res.ok) throw new Error(`Failed to delete RUM app: ${res.status}`);
+  // Retry once on network-level failure. Node's native fetch keeps connections
+  // alive in a pool; after a long idle window (the eval can take 10+ min) the
+  // pooled socket is often closed by the server, and the next write gets
+  // EPIPE / ECONNRESET. DELETE is idempotent, so a single retry is safe.
+  for (let attempt = 1; attempt <= 2; attempt++) {
+    try {
+      const res = await fetch(url, {
+        method: "DELETE",
+        headers: { ...headers(), Connection: "close" },
+      });
+      if (!res.ok) throw new Error(`Failed to delete RUM app: ${res.status}`);
+      return;
+    } catch (err) {
+      const isNetworkError =
+        err instanceof TypeError && /fetch failed/i.test(err.message);
+      if (attempt === 2 || !isNetworkError) throw err;
+    }
+  }
 }
