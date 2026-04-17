@@ -1,0 +1,46 @@
+# tests/eval/promptfooconfig.yaml
+description: d-scribe golden-path eval — scaffold, preflight, telemetry
+
+prompts:
+  - "{{phase}}"
+
+providers:
+  - id: file://providers/d-scribe-eval.ts
+    label: d-scribe-eval
+    config:
+      scaffoldModel: claude-sonnet-4-6
+      validationModel: claude-haiku-4-5-20251001
+
+tests:
+  # Phase 1: Scaffold — AI generates business logic
+  - vars:
+      phase: scaffold
+      domain: e-commerce
+      backends: "java:spring,python:flask,node:express"
+      services: "4"
+      features: "infra,apm,logs,dbm:postgresql,rum"
+      deploy: "compose:local"
+      frontend: "react:vite"
+    assert:
+      - type: contains
+        value: "Result: PASS"
+      - type: not-contains
+        value: "Scaffold FAILED"
+
+  # Phase 2: Preflight — build, run, health checks
+  - vars:
+      phase: preflight
+    assert:
+      - type: not-contains
+        value: "[FAIL]"
+      - type: not-contains
+        value: "[SKIP]"
+
+  # Phase 3: Telemetry — Datadog receives data
+  - vars:
+      phase: telemetry
+    assert:
+      - type: not-contains
+        value: "[FAIL]"
+      - type: not-contains
+        value: "[SKIP]"
