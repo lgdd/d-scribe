@@ -18,6 +18,10 @@ package-lock.json
 __pycache__/
 *.pyc
 
+# Claude
+.claude/settings.local.json
+.claude/*.lock
+
 # Superpowers
 docs/superpowers
 .superpowers
@@ -31,3 +35,5 @@ graphify-out
 # Eval pipeline output and generated bin
 tests/eval/out/
 tests/eval/bin/
+tests/eval/.env
+tests/eval/.promptfoo-data
