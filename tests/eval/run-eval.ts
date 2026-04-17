@@ -143,9 +143,11 @@ async function main(): Promise<void> {
     // Ctrl+C tears down containers and warns about the RUM app.
     setupSigintHandler(runDir, () => rumApp);
 
-    // Run promptfoo eval
+    // Run promptfoo eval — force concurrency=1 so phases run sequentially.
+    // Default concurrency (4) would break phase gating because the provider
+    // holds mutable state (previousPhasePassed, projectDir) across callApi calls.
     console.log("Running eval...\n");
-    execFileSync("npx", ["promptfoo", "eval", "--no-cache"], {
+    execFileSync("npx", ["promptfoo", "eval", "--no-cache", "-j", "1"], {
       cwd: __dirname,
       stdio: "inherit",
       env: { ...process.env, PATH: evalPath },
