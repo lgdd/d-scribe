@@ -6,9 +6,13 @@ import type {
   CallApiContextParams,
 } from "promptfoo";
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { runAgent } from "../lib/agent.js";
 import { checkScaffoldOutput } from "../lib/checks.js";
+
+const __dirname = fileURLToPath(new URL(".", import.meta.url));
+const REPO_SKILLS_DIR = resolve(__dirname, "../../../skills");
 
 const SCAFFOLD_MODEL = "claude-sonnet-4-6";
 const VALIDATION_MODEL = "claude-haiku-4-5-20251001";
@@ -62,16 +66,23 @@ export default class DScribeEvalProvider implements ApiProvider {
   private async runScaffold(
     vars: Record<string, string>,
   ): Promise<ProviderResponse> {
+    const skillPath = join(REPO_SKILLS_DIR, "dd-scaffold-demo", "SKILL.md");
     const prompt = [
-      "Run the dd-scaffold-demo skill. Use these inputs — do not ask clarifying questions:",
+      `Read ${skillPath} and follow its instructions end-to-end to create the demo.`,
+      "",
+      "Skip every ask_user / clarifying-question step — use these inputs directly:",
       `- Domain: ${vars.domain || "e-commerce"}`,
       `- Backends: ${vars.backends || "java:spring,python:flask,node:express"}`,
       `- Services: ${vars.services || "4"}`,
       `- Features: ${vars.features || "infra,apm,logs,dbm:postgresql,rum"}`,
       `- Deploy target: ${vars.deploy || "compose:local"}`,
       `- Frontend: ${vars.frontend || "react:vite"}`,
-      "- Create the project in the current directory",
-      "Accept all defaults for anything not specified above.",
+      "- Create the project in the current directory (cwd)",
+      "Accept all defaults for anything not specified above. Do not stop at the plan gate (Step 8) — proceed directly to execution.",
+      "",
+      "When the skill tells you to read other skills under `skills/<name>/SKILL.md`, those are populated",
+      "into your cwd by Step 9 (the `d-scribe init demo` CLI command copies them). Resolve those relative",
+      "paths against cwd, not against the absolute path above.",
       "",
       "IMPORTANT: The `d-scribe` command is already on PATH and points to a local build under test.",
       "Use the bare `d-scribe` command directly. Do NOT use `npx d-scribe` or `npx @lgdd/d-scribe` —",
@@ -117,7 +128,8 @@ export default class DScribeEvalProvider implements ApiProvider {
     }
 
     const result = await runAgent({
-      prompt: "Run the dd-check-preflight skill on this project.",
+      prompt:
+        "Read skills/dd-check-preflight/SKILL.md (relative to your cwd) and follow its instructions end-to-end on this project. Skip any ask_user steps.",
       model: (this.providerConfig.validationModel as string) || VALIDATION_MODEL,
       allowedTools: ["Bash", "Read", "Glob"],
       cwd: this.projectDir,
@@ -146,7 +158,8 @@ export default class DScribeEvalProvider implements ApiProvider {
     }
 
     const result = await runAgent({
-      prompt: "Run the dd-check-telemetry skill on this project.",
+      prompt:
+        "Read skills/dd-check-telemetry/SKILL.md (relative to your cwd) and follow its instructions end-to-end on this project. Skip any ask_user steps.",
       model: (this.providerConfig.validationModel as string) || VALIDATION_MODEL,
       allowedTools: ["Read", "Glob"],
       cwd: this.projectDir,
