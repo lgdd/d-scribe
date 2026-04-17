@@ -24,3 +24,10 @@ docs/superpowers
 
 # Git worktrees
 .worktrees
+
+# Graphify
+graphify-out
+
+# Eval pipeline output and generated bin
+tests/eval/out/
+tests/eval/bin/
