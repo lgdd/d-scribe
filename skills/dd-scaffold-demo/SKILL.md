@@ -162,7 +162,7 @@ Inference guidelines:
 - Always include at least 2 different backend languages to demonstrate cross-language distributed tracing
 - If the prospect has a web app/portal, include a frontend matching their stack (React → `react:vite`, Angular → `angular:esbuild`, Vue → `vue:vite`)
 - If the prospect's tech stack is unknown, default to `java:spring` + `python:flask` (best cross-language tracing story) and `react:vite`
-- Service count: 3 for simple domains, 4 for moderate, 5+ for complex
+- Service count: 3 for simple domains, 4 for moderate, 5+ for complex. This is the count of **backend services only** — the frontend is scaffolded separately via `--frontend` and does NOT count toward this number.
 
 **Worked examples:**
 
@@ -201,7 +201,7 @@ Options (all proposed services, each with its framework and role):
 Mark all recommended services with "(Recommended)" in the label. Always propose at least 3 services.
 
 **Validation after user responds:**
-- If fewer than 2 services are selected: stop and tell the user "At least 2 services with a dependency between them are required for distributed tracing. Please select more services." Then re-ask.
+- If fewer than 2 **backend** services are selected: stop and tell the user "At least 2 backend services with a dependency between them are required for distributed tracing. Please select more backend services." A frontend alone does not satisfy this requirement. Then re-ask.
 - If the selected services have no inter-service dependency (e.g., two completely independent services): stop and tell the user which services call which, and ask them to include at least one caller-callee pair.
 
 Do not proceed to Step 6 until you receive a valid selection.
@@ -300,6 +300,8 @@ Map the confirmed choices from Steps 2-8 to CLI arguments and run:
 
     d-scribe init demo --backend java:spring,python:flask --frontend react:vite --features dbm:postgresql,security:code,apm:profiling --services 4 --deploy k8s --dest .
 
+**IMPORTANT — `--services` is the count of backend services only.** The `--frontend` flag handles the frontend separately. If the user selected 3 backend services and 1 frontend, pass `--services 3 --frontend react:vite` — do NOT add the frontend to the services count.
+
 ### Step 10: Read the generated context
 
 Read the generated `AGENTS.md` to understand the project structure, available patterns, and features configured.
@@ -309,7 +311,7 @@ Read the generated `AGENTS.md` to understand the project structure, available pa
 Read `references/patterns/index.md` to see available instrumentation patterns.
 
 For each service, one at a time:
-1. Rename the service directory to its domain name (e.g., `service-1/` → `account-service/`)
+1. Rename the service directory to the domain name you assigned in Step 5 (e.g., `service-1/` → `account-service/`, `service-2/` → `transaction-service/`). Use the exact names from the architecture summary in Step 8 — do not leave any service named `service-{N}`.
 2. Create domain entities, endpoints, and business logic appropriate to the service's role
 3. For each Datadog feature in scope, load the relevant pattern from `references/patterns/` and adapt it to the domain context:
    - A slow query pattern becomes a slow query on the `transactions` table, not a generic example
