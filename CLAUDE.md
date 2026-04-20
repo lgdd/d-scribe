@@ -11,8 +11,13 @@ d-scribe is a **CLI toolkit** for Datadog Sales Engineers that assembles pre-ins
 ```bash
 cd cli && npm install    # Install dependencies
 cd cli && npm run build  # Build CLI (tsup + copy catalog/skills/templates to dist/)
-cd cli && npm test       # Run tests (Vitest)
+cd cli && npm test       # Run unit tests (Vitest)
 cd cli && npm run dev -- <args>  # Run CLI in dev mode via tsx
+
+# Integration eval (requires ANTHROPIC_API_KEY, DD_API_KEY, DD_APP_KEY in tests/eval/.env)
+cd tests/eval && npm install
+cd tests/eval && npm run eval        # Full scaffold → preflight → telemetry run
+cd tests/eval && npm run eval:view   # Open promptfoo UI to inspect results
 ```
 
 ## Commit Convention
@@ -34,7 +39,8 @@ Types: `feat`, `fix`, `docs`, `style`, `refactor`, `chore`, `ci`, `test`, `perf`
 | Traffic | `catalog/traffic/` | Locust load generator |
 | Templates | `cli/src/templates/` | Handlebars templates for generated files |
 | Skills | `skills/` | agentskills.io format AI agent workflows |
-| Tests | `cli/tests/` | Vitest unit tests |
+| Unit tests | `cli/tests/` | Vitest unit tests |
+| Eval | `tests/eval/` | promptfoo integration eval (scaffold → preflight → telemetry) |
 
 ### Key Design Decisions
 
