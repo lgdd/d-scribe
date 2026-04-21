@@ -3,6 +3,7 @@ import path from 'node:path';
 import fs from 'fs-extra';
 import { loadManifest } from '../core/manifest.js';
 import { resolve } from '../core/resolver.js';
+import type { InstrumentationMode } from '../core/resolver.js';
 import { composeDockerCompose, composeK8s } from '../core/composer.js';
 import { renderToFile } from '../core/renderer.js';
 import { catalogPath, skillsPath, templatesPath } from '../helpers/catalog.js';
@@ -23,6 +24,7 @@ export function registerInitCommand(program: Command): void {
     .option('--deploy <target>', 'Deploy target (compose, k8s, k8s:aws:ec2, etc.)', 'compose')
     .option('--dd-site <site>', 'Datadog site', 'datadoghq.com')
     .option('--dest <dir>', 'Destination directory', '.')
+    .option('--instrumentation <mode>', 'Instrumentation mode: datadog | ddot | otel', 'datadog')
     .action((opts) => {
       const catPath = catalogPath();
       const manifest = loadManifest(catPath);
@@ -34,7 +36,7 @@ export function registerInitCommand(program: Command): void {
       const serviceCount = parseInt(opts.services, 10);
 
       // Resolve plan
-      const plan = resolve({ backends, frontend: opts.frontend, features, deploy: opts.deploy, ddSite: opts.ddSite, serviceCount, instrumentation: opts.instrumentation ?? 'datadog' }, manifest);
+      const plan = resolve({ backends, frontend: opts.frontend, features, deploy: opts.deploy, ddSite: opts.ddSite, serviceCount, instrumentation: opts.instrumentation as InstrumentationMode }, manifest);
 
       // Create output dir
       fs.ensureDirSync(outputDir);
@@ -146,6 +148,7 @@ export function registerInitCommand(program: Command): void {
         ddSite: plan.ddSite,
         deploy: plan.deploy,
         servicesByBackend,
+        instrumentation: plan.instrumentation,
       };
 
       // Render all templates
@@ -245,6 +248,7 @@ export function registerInitCommand(program: Command): void {
         features,
         deploy: opts.deploy,
         services: serviceCount,
+        instrumentation: plan.instrumentation,
       });
 
       // Copy skills

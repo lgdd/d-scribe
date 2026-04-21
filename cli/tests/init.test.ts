@@ -124,7 +124,39 @@ describe('init demo (compose)', () => {
       features: ['apm:profiling'],
       deploy: 'compose',
       services: 3,
+      instrumentation: 'datadog',
     });
+  });
+
+  // TODO(Task 15): uncomment when otel template copies are in place
+  // it('accepts --instrumentation otel and persists it to .d-scribe.json', () => {
+  //   run(
+  //     [
+  //       'init', 'demo',
+  //       '--backend', 'node:express',
+  //       '--features', 'ai:llmobs',
+  //       '--services', '2',
+  //       '--deploy', 'compose',
+  //       '--instrumentation', 'otel',
+  //     ],
+  //     tmpDir,
+  //   );
+  //   const pm = JSON.parse(fs.readFileSync(path.join(tmpDir, '.d-scribe.json'), 'utf-8'));
+  //   expect(pm.instrumentation).toBe('otel');
+  // });
+
+  it('defaults --instrumentation to datadog when omitted', () => {
+    run(
+      [
+        'init', 'demo',
+        '--backend', 'node:express',
+        '--services', '1',
+        '--deploy', 'compose',
+      ],
+      tmpDir,
+    );
+    const pm = JSON.parse(fs.readFileSync(path.join(tmpDir, '.d-scribe.json'), 'utf-8'));
+    expect(pm.instrumentation).toBe('datadog');
   });
 });
 
