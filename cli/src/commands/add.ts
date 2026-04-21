@@ -36,6 +36,16 @@ export function registerAddCommand(program: Command): void {
         return;
       }
 
+      // Instrumentation-mode compat
+      const modes = (featureEntry.supported_instrumentation_modes ?? ['datadog']);
+      if (!modes.includes(projectManifest.instrumentation)) {
+        console.error(
+          `Feature "${key}" is not available in "${projectManifest.instrumentation}" instrumentation mode. ` +
+          `It supports: ${modes.join(', ')}. Switch modes or pick a compatible feature.`,
+        );
+        process.exit(1);
+      }
+
       // Resolve deploy target
       const deploy = parseDeploy(projectManifest.deploy);
       const projectName = path.basename(projectDir);

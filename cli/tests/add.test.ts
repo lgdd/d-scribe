@@ -105,3 +105,25 @@ describe('add feature (k8s)', () => {
     expect(fs.existsSync(path.join(tmpDir, 'deps', 'postgresql', 'init.sql'))).toBe(true);
   });
 });
+
+describe('add feature (instrumentation compat)', () => {
+  it('rejects add feature when the feature is not supported in the project instrumentation mode', () => {
+    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'd-scribe-add-otel-'));
+    // Scaffold an otel-mode project first
+    run(
+      [
+        'init', 'demo',
+        '--backend', 'node:express',
+        '--features', 'ai:llmobs',
+        '--services', '1',
+        '--deploy', 'compose',
+        '--instrumentation', 'otel',
+      ],
+      tmpDir,
+    );
+    // Attempt to add a feature that doesn't support otel
+    expect(() =>
+      run(['add', 'feature', 'dbm:postgresql'], tmpDir),
+    ).toThrow(/dbm:postgresql.*not available.*otel/i);
+  });
+});
