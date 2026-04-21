@@ -18,6 +18,7 @@ describe('writeProjectManifest + readProjectManifest', () => {
       features: ['dbm:postgresql'],
       deploy: 'compose',
       services: 4,
+      instrumentation: 'datadog' as const,
     };
 
     writeProjectManifest(tmpDir, manifest);
@@ -58,5 +59,32 @@ describe('writeProjectManifest + readProjectManifest', () => {
 describe('readProjectManifest errors', () => {
   it('throws when .d-scribe.json does not exist', () => {
     expect(() => readProjectManifest('/nonexistent-dir')).toThrow(/not a d-scribe project/i);
+  });
+});
+
+describe('project manifest — instrumentation', () => {
+  it('round-trips the instrumentation field', () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'dscribe-test-'));
+    writeProjectManifest(dir, {
+      backends: ['node:express'],
+      frontend: null,
+      features: ['ai:llmobs'],
+      deploy: 'compose',
+      services: 2,
+      instrumentation: 'otel',
+    });
+    const read = readProjectManifest(dir);
+    expect(read.instrumentation).toBe('otel');
+    fs.rmSync(dir, { recursive: true, force: true });
+  });
+
+  it('defaults instrumentation to datadog for a legacy project manifest', () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'dscribe-test-'));
+    fs.writeFileSync(path.join(dir, '.d-scribe.json'), JSON.stringify({
+      backends: ['java:spring'], frontend: null, features: [], deploy: 'compose', services: 1,
+    }) + '\n');
+    const read = readProjectManifest(dir);
+    expect(read.instrumentation).toBe('datadog');
+    fs.rmSync(dir, { recursive: true, force: true });
   });
 });
