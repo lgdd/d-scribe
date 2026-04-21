@@ -62,7 +62,23 @@ Wait 10 seconds for services to initialize, then check container health:
 
 Verify:
 - All containers are in `running` state (not `restarting` or `exited`)
-- The datadog-agent container is `healthy` (if DD_API_KEY was set)
+
+### Collector health
+
+Read `.d-scribe.json` to determine the instrumentation mode.
+
+- If `instrumentation == "datadog"`: verify the Datadog Agent container is healthy.
+  - Compose: `docker compose ps datadog-agent` → STATE includes `healthy`.
+  - K8s: `kubectl get pods -l app=datadog -n {namespace}` → at least one pod Ready.
+
+- If `instrumentation == "otel"` and deploy is Compose: verify the OTel Collector and its OTLP endpoint.
+  - `docker compose ps otel-collector` → STATE is `Up` / `running`.
+  - `docker compose exec service-1 sh -lc 'curl -sf -o /dev/null -w "%{http_code}" http://otel-collector:4318/v1/traces -X POST -H "Content-Type: application/json" -d "{\"resourceSpans\":[]}"'` → expect 200 or 400 (reachable; 400 OK for empty payload).
+
+- If `instrumentation == "otel"` and deploy is K8s, or `instrumentation == "ddot"`: verify the Datadog Agent pod has DDOT enabled.
+  - `kubectl get pods -l app=datadog -n {namespace} -o yaml | grep -i otelCollector` → shows `enabled: true`.
+
+Report `[PASS]` / `[FAIL]` / `[SKIP]` consistently with other checks.
 
 If any container is not running:
 1. Check logs: `docker compose logs <service-name> --tail 30`
