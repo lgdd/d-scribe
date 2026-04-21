@@ -3,7 +3,9 @@ networks:
     driver: bridge
 
 volumes:
+{{#if (eq instrumentation "datadog")}}
   dd-agent-data:
+{{/if}}
 {{#each depSpecs}}
 {{#each this.namedVolumes}}
   {{this}}:
@@ -11,6 +13,7 @@ volumes:
 {{/each}}
 
 services:
+{{#if (eq instrumentation "datadog")}}
   datadog-agent:
     image: gcr.io/datadoghq/agent:7
     container_name: {{projectName}}-datadog-agent
@@ -55,17 +58,40 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
+{{else}}
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    container_name: {{projectName}}-otel-collector
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    environment:
+      - DD_API_KEY=${DD_API_KEY}
+      - DD_SITE={{ddSite}}
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml:ro
+    ports:
+      - "4317:4317"
+      - "4318:4318"
+    networks:
+      - dd-demo
+{{/if}}
 
 {{#each services}}
   {{this.name}}:
     build: ./services/{{this.name}}
     container_name: {{../projectName}}-{{this.name}}
     environment:
+{{#if (eq ../instrumentation "datadog")}}
       - DD_SERVICE={{this.name}}
       - DD_ENV=${DD_ENV}
       - DD_VERSION=1.0.0
       - DD_AGENT_HOST=datadog-agent
       - DD_TRACE_PROPAGATION_STYLE=datadog,tracecontext
+{{else}}
+      - OTEL_SERVICE_NAME={{this.name}}
+      - OTEL_RESOURCE_ATTRIBUTES=deployment.environment=${DD_ENV},service.version=1.0.0
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
+      - OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
+{{/if}}
       - PORT={{this.port}}
 {{#each ../serviceEnvVarEntries}}
       - {{this.[0]}}={{this.[1]}}
@@ -75,8 +101,13 @@ services:
       - "{{this.port}}:{{this.port}}"
 {{/if}}
     depends_on:
+{{#if (eq ../instrumentation "datadog")}}
       datadog-agent:
         condition: service_healthy
+{{else}}
+      otel-collector:
+        condition: service_started
+{{/if}}
     networks:
       - dd-demo
     labels:

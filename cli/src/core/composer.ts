@@ -44,6 +44,7 @@ export function composeDockerCompose(
     envVarEntries: Object.entries(plan.envVars),
     serviceEnvVarEntries: Object.entries(plan.serviceEnvVars),
     ddSite: plan.ddSite,
+    instrumentation: plan.instrumentation,
   };
   renderToFile(templatePath, data, outputPath);
 }
@@ -68,6 +69,7 @@ export function composeK8s(
     hasProfiler: plan.features.some(f => f.key === 'apm:profiling'),
     hasDbm: plan.features.some(f => f.key.startsWith('dbm:')),
     hasNetworkMonitoring: false,
+    instrumentation: plan.instrumentation,
   };
 
   // Namespace

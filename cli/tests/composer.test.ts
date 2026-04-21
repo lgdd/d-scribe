@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { composeDockerCompose, composeK8s } from '../src/core/composer.js';
 import { resolve } from '../src/core/resolver.js';
+import { parseDeploy } from '../src/core/deploy.js';
 import { loadManifest } from '../src/core/manifest.js';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -213,5 +214,32 @@ describe('composeK8s', () => {
 
     expect(fs.existsSync(path.join(k8sDir, 'deps', 'postgresql-deployment.yaml'))).toBe(true);
     expect(fs.existsSync(path.join(k8sDir, 'deps', 'postgresql-service.yaml'))).toBe(true);
+  });
+});
+
+describe('composeDockerCompose — otel mode', () => {
+  it('emits otel-collector service and drops datadog-agent', () => {
+    const out = path.join(os.tmpdir(), `d-scribe-compose-otel-${Date.now()}.yml`);
+    composeDockerCompose(
+      {
+        services: [{ name: 'service-1', backend: 'node:express', backendPath: 'backends/node-express', language: 'node', port: 8080 }],
+        frontend: null,
+        features: [],
+        deps: [],
+        envVars: {},
+        serviceEnvVars: {},
+        deploy: parseDeploy('compose'),
+        ddSite: 'datadoghq.com',
+        instrumentation: 'otel',
+      },
+      'test-proj',
+      path.resolve(import.meta.dirname, '../src/templates'),
+      out,
+    );
+    const content = fs.readFileSync(out, 'utf-8');
+    expect(content).toContain('otel-collector:');
+    expect(content).not.toContain('datadog-agent:');
+    expect(content).toContain('OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318');
+    fs.rmSync(out);
   });
 });
