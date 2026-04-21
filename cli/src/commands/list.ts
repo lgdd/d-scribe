@@ -1,4 +1,6 @@
 import { Command } from 'commander';
+import fs from 'node:fs';
+import path from 'node:path';
 import { loadManifest } from '../core/manifest.js';
 import { catalogPath } from '../helpers/catalog.js';
 
@@ -8,15 +10,20 @@ export function registerListCommand(program: Command): void {
   list.command('backends').description('List available backends')
     .option('--output <format>', 'Output as JSON array of keys')
     .action((opts) => {
-      const manifest = loadManifest(catalogPath());
+      const catPath = catalogPath();
+      const manifest = loadManifest(catPath);
       if (opts.output === 'json') {
         console.log(JSON.stringify(Object.keys(manifest.backends)));
         return;
       }
-      console.log('Name'.padEnd(20) + 'Label');
-      console.log('-'.repeat(50));
+      console.log('Name'.padEnd(22) + 'Label'.padEnd(28) + 'Modes');
+      console.log('-'.repeat(80));
       for (const [key, val] of Object.entries(manifest.backends)) {
-        console.log(key.padEnd(20) + val.label);
+        const modulePath = path.join(catPath, val.path, 'module.json');
+        const modes = fs.existsSync(modulePath)
+          ? (JSON.parse(fs.readFileSync(modulePath, 'utf-8')).supported_instrumentation_modes ?? ['datadog']).join(',')
+          : 'datadog';
+        console.log(key.padEnd(22) + val.label.padEnd(28) + modes);
       }
     });
 
@@ -39,7 +46,6 @@ export function registerListCommand(program: Command): void {
     const manifest = loadManifest(catalogPath());
     const entries = Object.entries(manifest.features);
 
-    // Group by key prefix (text before the colon)
     const groups = new Map<string, Array<[string, typeof entries[0][1]]>>();
     for (const [key, val] of entries) {
       const prefix = key.includes(':') ? key.split(':')[0] : key;
@@ -51,7 +57,8 @@ export function registerListCommand(program: Command): void {
       console.log(`\n  ${group.toUpperCase()}`);
       for (const [key, val] of features) {
         const deps = val.requires_deps.length ? val.requires_deps.join(', ') : '-';
-        console.log(`    ${key.padEnd(32)}${val.label.padEnd(40)}${deps}`);
+        const modes = (val.supported_instrumentation_modes ?? ['datadog']).join(',');
+        console.log(`    ${key.padEnd(28)}${val.label.padEnd(36)}${deps.padEnd(20)}${modes}`);
       }
     }
     console.log();
@@ -81,4 +88,23 @@ export function registerListCommand(program: Command): void {
         console.log(key.padEnd(25) + val.label + status);
       }
     });
+
+  list.command('modes').description('List available instrumentation modes').action(() => {
+    const manifest = loadManifest(catalogPath());
+    const glosses: Record<string, string> = {
+      datadog: 'Datadog SDK + Datadog Agent (default, all features supported)',
+      ddot: 'Datadog SDK + DDOT Collector (k8s only, all features supported)',
+      otel: 'OpenTelemetry SDK + OTel Collector (limited features; see list features)',
+    };
+    const constraints: Record<string, string> = {
+      datadog: 'compose, k8s',
+      ddot: 'k8s only',
+      otel: 'compose, k8s',
+    };
+    console.log('Mode'.padEnd(12) + 'Deploy'.padEnd(16) + 'Description');
+    console.log('-'.repeat(80));
+    for (const mode of manifest.instrumentation.modes) {
+      console.log(mode.padEnd(12) + constraints[mode].padEnd(16) + glosses[mode]);
+    }
+  });
 }
