@@ -30,6 +30,20 @@ spec:
           ports:
             - containerPort: {{port}}
           env:
+{{#if (eq instrumentation "otel")}}
+            - name: OTEL_SERVICE_NAME
+              value: "{{name}}"
+            - name: OTEL_RESOURCE_ATTRIBUTES
+              value: "deployment.environment={{ddEnv}},service.version=1.0.0"
+            - name: DD_AGENT_HOST
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.hostIP
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: "http://$(DD_AGENT_HOST):4318"
+            - name: OTEL_EXPORTER_OTLP_PROTOCOL
+              value: "http/protobuf"
+{{else}}
             - name: DD_SERVICE
               value: "{{name}}"
             - name: DD_ENV
@@ -44,5 +58,6 @@ spec:
                   fieldPath: status.hostIP
             - name: DD_TRACE_PROPAGATION_STYLE
               value: "datadog,tracecontext"
+{{/if}}
             - name: PORT
               value: "{{port}}"
