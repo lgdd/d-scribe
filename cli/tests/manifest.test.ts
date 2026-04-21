@@ -112,15 +112,27 @@ describe('manifest.instrumentation', () => {
 });
 
 describe('backend.module.json supported_instrumentation_modes', () => {
-  const tierOne = ['java-spring', 'java-quarkus', 'python-flask', 'python-django', 'node-express', 'dotnet-aspnetcore'];
+  // Phase 1: only node-express and python-flask have service-template-otel/
+  const otelReady = ['node-express', 'python-flask'];
+  // Tier-1 backends without otel templates yet — ddot only
+  const ddotOnly = ['java-spring', 'java-quarkus', 'python-django', 'dotnet-aspnetcore'];
   const datadogOnly = ['go-gin', 'ruby-rails', 'php-laravel'];
 
-  for (const backend of tierOne) {
+  for (const backend of otelReady) {
     it(`${backend} supports datadog, ddot, otel`, () => {
       const module = JSON.parse(
         fs.readFileSync(path.resolve(CATALOG_PATH, 'backends', backend, 'module.json'), 'utf-8'),
       );
       expect(module.supported_instrumentation_modes).toEqual(['datadog', 'ddot', 'otel']);
+    });
+  }
+
+  for (const backend of ddotOnly) {
+    it(`${backend} supports datadog, ddot (no otel in phase 1)`, () => {
+      const module = JSON.parse(
+        fs.readFileSync(path.resolve(CATALOG_PATH, 'backends', backend, 'module.json'), 'utf-8'),
+      );
+      expect(module.supported_instrumentation_modes).toEqual(['datadog', 'ddot']);
     });
   }
 

@@ -58,7 +58,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
-{{else}}
+{{else if (eq instrumentation "otel")}}
   otel-collector:
     image: otel/opentelemetry-collector-contrib:latest
     container_name: {{projectName}}-otel-collector
