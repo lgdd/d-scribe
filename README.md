@@ -71,6 +71,24 @@ A scaffolded project includes:
 | `djm:airflow` | Data Jobs Monitoring (Airflow) | Apache Airflow |
 | `dsm:kafka` | Data Streams Monitoring (Kafka) | Apache Kafka |
 
+## Instrumentation Modes
+
+| Mode | Description | Deploy targets |
+|------|-------------|----------------|
+| `datadog` (default) | Datadog SDK + Datadog Agent. All Datadog features supported. | Compose, K8s |
+| `ddot` | Datadog SDK + DDOT Collector. All Datadog features supported. | K8s only |
+| `otel` | OpenTelemetry SDK + OTel Collector (`datadog` exporter on Compose; DDOT on K8s). Feature compatibility is limited — run `d-scribe list features` to see which features support which modes. | Compose, K8s |
+
+Select a mode with `--instrumentation`:
+
+```bash
+npx @lgdd/d-scribe init demo \
+  --backend node:express \
+  --features ai:llmobs \
+  --deploy compose \
+  --instrumentation otel
+```
+
 ## Architecture
 
 d-scribe is a monorepo with three components:
@@ -88,6 +106,7 @@ d-scribe is a monorepo with three components:
 | `d-scribe list backends` | List available backend frameworks |
 | `d-scribe list frontends` | List available frontend frameworks |
 | `d-scribe list features` | List available Datadog features |
+| `d-scribe list modes` | List available instrumentation modes |
 | `d-scribe list deps` | List available infrastructure dependencies |
 | `d-scribe add feature` | Add a feature to existing project (coming soon) |
 | `d-scribe add dep` | Add a dependency to existing project (coming soon) |
