@@ -1,51 +1,76 @@
 {
   "version": "1.0.0",
+  "instrumentation": {
+    "modes": ["datadog", "ddot", "otel"],
+    "default": "datadog",
+    "otel_collector": {
+      "compose": {
+        "image": "otel/opentelemetry-collector-contrib:latest",
+        "exporter": "datadog"
+      },
+      "k8s": {
+        "helm_values": {
+          "datadog.otelCollector.enabled": true,
+          "datadog.otlp.receiver.protocols.grpc.enabled": true,
+          "datadog.otlp.receiver.protocols.http.enabled": true
+        }
+      }
+    }
+  },
   "features": {
     "dbm:postgresql": {
       "label": "Database Monitoring (PostgreSQL)",
       "requires_deps": ["db:postgresql"],
       "datadog_products": ["dbm"],
-      "agent_config": "dbm-postgresql"
+      "agent_config": "dbm-postgresql",
+      "supported_instrumentation_modes": ["datadog", "ddot"]
     },
     "security:code": {
       "label": "Code Security / IAST",
       "requires_deps": [],
       "datadog_products": ["code_security"],
-      "agent_env": { "DD_IAST_ENABLED": "true" }
+      "agent_env": { "DD_IAST_ENABLED": "true" },
+      "supported_instrumentation_modes": ["datadog", "ddot"]
     },
     "apm:profiling": {
       "label": "Continuous Profiling",
       "requires_deps": [],
       "datadog_products": ["profiling"],
-      "agent_env": { "DD_PROFILING_ENABLED": "true" }
+      "agent_env": { "DD_PROFILING_ENABLED": "true" },
+      "supported_instrumentation_modes": ["datadog", "ddot"]
     },
     "security:siem": {
       "label": "Cloud SIEM",
       "requires_deps": ["auth:keycloak"],
-      "datadog_products": ["siem", "cloud_siem"]
+      "datadog_products": ["siem", "cloud_siem"],
+      "supported_instrumentation_modes": ["datadog", "ddot", "otel"]
     },
     "dbm:mysql": {
       "label": "Database Monitoring (MySQL)",
       "requires_deps": ["db:mysql"],
       "datadog_products": ["dbm"],
-      "agent_config": "dbm-mysql"
+      "agent_config": "dbm-mysql",
+      "supported_instrumentation_modes": ["datadog", "ddot"]
     },
     "dbm:mongodb": {
       "label": "Database Monitoring (MongoDB)",
       "requires_deps": ["db:mongodb"],
       "datadog_products": ["dbm"],
-      "agent_config": "dbm-mongodb"
+      "agent_config": "dbm-mongodb",
+      "supported_instrumentation_modes": ["datadog", "ddot"]
     },
     "security:sast": {
       "label": "Static Analysis (SAST)",
       "requires_deps": [],
-      "datadog_products": ["code_security"]
+      "datadog_products": ["code_security"],
+      "supported_instrumentation_modes": ["datadog", "ddot", "otel"]
     },
     "security:app": {
       "label": "App & API Protection",
       "requires_deps": [],
       "datadog_products": ["asm", "application_security"],
-      "service_env": { "DD_APPSEC_ENABLED": "true" }
+      "service_env": { "DD_APPSEC_ENABLED": "true" },
+      "supported_instrumentation_modes": ["datadog", "ddot"]
     },
     "security:workload": {
       "label": "Workload Protection",
@@ -58,7 +83,8 @@
         "DD_COMPLIANCE_CONFIG_HOST_BENCHMARKS_ENABLED": "true",
         "DD_RUNTIME_SECURITY_CONFIG_REMOTE_CONFIGURATION_ENABLED": "true",
         "HOST_ROOT": "/host/root"
-      }
+      },
+      "supported_instrumentation_modes": ["datadog", "ddot"]
     },
     "ai:llmobs": {
       "label": "LLM Observability",
@@ -67,26 +93,30 @@
       "agent_env": { "DD_LLMOBS_ENABLED": "true", "DD_LLMOBS_AGENTLESS_ENABLED": "true" },
       "service_env": { "DD_LLMOBS_ENABLED": "true" },
       "supported_backends": ["java:spring", "java:quarkus", "python:flask", "python:django", "node:express"],
-      "supported_frontends": ["react:vite", "angular:esbuild", "vue:vite"]
+      "supported_frontends": ["react:vite", "angular:esbuild", "vue:vite"],
+      "supported_instrumentation_modes": ["datadog", "ddot", "otel"]
     },
     "djm:spark": {
       "label": "Data Jobs Monitoring (Spark)",
       "requires_deps": ["compute:spark"],
       "datadog_products": ["data_jobs_monitoring"],
-      "supported_backends": ["java:spring", "java:quarkus", "python:flask", "python:django"]
+      "supported_backends": ["java:spring", "java:quarkus", "python:flask", "python:django"],
+      "supported_instrumentation_modes": ["datadog", "ddot"]
     },
     "djm:airflow": {
       "label": "Data Jobs Monitoring (Airflow)",
       "requires_deps": ["compute:airflow"],
       "datadog_products": ["data_jobs_monitoring"],
-      "supported_backends": ["python:flask", "python:django"]
+      "supported_backends": ["python:flask", "python:django"],
+      "supported_instrumentation_modes": ["datadog", "ddot"]
     },
     "dsm:kafka": {
       "label": "Data Streams Monitoring (Kafka)",
       "requires_deps": ["queue:kafka"],
       "datadog_products": ["data_streams_monitoring"],
       "agent_env": { "DD_DATA_STREAMS_ENABLED": "true" },
-      "supported_backends": ["java:spring", "java:quarkus", "python:flask", "python:django", "node:express", "dotnet:aspnetcore", "go:gin"]
+      "supported_backends": ["java:spring", "java:quarkus", "python:flask", "python:django", "node:express", "dotnet:aspnetcore", "go:gin"],
+      "supported_instrumentation_modes": ["datadog", "ddot"]
     },
     "delivery:feature-flags": {
       "label": "Feature Flags",
@@ -105,7 +135,8 @@
         "dotnet:aspnetcore",
         "go:gin"
       ],
-      "supported_frontends": ["react:vite", "angular:esbuild", "vue:vite"]
+      "supported_frontends": ["react:vite", "angular:esbuild", "vue:vite"],
+      "supported_instrumentation_modes": ["datadog", "ddot"]
     }
   },
   "backends": {

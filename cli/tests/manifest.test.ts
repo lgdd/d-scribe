@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const CATALOG_PATH = path.resolve(__dirname, '../../catalog');
+const manifest = loadManifest(CATALOG_PATH);
 
 describe('loadManifest', () => {
   it('loads and parses manifest.json from catalog path', () => {
@@ -63,5 +64,44 @@ describe('loadManifest', () => {
 
   it('throws on missing manifest', () => {
     expect(() => loadManifest('/nonexistent')).toThrow();
+  });
+});
+
+describe('manifest.instrumentation', () => {
+  it('declares the three supported modes with datadog as default', () => {
+    expect(manifest.instrumentation.modes).toEqual(['datadog', 'ddot', 'otel']);
+    expect(manifest.instrumentation.default).toBe('datadog');
+  });
+
+  it('declares the compose otel_collector image as latest', () => {
+    expect(manifest.instrumentation.otel_collector.compose.image).toBe(
+      'otel/opentelemetry-collector-contrib:latest',
+    );
+  });
+
+  it('declares k8s helm_values for enabling DDOT', () => {
+    expect(manifest.instrumentation.otel_collector.k8s.helm_values).toMatchObject({
+      'datadog.otelCollector.enabled': true,
+      'datadog.otlp.receiver.protocols.grpc.enabled': true,
+      'datadog.otlp.receiver.protocols.http.enabled': true,
+    });
+  });
+
+  it('declares supported_instrumentation_modes on every feature', () => {
+    for (const [key, feature] of Object.entries(manifest.features)) {
+      expect(feature.supported_instrumentation_modes, `feature ${key} missing supported_instrumentation_modes`)
+        .toBeInstanceOf(Array);
+      expect(feature.supported_instrumentation_modes!.length).toBeGreaterThan(0);
+    }
+  });
+
+  it('marks ai:llmobs, security:siem, and security:sast as OTel-compatible', () => {
+    expect(manifest.features['ai:llmobs'].supported_instrumentation_modes).toContain('otel');
+    expect(manifest.features['security:siem'].supported_instrumentation_modes).toContain('otel');
+    expect(manifest.features['security:sast'].supported_instrumentation_modes).toContain('otel');
+  });
+
+  it('marks dbm:postgresql as NOT OTel-compatible', () => {
+    expect(manifest.features['dbm:postgresql'].supported_instrumentation_modes).not.toContain('otel');
   });
 });
