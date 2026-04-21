@@ -44,3 +44,37 @@ tests:
         value: "[FAIL]"
       - type: not-contains
         value: "[SKIP]"
+
+  # Phase 1 (OTel variant): Scaffold with OTel instrumentation
+  - vars:
+      phase: scaffold
+      domain: ai-assistant
+      backends: "node:express,python:flask"
+      services: "2"
+      features: "ai:llmobs"
+      deploy: "compose:local"
+      frontend: ""
+      instrumentation: "otel"
+    assert:
+      - type: contains
+        value: "Result: PASS"
+      - type: not-contains
+        value: "Scaffold FAILED"
+
+  # Phase 2 (OTel variant): Preflight with OTel collector
+  - vars:
+      phase: preflight
+    assert:
+      - type: not-contains
+        value: "[FAIL]"
+      - type: not-contains
+        value: "[SKIP]"
+
+  # Phase 3 (OTel variant): Telemetry — Datadog LLM Obs receives OTel GenAI spans
+  - vars:
+      phase: telemetry
+    assert:
+      - type: not-contains
+        value: "[FAIL]"
+      - type: not-contains
+        value: "[SKIP]"

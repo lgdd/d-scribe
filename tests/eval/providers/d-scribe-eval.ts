@@ -77,6 +77,7 @@ export default class DScribeEvalProvider implements ApiProvider {
       `- Features: ${vars.features || "infra,apm,logs,dbm:postgresql,rum"}`,
       `- Deploy target: ${vars.deploy || "compose:local"}`,
       `- Frontend: ${vars.frontend || "react:vite"}`,
+      ...(vars.instrumentation ? [`- Instrumentation: ${vars.instrumentation}`] : []),
       "- Create the project in the current directory (cwd)",
       "Accept all defaults for anything not specified above. Do not stop at the plan gate (Step 8) — proceed directly to execution.",
       "",
