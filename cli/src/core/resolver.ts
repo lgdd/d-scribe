@@ -55,7 +55,7 @@ export interface ResolvedPlan {
 const BASE_PORT = 8080;
 
 function backendModes(manifest: Manifest, backendKey: string): InstrumentationMode[] {
-  const catalogRoot = (manifest as unknown as { __catalogRoot?: string }).__catalogRoot;
+  const catalogRoot = manifest.__catalogRoot;
   if (!catalogRoot) {
     throw new Error('Internal error: catalog root not injected on manifest. Ensure loadManifest() was used.');
   }
@@ -124,8 +124,9 @@ export function resolve(options: ResolveOptions, manifest: Manifest): ResolvedPl
   // Agent-required check: otel + compose + feature with agent_config → hard fail
   const agentRequired: string[] = [];
   if (options.instrumentation === 'otel' && deploy.stack === 'compose') {
+    const badFeatureKeys = new Set(badFeatures.map(s => s.split(' ')[0]));
     for (const f of options.features) {
-      if (manifest.features[f].agent_config) {
+      if (!badFeatureKeys.has(f) && manifest.features[f].agent_config) {
         agentRequired.push(f);
       }
     }
