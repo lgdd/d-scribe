@@ -1,1 +1,11 @@
 @AGENTS.md
+
+## Instrumentation mode: `{{instrumentation}}`
+
+{{#if (eq instrumentation "datadog")}}
+This project uses the Datadog SDK (DD tracers) with the Datadog Agent. Services pick up the DD tracer automatically at container start (e.g., `dd-java-agent.jar`, `ddtrace-run`). Custom spans/metrics in generated business logic should use the DD tracer API (patterns live under `references/patterns/<backend>/`).
+{{else if (eq instrumentation "otel")}}
+This project uses the OpenTelemetry SDK with upstream `otel/opentelemetry-collector-contrib` (Compose) or the DDOT Collector (K8s). Services pick up OTel auto-instrumentation at start (`opentelemetry-javaagent.jar`, `opentelemetry-instrument`, `@opentelemetry/auto-instrumentations-node`). Custom spans/metrics in generated business logic should use the **OTel API** (patterns live under `references/patterns/<backend>/`).
+{{else}}
+This project uses the Datadog SDK with the DDOT Collector. Custom spans in generated business logic may use either the DD tracer API or the OTel API — both flow through the DDOT pipeline.
+{{/if}}
