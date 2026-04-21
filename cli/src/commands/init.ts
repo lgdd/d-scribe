@@ -43,7 +43,8 @@ export function registerInitCommand(program: Command): void {
 
       // Copy service-template N times for each service
       for (const svc of plan.services) {
-        const templateDir = path.join(catPath, svc.backendPath, 'service-template');
+        const templateDirName = plan.instrumentation === 'otel' ? 'service-template-otel' : 'service-template';
+        const templateDir = path.join(catPath, svc.backendPath, templateDirName);
         const dest = path.join(outputDir, 'services', svc.name);
         fs.copySync(templateDir, dest);
       }
@@ -77,7 +78,8 @@ export function registerInitCommand(program: Command): void {
       for (const svc of plan.services) {
         if (copiedBackends.has(svc.backendPath)) continue;
         copiedBackends.add(svc.backendPath);
-        const patternsDir = path.join(catPath, svc.backendPath, 'patterns');
+        const patternsDirName = plan.instrumentation === 'otel' ? 'patterns-otel' : 'patterns';
+        const patternsDir = path.join(catPath, svc.backendPath, patternsDirName);
         if (fs.existsSync(patternsDir)) {
           const backendName = path.basename(svc.backendPath);
           fs.copySync(patternsDir, path.join(outputDir, 'references', 'patterns', backendName));
@@ -155,6 +157,13 @@ export function registerInitCommand(program: Command): void {
       // Render orchestration files based on deploy target
       if (plan.deploy.stack === 'compose') {
         composeDockerCompose(plan, projectName, tplDir, path.join(outputDir, 'docker-compose.yml'));
+        if (plan.instrumentation === 'otel') {
+          renderToFile(
+            path.join(catPath, 'infra', 'otel-collector', 'compose', 'otel-collector-config.yaml.hbs'),
+            data,
+            path.join(outputDir, 'otel-collector-config.yaml'),
+          );
+        }
       } else if (plan.deploy.stack === 'k8s') {
         const namespace = projectName;
         composeK8s(plan, projectName, namespace, ddEnv, tplDir, path.join(outputDir, 'k8s'));

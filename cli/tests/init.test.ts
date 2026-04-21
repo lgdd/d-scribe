@@ -128,22 +128,52 @@ describe('init demo (compose)', () => {
     });
   });
 
-  // TODO(Task 15): uncomment when otel template copies are in place
-  // it('accepts --instrumentation otel and persists it to .d-scribe.json', () => {
-  //   run(
-  //     [
-  //       'init', 'demo',
-  //       '--backend', 'node:express',
-  //       '--features', 'ai:llmobs',
-  //       '--services', '2',
-  //       '--deploy', 'compose',
-  //       '--instrumentation', 'otel',
-  //     ],
-  //     tmpDir,
-  //   );
-  //   const pm = JSON.parse(fs.readFileSync(path.join(tmpDir, '.d-scribe.json'), 'utf-8'));
-  //   expect(pm.instrumentation).toBe('otel');
-  // });
+  it('accepts --instrumentation otel and persists it to .d-scribe.json', () => {
+    run(
+      [
+        'init', 'demo',
+        '--backend', 'node:express',
+        '--features', 'ai:llmobs',
+        '--services', '2',
+        '--deploy', 'compose',
+        '--instrumentation', 'otel',
+      ],
+      tmpDir,
+    );
+    const pm = JSON.parse(fs.readFileSync(path.join(tmpDir, '.d-scribe.json'), 'utf-8'));
+    expect(pm.instrumentation).toBe('otel');
+  });
+
+  it('scaffolds Node Express in otel mode with OTel template and collector config', () => {
+    run(
+      [
+        'init', 'demo',
+        '--backend', 'node:express',
+        '--features', 'ai:llmobs',
+        '--services', '2',
+        '--deploy', 'compose',
+        '--instrumentation', 'otel',
+      ],
+      tmpDir,
+    );
+
+    // service template is the OTel variant
+    const pkg = fs.readFileSync(path.join(tmpDir, 'services', 'service-1', 'package.json'), 'utf-8');
+    expect(pkg).toContain('@opentelemetry/auto-instrumentations-node');
+    expect(pkg).not.toContain('dd-trace');
+
+    // otel collector config rendered
+    const otelCfg = fs.readFileSync(path.join(tmpDir, 'otel-collector-config.yaml'), 'utf-8');
+    expect(otelCfg).toContain('exporters:');
+    expect(otelCfg).toContain('datadog:');
+
+    // patterns directory has the otel variant
+    const patternsIndex = fs.readFileSync(
+      path.join(tmpDir, 'references', 'patterns', 'node-express', 'index.md'),
+      'utf-8',
+    );
+    expect(patternsIndex).toContain('OTel mode');
+  });
 
   it('defaults --instrumentation to datadog when omitted', () => {
     run(
