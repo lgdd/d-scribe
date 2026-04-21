@@ -29,3 +29,7 @@ export function renderToFile(templatePath: string, data: Record<string, unknown>
   fs.mkdirSync(path.dirname(outputPath), { recursive: true });
   fs.writeFileSync(outputPath, content, 'utf-8');
 }
+
+export function renderString(template: string, data: unknown): string {
+  return Handlebars.compile(template)(data);
+}

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { renderTemplate, renderToFile } from '../src/core/renderer.js';
+import { renderTemplate, renderToFile, renderString } from '../src/core/renderer.js';
 import path from 'node:path';
 import fs from 'node:fs';
 import os from 'node:os';
@@ -132,6 +132,14 @@ describe('renderToFile', () => {
       outPath,
     );
     expect(fs.existsSync(outPath)).toBe(true);
+  });
+});
+
+describe('renderer helpers', () => {
+  it('eq helper compares values', () => {
+    const tpl = '{{#if (eq mode "otel")}}OTEL{{else}}OTHER{{/if}}';
+    expect(renderString(tpl, { mode: 'otel' })).toBe('OTEL');
+    expect(renderString(tpl, { mode: 'datadog' })).toBe('OTHER');
   });
 });
 
