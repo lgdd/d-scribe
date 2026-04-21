@@ -2,6 +2,7 @@ import { describe, it, expect, beforeAll } from 'vitest';
 import { loadManifest, type Manifest } from '../src/core/manifest.js';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import fs from 'node:fs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const CATALOG_PATH = path.resolve(__dirname, '../../catalog');
@@ -108,4 +109,27 @@ describe('manifest.instrumentation', () => {
   it('marks dbm:postgresql as NOT OTel-compatible', () => {
     expect(manifest.features['dbm:postgresql'].supported_instrumentation_modes).not.toContain('otel');
   });
+});
+
+describe('backend.module.json supported_instrumentation_modes', () => {
+  const tierOne = ['java-spring', 'java-quarkus', 'python-flask', 'python-django', 'node-express', 'dotnet-aspnetcore'];
+  const datadogOnly = ['go-gin', 'ruby-rails', 'php-laravel'];
+
+  for (const backend of tierOne) {
+    it(`${backend} supports datadog, ddot, otel`, () => {
+      const module = JSON.parse(
+        fs.readFileSync(path.resolve(CATALOG_PATH, 'backends', backend, 'module.json'), 'utf-8'),
+      );
+      expect(module.supported_instrumentation_modes).toEqual(['datadog', 'ddot', 'otel']);
+    });
+  }
+
+  for (const backend of datadogOnly) {
+    it(`${backend} supports datadog only`, () => {
+      const module = JSON.parse(
+        fs.readFileSync(path.resolve(CATALOG_PATH, 'backends', backend, 'module.json'), 'utf-8'),
+      );
+      expect(module.supported_instrumentation_modes).toEqual(['datadog']);
+    });
+  }
 });

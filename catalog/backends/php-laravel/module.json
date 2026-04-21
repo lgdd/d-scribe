@@ -14,5 +14,6 @@
     "apm:profiling"
   ],
   "php_version": "8.4",
-  "laravel_version": "12.x"
+  "laravel_version": "12.x",
+  "supported_instrumentation_modes": ["datadog"]
 }

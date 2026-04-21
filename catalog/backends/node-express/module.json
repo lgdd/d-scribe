@@ -16,5 +16,6 @@
     "dsm:kafka"
   ],
   "node_version": "22",
-  "express_version": "5.x"
+  "express_version": "5.x",
+  "supported_instrumentation_modes": ["datadog", "ddot", "otel"]
 }

@@ -15,5 +15,6 @@
     "dsm:kafka"
   ],
   "go_version": "1.23",
-  "gin_version": "1.10.x"
+  "gin_version": "1.10.x",
+  "supported_instrumentation_modes": ["datadog"]
 }

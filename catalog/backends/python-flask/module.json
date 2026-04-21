@@ -18,5 +18,6 @@
     "dsm:kafka"
   ],
   "python_version": "3.12",
-  "flask_version": "3.x"
+  "flask_version": "3.x",
+  "supported_instrumentation_modes": ["datadog", "ddot", "otel"]
 }
