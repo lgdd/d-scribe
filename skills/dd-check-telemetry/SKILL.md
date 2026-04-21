@@ -9,6 +9,18 @@ tools:
 
 Confirm that a running demo stack is sending telemetry to Datadog. Uses the Datadog MCP server — no fallback.
 
+## Instrumentation-mode differences
+
+Read `.d-scribe.json` for the `instrumentation` field. When OTel mode is in use, service identity is emitted via OpenTelemetry resource attributes instead of Datadog tracer tags:
+
+| Concept | `datadog` / `ddot` | `otel` |
+|---------|-------------------|--------|
+| Service name | `service:<name>` | `service.name:<name>` |
+| Environment | `env:<env>` | `deployment.environment:<env>` |
+| Version | `version:<v>` | `service.version:<v>` |
+
+When querying the Datadog API for APM spans or LLM Obs traces, use the appropriate tag key for the project's mode. The Datadog intake normalizes both, but pipelines that filter on `service:` will miss OTel-emitted spans unless they also filter on `service.name:`.
+
 ## Prerequisites
 
 - Demo stack running (`docker compose up -d`)
@@ -44,7 +56,9 @@ Report: service found with correct `env` tag, or FAIL with diagnostic hint.
 
 ### Step 4: Check logs
 
-For each service, search recent logs (last 15 minutes) via MCP, scoped to `service:<name> env:<dd_env>`.
+For each service, search recent logs (last 15 minutes) via MCP. Build the query filter based on `.d-scribe.json` `instrumentation`:
+  - datadog|ddot → `service:<svc> env:<dd_env>`
+  - otel → `service.name:<svc> deployment.environment:<dd_env>`
 
 Verify:
 - Logs exist (count > 0)
@@ -54,7 +68,9 @@ Report: log count + correlation status, or FAIL with diagnostic hint.
 
 ### Step 5: Check traces
 
-Search recent traces/spans via MCP, scoped to `env:<dd_env>`.
+Search recent traces/spans via MCP. Build the query filter based on `.d-scribe.json` `instrumentation`:
+  - datadog|ddot → `service:<svc>`
+  - otel → `service.name:<svc>`
 
 Verify:
 - Spans exist for each service
