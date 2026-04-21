@@ -16,6 +16,7 @@ describe('resolve', () => {
       deploy: 'compose',
       ddSite: 'datadoghq.com',
       serviceCount: 4,
+      instrumentation: 'datadog',
     }, manifest);
 
     expect(plan.services).toHaveLength(4);
@@ -30,6 +31,7 @@ describe('resolve', () => {
       deploy: 'compose',
       ddSite: 'datadoghq.com',
       serviceCount: 2,
+      instrumentation: 'datadog',
     }, manifest);
 
     expect(plan.services).toHaveLength(2);
@@ -43,6 +45,7 @@ describe('resolve', () => {
       deploy: 'compose',
       ddSite: 'datadoghq.com',
       serviceCount: 3,
+      instrumentation: 'datadog',
     }, manifest);
 
     expect(plan.services[0].port).toBe(8080);
@@ -57,6 +60,7 @@ describe('resolve', () => {
       deploy: 'compose',
       ddSite: 'datadoghq.com',
       serviceCount: 4,
+      instrumentation: 'datadog',
     }, manifest);
 
     expect(plan.services).toHaveLength(4);
@@ -74,6 +78,7 @@ describe('resolve', () => {
       deploy: 'compose',
       ddSite: 'datadoghq.com',
       serviceCount: 4,
+      instrumentation: 'datadog',
     }, manifest);
 
     expect(plan.frontend).toMatchObject({ key: 'react:vite', label: 'React (Vite)' });
@@ -86,6 +91,7 @@ describe('resolve', () => {
       deploy: 'compose',
       ddSite: 'datadoghq.com',
       serviceCount: 4,
+      instrumentation: 'datadog',
     }, manifest);
 
     expect(plan.features).toHaveLength(1);
@@ -101,6 +107,7 @@ describe('resolve', () => {
       deploy: 'compose',
       ddSite: 'datadoghq.com',
       serviceCount: 4,
+      instrumentation: 'datadog',
     }, manifest);
 
     expect(plan.deps).toHaveLength(1);
@@ -114,6 +121,7 @@ describe('resolve', () => {
       deploy: 'compose',
       ddSite: 'datadoghq.com',
       serviceCount: 4,
+      instrumentation: 'datadog',
     }, manifest);
 
     expect(plan.envVars).toMatchObject({
@@ -130,6 +138,7 @@ describe('resolve', () => {
       deploy: 'compose',
       ddSite: 'datadoghq.com',
       serviceCount: 2,
+      instrumentation: 'datadog',
     }, manifest);
 
     expect(plan.services[0].backendPath).toBe('backends/java-spring');
@@ -143,6 +152,7 @@ describe('resolve', () => {
       deploy: 'compose',
       ddSite: 'datadoghq.com',
       serviceCount: 4,
+      instrumentation: 'datadog',
     }, manifest)).toThrow(/unknown backend.*unknown:backend/i);
   });
 
@@ -153,6 +163,7 @@ describe('resolve', () => {
       deploy: 'compose',
       ddSite: 'datadoghq.com',
       serviceCount: 4,
+      instrumentation: 'datadog',
     }, manifest)).toThrow(/unknown feature.*unknown:feature/i);
   });
 
@@ -163,6 +174,7 @@ describe('resolve', () => {
       deploy: 'k8s',
       ddSite: 'datadoghq.com',
       serviceCount: 2,
+      instrumentation: 'datadog',
     }, manifest);
 
     expect(plan.deploy).toEqual({ stack: 'k8s', provider: 'local', service: 'minikube' });
@@ -175,6 +187,7 @@ describe('resolve', () => {
       deploy: 'compose',
       ddSite: 'datadoghq.com',
       serviceCount: 2,
+      instrumentation: 'datadog',
     }, manifest);
 
     expect(plan.deploy).toEqual({ stack: 'compose', provider: 'local', service: null });
@@ -187,6 +200,7 @@ describe('resolve', () => {
       deploy: 'k8s:aws:ec2',
       ddSite: 'datadoghq.com',
       serviceCount: 2,
+      instrumentation: 'datadog',
     }, manifest);
 
     expect(plan.deploy).toEqual({ stack: 'k8s', provider: 'aws', service: 'ec2' });
@@ -199,6 +213,7 @@ describe('resolve', () => {
       deploy: 'compose',
       ddSite: 'datadoghq.com',
       serviceCount: 2,
+      instrumentation: 'datadog',
     }, manifest);
 
     expect(plan.deps.some(d => d.key === 'db:postgresql')).toBe(true);
@@ -212,6 +227,7 @@ describe('resolve', () => {
       deploy: 'compose',
       ddSite: 'datadoghq.com',
       serviceCount: 2,
+      instrumentation: 'datadog',
     }, manifest);
 
     expect(plan.deps.some(d => d.key === 'db:mongodb')).toBe(true);
@@ -224,6 +240,7 @@ describe('resolve', () => {
       deploy: 'compose',
       ddSite: 'datadoghq.com',
       serviceCount: 1,
+      instrumentation: 'datadog',
     }, manifest);
 
     expect(plan.features[0].key).toBe('delivery:feature-flags');
@@ -233,5 +250,87 @@ describe('resolve', () => {
       DD_METRICS_OTEL_ENABLED: 'true',
     });
     expect(plan.deps).toHaveLength(0);
+  });
+});
+
+describe('resolve — instrumentation mode', () => {
+  it('defaults to datadog and persists on the plan', () => {
+    const plan = resolve({
+      backends: ['java:spring'],
+      features: [],
+      deploy: 'compose',
+      ddSite: 'datadoghq.com',
+      serviceCount: 1,
+      instrumentation: 'datadog',
+    }, manifest);
+    expect(plan.instrumentation).toBe('datadog');
+  });
+
+  it('accepts otel mode for tier-1 backends with otel-compat features', () => {
+    const plan = resolve({
+      backends: ['node:express'],
+      features: ['ai:llmobs'],
+      deploy: 'compose',
+      ddSite: 'datadoghq.com',
+      serviceCount: 1,
+      instrumentation: 'otel',
+    }, manifest);
+    expect(plan.instrumentation).toBe('otel');
+  });
+
+  it('rejects otel on a backend lacking otel support', () => {
+    expect(() => resolve({
+      backends: ['go:gin'],
+      features: [],
+      deploy: 'compose',
+      ddSite: 'datadoghq.com',
+      serviceCount: 1,
+      instrumentation: 'otel',
+    }, manifest)).toThrow(/go:gin/);
+  });
+
+  it('rejects otel when a selected feature is not otel-compatible', () => {
+    expect(() => resolve({
+      backends: ['node:express'],
+      features: ['dbm:postgresql'],
+      deploy: 'compose',
+      ddSite: 'datadoghq.com',
+      serviceCount: 1,
+      instrumentation: 'otel',
+    }, manifest)).toThrow(/dbm:postgresql/);
+  });
+
+  it('rejects ddot on compose deploy', () => {
+    expect(() => resolve({
+      backends: ['java:spring'],
+      features: [],
+      deploy: 'compose',
+      ddSite: 'datadoghq.com',
+      serviceCount: 1,
+      instrumentation: 'ddot',
+    }, manifest)).toThrow(/ddot.*k8s/i);
+  });
+
+  it('aggregates multiple offenders in a single error', () => {
+    expect(() => resolve({
+      backends: ['go:gin'],
+      features: ['dbm:postgresql', 'apm:profiling'],
+      deploy: 'compose',
+      ddSite: 'datadoghq.com',
+      serviceCount: 1,
+      instrumentation: 'otel',
+    }, manifest)).toThrow(/go:gin[\s\S]*dbm:postgresql[\s\S]*apm:profiling/);
+  });
+
+  it('rejects an unknown instrumentation value', () => {
+    expect(() => resolve({
+      backends: ['java:spring'],
+      features: [],
+      deploy: 'compose',
+      ddSite: 'datadoghq.com',
+      serviceCount: 1,
+      // @ts-expect-error intentional invalid value
+      instrumentation: 'bogus',
+    }, manifest)).toThrow(/Unknown instrumentation mode/);
   });
 });

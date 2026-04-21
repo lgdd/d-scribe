@@ -27,6 +27,7 @@ describe('composeDockerCompose', () => {
       deploy: 'compose',
       ddSite: 'datadoghq.com',
       serviceCount: 3,
+      instrumentation: 'datadog',
     }, manifest);
 
     const outPath = path.join(tmpDir, 'docker-compose.yml');
@@ -51,6 +52,7 @@ describe('composeDockerCompose', () => {
       deploy: 'compose',
       ddSite: 'datadoghq.com',
       serviceCount: 3,
+      instrumentation: 'datadog',
     }, manifest);
 
     const outPath = path.join(tmpDir, 'docker-compose.yml');
@@ -68,6 +70,7 @@ describe('composeDockerCompose', () => {
       deploy: 'compose',
       ddSite: 'datadoghq.com',
       serviceCount: 3,
+      instrumentation: 'datadog',
     }, manifest);
 
     const outPath = path.join(tmpDir, 'docker-compose.yml');
@@ -85,6 +88,7 @@ describe('composeDockerCompose', () => {
       deploy: 'compose',
       ddSite: 'datadoghq.com',
       serviceCount: 3,
+      instrumentation: 'datadog',
     }, manifest);
 
     const outPath = path.join(tmpDir, 'docker-compose.yml');
@@ -101,6 +105,7 @@ describe('composeDockerCompose', () => {
       deploy: 'compose',
       ddSite: 'datadoghq.com',
       serviceCount: 3,
+      instrumentation: 'datadog',
     }, manifest);
 
     const outPath = path.join(tmpDir, 'docker-compose.yml');
@@ -128,6 +133,7 @@ describe('composeK8s', () => {
       deploy: 'k8s',
       ddSite: 'datadoghq.com',
       serviceCount: 2,
+      instrumentation: 'datadog',
     }, manifest);
 
     const k8sDir = path.join(tmpDir, 'k8s');
@@ -144,6 +150,7 @@ describe('composeK8s', () => {
       deploy: 'k8s',
       ddSite: 'datadoghq.com',
       serviceCount: 2,
+      instrumentation: 'datadog',
     }, manifest);
 
     const k8sDir = path.join(tmpDir, 'k8s');
@@ -162,6 +169,7 @@ describe('composeK8s', () => {
       deploy: 'k8s',
       ddSite: 'datadoghq.com',
       serviceCount: 2,
+      instrumentation: 'datadog',
     }, manifest);
 
     const k8sDir = path.join(tmpDir, 'k8s');
@@ -179,6 +187,7 @@ describe('composeK8s', () => {
       deploy: 'k8s',
       ddSite: 'datadoghq.com',
       serviceCount: 2,
+      instrumentation: 'datadog',
     }, manifest);
 
     const k8sDir = path.join(tmpDir, 'k8s');
@@ -196,6 +205,7 @@ describe('composeK8s', () => {
       deploy: 'k8s',
       ddSite: 'datadoghq.com',
       serviceCount: 2,
+      instrumentation: 'datadog',
     }, manifest);
 
     const k8sDir = path.join(tmpDir, 'k8s');

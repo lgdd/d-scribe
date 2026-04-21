@@ -34,7 +34,7 @@ export function registerInitCommand(program: Command): void {
       const serviceCount = parseInt(opts.services, 10);
 
       // Resolve plan
-      const plan = resolve({ backends, frontend: opts.frontend, features, deploy: opts.deploy, ddSite: opts.ddSite, serviceCount }, manifest);
+      const plan = resolve({ backends, frontend: opts.frontend, features, deploy: opts.deploy, ddSite: opts.ddSite, serviceCount, instrumentation: opts.instrumentation ?? 'datadog' }, manifest);
 
       // Create output dir
       fs.ensureDirSync(outputDir);
