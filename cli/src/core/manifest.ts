@@ -58,6 +58,7 @@ export interface Manifest {
   frontends: Record<string, FrontendEntry>;
   deps: Record<string, DepEntry>;
   infra: InfraConfig;
+  readonly __catalogRoot: string;
 }
 
 export function loadManifest(catalogPath: string): Manifest {

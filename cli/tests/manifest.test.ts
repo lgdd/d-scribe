@@ -1,11 +1,10 @@
-import { describe, it, expect } from 'vitest';
-import { loadManifest } from '../src/core/manifest.js';
+import { describe, it, expect, beforeAll } from 'vitest';
+import { loadManifest, type Manifest } from '../src/core/manifest.js';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const CATALOG_PATH = path.resolve(__dirname, '../../catalog');
-const manifest = loadManifest(CATALOG_PATH);
 
 describe('loadManifest', () => {
   it('loads and parses manifest.json from catalog path', () => {
@@ -68,6 +67,11 @@ describe('loadManifest', () => {
 });
 
 describe('manifest.instrumentation', () => {
+  let manifest: Manifest;
+  beforeAll(() => {
+    manifest = loadManifest(CATALOG_PATH);
+  });
+
   it('declares the three supported modes with datadog as default', () => {
     expect(manifest.instrumentation.modes).toEqual(['datadog', 'ddot', 'otel']);
     expect(manifest.instrumentation.default).toBe('datadog');
