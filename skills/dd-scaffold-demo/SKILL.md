@@ -29,12 +29,13 @@ At the start of this workflow, create the following tasks.
 Mark each as in_progress when starting, completed when done.
 
 1. Confirm domain & context
-2. Choose features
-3. Choose app stack
-4. Choose deployment target
-5. Review architecture proposal
-6. Build demo
-7. Validate and present summary
+2. Choose instrumentation mode
+3. Choose features
+4. Choose app stack
+5. Choose deployment target
+6. Review architecture proposal
+7. Build demo
+8. Validate and present summary
 
 ## IMPORTANT — What This Skill Does NOT Do
 
@@ -57,7 +58,7 @@ This skill runs `d-scribe init demo` to generate pre-instrumented service scaffo
 
 ### Step 1: Discover available options
 
-Run `d-scribe init demo --help` and `d-scribe list deploy` to see all available backends, frontends, features, deploy targets, and options. Do NOT hardcode these — always discover dynamically.
+Run `d-scribe init demo --help`, `d-scribe list deploy`, and `d-scribe list modes` to see all available backends, frontends, features, deploy targets, instrumentation modes, and options. Do NOT hardcode these — always discover dynamically.
 
 ### Step 2: Confirm domain
 
@@ -97,6 +98,33 @@ If skipped, proceed with defaults in Steps 4 and 5.
 
 Do not proceed to Step 4 until you receive the user's response.
 </ASK_USER>
+
+### Step 3.5: Instrumentation mode
+
+Pick the instrumentation path before features and stack — this gates what's available.
+
+<ASK_USER>
+Call the `ask_user` tool with a single-select question.
+
+Question: "How should services be instrumented?"
+Options:
+- "Datadog SDK + Datadog Agent (Recommended)" — "All Datadog features supported. Default, most battle-tested."
+- "Datadog SDK + DDOT Collector (Kubernetes only)" — "Datadog SDK with OpenTelemetry-style collector pipeline. All features supported. Requires Kubernetes."
+- "OpenTelemetry SDK + Collector" — "Pure OTel SDK, DDOT on Kubernetes, upstream collector on Compose. Limited features — only LLM Observability, Cloud SIEM, and SAST are demo-ready today."
+
+Do not proceed to Step 4 until you receive the user's response.
+</ASK_USER>
+
+Map the response to the CLI flag:
+- "Datadog SDK + Datadog Agent" → `--instrumentation datadog`
+- "Datadog SDK + DDOT Collector" → `--instrumentation ddot` (force deploy = k8s in Step 6)
+- "OpenTelemetry SDK + Collector" → `--instrumentation otel`
+
+If the SE picked `otel`, print this warning BEFORE Step 4:
+
+> "Heads-up: OTel mode drops these Datadog features from the demo — DBM, Continuous Profiling, App & API Protection, DSM, DJM, Feature Flags, Code Security (IAST), Workload Protection. On Compose the Datadog Agent is also unavailable (no host-level Infra Monitoring). If the prospect cares about any of these, consider picking Datadog mode instead."
+
+Pass the selected mode into the final `d-scribe init demo` call as `--instrumentation <mode>`.
 
 ### Step 4: Infer features
 
