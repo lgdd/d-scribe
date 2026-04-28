@@ -44,3 +44,38 @@ describe('list backends — Modes column', () => {
     expect(goLine!).not.toContain('otel');
   });
 });
+
+describe('list backends — --instrumentation filter', () => {
+  it('returns only otel-compatible backends', () => {
+    const out = run(['list', 'backends', '--instrumentation', 'otel']);
+    expect(out).toContain('node:express');
+    expect(out).toContain('python:flask');
+    expect(out).not.toContain('go:gin');
+    expect(out).not.toContain('ruby:rails');
+  });
+
+  it('returns filtered json array with --output json', () => {
+    const out = run(['list', 'backends', '--instrumentation', 'otel', '--output', 'json']);
+    const keys = JSON.parse(out) as string[];
+    expect(keys).toContain('node:express');
+    expect(keys).toContain('python:flask');
+    expect(keys).not.toContain('go:gin');
+  });
+
+  it('exits non-zero for unknown mode', () => {
+    expect(() => run(['list', 'backends', '--instrumentation', 'bogus'])).toThrow();
+  });
+});
+
+describe('list features — --instrumentation filter', () => {
+  it('returns only otel-compatible features', () => {
+    const out = run(['list', 'features', '--instrumentation', 'otel']);
+    expect(out).toContain('ai:llmobs');
+    expect(out).not.toContain('dbm:postgresql');
+    expect(out).not.toContain('dsm:kafka');
+  });
+
+  it('exits non-zero for unknown mode', () => {
+    expect(() => run(['list', 'features', '--instrumentation', 'bogus'])).toThrow();
+  });
+});
