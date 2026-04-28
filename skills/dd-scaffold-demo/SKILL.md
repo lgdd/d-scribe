@@ -126,14 +126,16 @@ Call the `ask_user` tool with a single-select question.
 Question: "Which OTel approach fits this demo?"
 Options:
 - "DDOT — maximum Datadog feature compatibility (Recommended if prospect runs Kubernetes)" — "Datadog SDK with OTel-compatible collector pipeline. All Datadog features supported. **Requires Kubernetes — Compose is not available.**"
-- "OTel SDK — pure OpenTelemetry stack" — "OpenTelemetry SDK throughout. Limited Datadog feature set — DBM, Profiling, App & API Protection, Workload Protection, DSM, DJM, Feature Flags, and Code Security are unavailable."
+- "OTel SDK — pure OpenTelemetry stack" — "OpenTelemetry SDK throughout. Limited Datadog feature set — DBM, Profiling, App & API Protection, Workload Protection, DSM, DJM, Feature Flags, and Code Security are unavailable. On Compose, host-level Infra Monitoring is also unavailable (no Datadog Agent)."
 
 Do not proceed until you receive the user's response.
 </ASK_USER>
 
 Map the response to the CLI flag and downstream settings:
-- DDOT → `instrumentation = ddot`, `deploy = k8s` (fixed — inform user: "DDOT requires Kubernetes. Deploy target set to k8s automatically.")
+- DDOT → `instrumentation = ddot`, `deploy = k8s:local:minikube` (fixed — inform user: "DDOT requires Kubernetes. Deploy target set to k8s:local:minikube automatically.")
 - OTel SDK → `instrumentation = otel`
+
+Proceed to Step 3.6.
 
 Pass `--instrumentation <instrumentation>` into the final `d-scribe init demo` call.
 
@@ -148,7 +150,7 @@ Save both outputs. Use:
 - The backends list in Step 5 to constrain stack inference (do not suggest backends absent from this list).
 - The features list in Step 4 to populate the multi-select (do not present features absent from this list).
 
-If `instrumentation = otel` or `instrumentation = ddot`, note which feature categories are absent and include a brief inline note in the Step 4 question explaining what's excluded and why (e.g. "DBM and DSM aren't available in OTel mode — those features require the Datadog Agent.").
+If `instrumentation = otel`, note which feature categories are absent from the returned list and include a brief inline note in the Step 4 question explaining what's excluded and why (e.g. "DBM and DSM aren't available in OTel mode — those features require the Datadog Agent.").
 
 ### Step 4: Infer features
 
@@ -266,7 +268,7 @@ Do not proceed to Step 6 until you receive a valid selection.
 
 **If `instrumentation = ddot`:** DDOT requires Kubernetes. Tell the user: "DDOT requires Kubernetes — deploy target is set to `k8s:local:minikube` automatically." Set `deploy = k8s:local:minikube` and skip to Step 7.
 
-Ask how to package the demo. Use the deploy targets discovered in Step 1 via `d-scribe list deploy`.
+**Otherwise (instrumentation = datadog or otel):** Ask how to package the demo. Use the deploy targets discovered in Step 1 via `d-scribe list deploy`.
 
 <ASK_USER>
 Call the `ask_user` tool with a single-select question.
@@ -281,10 +283,12 @@ Do not proceed to Step 7 until you receive the user's response.
 
 ### Step 7: Deploy location
 
-Based on the stack chosen in Step 6, ask where it should run. Show only the relevant subset from `d-scribe list deploy`.
+Based on the deploy stack confirmed in Steps 3.5 or 6, ask where it should run. Show only the relevant subset from `d-scribe list deploy`.
+
+**If `instrumentation = ddot`:** deploy stack is already `k8s` — show only the Kubernetes location options below.
 
 <ASK_USER>
-Call the `ask_user` tool with a single-select question. Show only the options relevant to the deploy stack chosen in Step 6.
+Call the `ask_user` tool with a single-select question. Show only the options relevant to the deploy stack (from Step 6, or k8s if DDOT was chosen in Step 3.5).
 
 If Docker Compose was chosen:
   Question: "Where should the demo run? (Output directory: [. if CWD is empty, or ./suggested-name])"
@@ -418,7 +422,7 @@ Tell the user:
 
 - Step 1 executes automatically
 - Steps 2-8 are a progressive conversation — each step (and sub-step) uses `ask_user` and waits for a response before continuing
-- Step 3 has three sub-steps (3a, 3b, 3c) — each with its own `ask_user` stop
+- Steps 3.5 and 3.6 are part of the instrumentation selection flow — 3.5 has one or two `ask_user` stops (one if Datadog, two if OTel), 3.6 executes automatically
 - Step 8 is a formal plan gate — no execution until the user approves the architecture summary
 - Steps 9-13 execute automatically after the architecture is confirmed in Step 8
 - Step 14 hands control back to the user
