@@ -77,7 +77,7 @@ A scaffolded project includes:
 |------|-------------|----------------|
 | `datadog` (default) | Datadog SDK + Datadog Agent. All Datadog features supported. | Compose, K8s |
 | `ddot` | Datadog SDK + DDOT Collector. All Datadog features supported. | K8s only |
-| `otel` | OpenTelemetry SDK + OTel Collector (`datadog` exporter on Compose; DDOT on K8s). Feature compatibility is limited — run `d-scribe list features` to see which features support which modes. | Compose, K8s |
+| `otel` | OpenTelemetry SDK + OTel Collector (`datadog` exporter on Compose; DDOT on K8s). Feature compatibility is limited — run `d-scribe list features --instrumentation otel` to see what's available. | Compose, K8s |
 
 Select a mode with `--instrumentation`:
 
