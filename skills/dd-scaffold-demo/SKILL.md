@@ -101,30 +101,54 @@ Do not proceed to Step 4 until you receive the user's response.
 
 ### Step 3.5: Instrumentation mode
 
-Pick the instrumentation path before features and stack — this gates what's available.
+Determine the instrumentation path before features and stack — this gates what's available downstream.
 
 <ASK_USER>
 Call the `ask_user` tool with a single-select question.
 
-Question: "How should services be instrumented?"
+Question: "Does this demo need to showcase OpenTelemetry instrumentation?"
 Options:
-- "Datadog SDK + Datadog Agent (Recommended)" — "All Datadog features supported. Default, most battle-tested."
-- "Datadog SDK + DDOT Collector (Kubernetes only)" — "Datadog SDK with OpenTelemetry-style collector pipeline. All features supported. Requires Kubernetes."
-- "OpenTelemetry SDK + Collector" — "Pure OTel SDK, DDOT on Kubernetes, upstream collector on Compose. Limited features — only LLM Observability, Cloud SIEM, and SAST are demo-ready today."
+- "No — standard Datadog instrumentation (Recommended)" — "All Datadog features supported. Default, most battle-tested."
+- "Yes — I need to demo OTel" — "Some Datadog features will be unavailable; choose the OTel variant next."
 
-Do not proceed to Step 4 until you receive the user's response.
+Do not proceed until you receive the user's response.
 </ASK_USER>
 
-Map the response to the CLI flag:
-- "Datadog SDK + Datadog Agent" → `--instrumentation datadog`
-- "Datadog SDK + DDOT Collector" → `--instrumentation ddot` (force deploy = k8s in Step 6)
-- "OpenTelemetry SDK + Collector" → `--instrumentation otel`
+**If the user chose No:**
+- Set `instrumentation = datadog`
+- Proceed to Step 3.6.
 
-If the SE picked `otel`, print this warning BEFORE Step 4:
+**If the user chose Yes:**
 
-> "Heads-up: OTel mode drops these Datadog features from the demo — DBM, Continuous Profiling, App & API Protection, DSM, DJM, Feature Flags, Code Security (IAST), Workload Protection. On Compose the Datadog Agent is also unavailable (no host-level Infra Monitoring). If the prospect cares about any of these, consider picking Datadog mode instead."
+<ASK_USER>
+Call the `ask_user` tool with a single-select question.
 
-Pass the selected mode into the final `d-scribe init demo` call as `--instrumentation <mode>`.
+Question: "Which OTel approach fits this demo?"
+Options:
+- "DDOT — maximum Datadog feature compatibility (Recommended if prospect runs Kubernetes)" — "Datadog SDK with OTel-compatible collector pipeline. All Datadog features supported. **Requires Kubernetes — Compose is not available.**"
+- "OTel SDK — pure OpenTelemetry stack" — "OpenTelemetry SDK throughout. Limited Datadog feature set — DBM, Profiling, App & API Protection, Workload Protection, DSM, DJM, Feature Flags, and Code Security are unavailable."
+
+Do not proceed until you receive the user's response.
+</ASK_USER>
+
+Map the response to the CLI flag and downstream settings:
+- DDOT → `instrumentation = ddot`, `deploy = k8s` (fixed — inform user: "DDOT requires Kubernetes. Deploy target set to k8s automatically.")
+- OTel SDK → `instrumentation = otel`
+
+Pass `--instrumentation <instrumentation>` into the final `d-scribe init demo` call.
+
+### Step 3.6: Discover mode-filtered options
+
+Run:
+
+    d-scribe list backends --instrumentation <instrumentation>
+    d-scribe list features --instrumentation <instrumentation>
+
+Save both outputs. Use:
+- The backends list in Step 5 to constrain stack inference (do not suggest backends absent from this list).
+- The features list in Step 4 to populate the multi-select (do not present features absent from this list).
+
+If `instrumentation = otel` or `instrumentation = ddot`, note which feature categories are absent and include a brief inline note in the Step 4 question explaining what's excluded and why (e.g. "DBM and DSM aren't available in OTel mode — those features require the Datadog Agent.").
 
 ### Step 4: Infer features
 
@@ -160,6 +184,7 @@ Then use `ask_user` for the additional features.
 
 <ASK_USER>
 Call the `ask_user` tool with a **multi-select** question. Do NOT present the features as text.
+**Build the options list exclusively from the features returned by `d-scribe list features --instrumentation <instrumentation>` in Step 3.6.** Do not present features that were not in that list.
 
 Question: "Which additional features should this demo showcase? (Baseline: APM, Logs, Infra, RUM)"
 Options (with descriptions that include your reasoning tied to the prospect's context):
@@ -183,7 +208,9 @@ Do not proceed to Step 5 until you receive the user's response.
 
 ### Step 5: Infer app stack
 
-If the SE shared tech stack context in Step 3, use it to infer backends, frontend, and service count. Otherwise, use smart defaults. Use the options discovered in Step 1.
+If the SE shared tech stack context in Step 3, use it to infer backends, frontend, and service count. Otherwise, use smart defaults.
+
+**Only suggest backends that appear in the list returned by `d-scribe list backends --instrumentation <instrumentation>` in Step 3.6.** Do not infer or propose backends absent from that list, even if they match the prospect's tech stack — explain the limitation if relevant (e.g. "Go isn't supported in OTel mode yet; using Node.js as the closest alternative.").
 
 Inference guidelines:
 - If the prospect runs a specific language/framework, use the matching backend (e.g., Java Spring → `java:spring`)
@@ -236,6 +263,8 @@ Do not proceed to Step 6 until you receive a valid selection.
 </ASK_USER>
 
 ### Step 6: Deploy stack
+
+**If `instrumentation = ddot`:** DDOT requires Kubernetes. Tell the user: "DDOT requires Kubernetes — deploy target is set to `k8s:local:minikube` automatically." Set `deploy = k8s:local:minikube` and skip to Step 7.
 
 Ask how to package the demo. Use the deploy targets discovered in Step 1 via `d-scribe list deploy`.
 
