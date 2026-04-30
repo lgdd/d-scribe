@@ -51,7 +51,7 @@ describe('list backends — --instrumentation filter', () => {
     expect(out).toContain('node:express');
     expect(out).toContain('python:flask');
     expect(out).toContain('go:gin');
-    expect(out).not.toContain('ruby:rails');
+    expect(out).toContain('ruby:rails');
   });
 
   it('returns filtered json array with --output json', () => {
