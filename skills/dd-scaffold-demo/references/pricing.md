@@ -22,7 +22,7 @@ Ordering rules:
 - `gpt-*-pro*` and `gpt-*-nano*` before version patterns
 - `gpt-5.4-mini*` before `gpt-5.4*`
 - `gpt-4o-mini*` before `gpt-4o*`
-- `o4-mini*` and `o3-mini*` before `o3*` and `o1*`
+- `o4-mini*`, `o3-mini*`, and `o1-mini*` before `o4*`, `o3*`, and `o1*`
 - `gemini-2*-flash-lite*` before `gemini-2*-flash*`
 
 | Provider  | Pattern               | Tier                 | Input ($/1M) | Output ($/1M) |
