@@ -163,7 +163,7 @@ describe('composeK8s', () => {
     expect(fs.existsSync(path.join(k8sDir, 'services', 'service-2-service.yaml'))).toBe(true);
   });
 
-  it('generates datadog Helm values', () => {
+  it('generates datadog Helm values outside k8s/ directory', () => {
     const plan = resolve({
       backends: ['java:spring'],
       features: [],
@@ -176,9 +176,13 @@ describe('composeK8s', () => {
     const k8sDir = path.join(tmpDir, 'k8s');
     composeK8s(plan, 'test-demo', 'test-demo', 'test-demo-260407', TEMPLATES_DIR, k8sDir);
 
-    const values = fs.readFileSync(path.join(k8sDir, 'datadog', 'values.yaml'), 'utf-8');
+    // Helm values live outside k8s/ to prevent kubectl apply from treating them as a manifest
+    const values = fs.readFileSync(path.join(tmpDir, 'helm', 'datadog-values.yaml'), 'utf-8');
     expect(values).toContain('apiKeyExistingSecret: datadog-secret');
     expect(values).toContain('datadoghq.com');
+    expect(values).toContain('clusterName: test-demo');
+    expect(values).toContain('tlsVerify: false');
+    expect(fs.existsSync(path.join(k8sDir, 'datadog', 'values.yaml'))).toBe(false);
   });
 
   it('generates ingress.yaml', () => {

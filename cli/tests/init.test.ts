@@ -205,7 +205,7 @@ describe('init demo (k8s)', () => {
     expect(fs.existsSync(path.join(tmpDir, 'k8s', 'services', 'service-1-deployment.yaml'))).toBe(true);
     expect(fs.existsSync(path.join(tmpDir, 'k8s', 'services', 'service-1-service.yaml'))).toBe(true);
     expect(fs.existsSync(path.join(tmpDir, 'k8s', 'ingress.yaml'))).toBe(true);
-    expect(fs.existsSync(path.join(tmpDir, 'k8s', 'datadog', 'values.yaml'))).toBe(true);
+    expect(fs.existsSync(path.join(tmpDir, 'helm', 'datadog-values.yaml'))).toBe(true);
 
     // Build-only docker-compose for image building
     expect(fs.existsSync(path.join(tmpDir, 'docker-compose.yml'))).toBe(true);
