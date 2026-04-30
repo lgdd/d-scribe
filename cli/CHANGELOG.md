@@ -1,5 +1,40 @@
 # Changelog
 
+## [1.3.0](https://github.com/lgdd/d-scribe/compare/d-scribe-v1.2.0...d-scribe-v1.3.0) (2026-04-30)
+
+
+### Features
+
+* **catalog:** add instrumentation modes to manifest schema ([860ccbe](https://github.com/lgdd/d-scribe/commit/860ccbe1aeb202031ccc4495b71489d1d52e451c))
+* **catalog:** add otel and ddot support for go-gin backend ([652b6c0](https://github.com/lgdd/d-scribe/commit/652b6c02841cdf9b14f316f7ee82440f825fcadc))
+* **catalog:** add otel and ddot support for php-laravel backend ([b98d766](https://github.com/lgdd/d-scribe/commit/b98d7664613d40efc2a2f771d2c17627afb283f8))
+* **catalog:** add otel and ddot support for ruby-rails backend ([c922370](https://github.com/lgdd/d-scribe/commit/c922370eb7caa2e8fe7e90e6307253852c4df1d9))
+* **catalog:** add otel mode for java-spring ([57ecf32](https://github.com/lgdd/d-scribe/commit/57ecf320c34f012daee65064469627cfa8e100b2))
+* **catalog:** add otel mode for python-django ([e925dab](https://github.com/lgdd/d-scribe/commit/e925dab05e78bdce5d380d620e10cbabb2a444e3))
+* **catalog:** add otel support for dotnet-aspnetcore backend ([e5da38b](https://github.com/lgdd/d-scribe/commit/e5da38b0c04cf904ccebc5e5f7d30c3ca6d66efb))
+* **catalog:** add otel support for java-quarkus backend ([205e3bf](https://github.com/lgdd/d-scribe/commit/205e3bf89354ca1949e419f34d6fba990b8eca5c))
+* **catalog:** declare supported_instrumentation_modes per backend ([0ce12de](https://github.com/lgdd/d-scribe/commit/0ce12def8ea6345bd31d97e4d390490b911c8e03))
+* **cli:** add --instrumentation filter to list backends and list features ([121528f](https://github.com/lgdd/d-scribe/commit/121528fccdf7891bc5959d0ce8c190aa44a2653f))
+* **cli:** add --instrumentation flag to init demo ([c9e1202](https://github.com/lgdd/d-scribe/commit/c9e120217e5681e196d2344b155e18c473553309))
+* **cli:** add instrumentation mode section to env and docs templates ([1acbb18](https://github.com/lgdd/d-scribe/commit/1acbb1873be01ec66d124dedab50f45042bd1a44))
+* **cli:** add list modes and Modes column on list features/backends ([28c0a02](https://github.com/lgdd/d-scribe/commit/28c0a023282f21c271e0b67f112401753e875882))
+* **cli:** copy otel templates and render collector config in init ([b4a5bf0](https://github.com/lgdd/d-scribe/commit/b4a5bf039ba49d60ea4a23cb2ccde55d8abf5bba))
+* **cli:** enable DDOT helm values and OTel envs in k8s templates ([32e4f81](https://github.com/lgdd/d-scribe/commit/32e4f8137af61e224007dc29ad58e66b02726d2c))
+* **cli:** enforce instrumentation mode compat in add feature ([0ffbda7](https://github.com/lgdd/d-scribe/commit/0ffbda791e5c0db2a76c7436571092f4ab7a4d44))
+* **cli:** mode-conditional docker-compose template ([4e99bd5](https://github.com/lgdd/d-scribe/commit/4e99bd531520dcdb56fa7ffb30e02a26b385701b))
+* **cli:** persist instrumentation mode in project manifest ([c905c49](https://github.com/lgdd/d-scribe/commit/c905c497801d6409369e212d244bf1e0415b9330))
+* **cli:** register eq Handlebars helper ([ab994ac](https://github.com/lgdd/d-scribe/commit/ab994acb3d754f761348d0df0ebf2af13d7c1f63))
+* **cli:** resolve instrumentation mode with compat validation ([e3a90b1](https://github.com/lgdd/d-scribe/commit/e3a90b1d7847ab8864230df791456e3636b800c6))
+
+
+### Bug Fixes
+
+* **catalog:** restrict otel support to node-express and python-flask in phase 1 ([6a77793](https://github.com/lgdd/d-scribe/commit/6a77793caff22174bdb2be825da9ff71c9750c4d))
+* **catalog:** template nginx.conf to resolve upstream from first service name ([e58b2a5](https://github.com/lgdd/d-scribe/commit/e58b2a5d99034004e0067090014dbae35c62e37d))
+* **cli:** declare __catalogRoot on Manifest type and fix test fixture init ([890e879](https://github.com/lgdd/d-scribe/commit/890e879894306fe3f7d7cac11ac5ca64056558ed))
+* **cli:** remove redundant cast and deduplicate agentRequired errors ([cc8869d](https://github.com/lgdd/d-scribe/commit/cc8869de8281c68131bd361d139320abad4591a3))
+* **templates:** fix K8s Helm path, Locust headless mode, and Datadog Agent config ([fb5d995](https://github.com/lgdd/d-scribe/commit/fb5d9950d78c7a2b179605a047cc0b824871681f))
+
 ## [1.2.0](https://github.com/lgdd/d-scribe/compare/d-scribe-v1.1.0...d-scribe-v1.2.0) (2026-04-15)
 
 
