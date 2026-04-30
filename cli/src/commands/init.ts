@@ -293,9 +293,11 @@ export function registerInitCommand(program: Command): void {
       } else if (plan.deploy.stack === 'k8s') {
         console.log('    3. minikube start');
         console.log('    4. eval $(minikube docker-env) && docker compose build');
-        console.log('    5. helm repo add datadog https://helm.datadoghq.com');
-        console.log(`    6. helm install datadog datadog/datadog -f k8s/datadog/values.yaml -n ${projectName} --create-namespace`);
-        console.log('    7. kubectl apply -f k8s/ --recursive');
+        console.log(`    5. kubectl create namespace ${projectName} --dry-run=client -o yaml | kubectl apply -f -`);
+        console.log(`    6. kubectl create secret generic datadog-secret --from-literal=api-key=$DD_API_KEY -n ${projectName} --dry-run=client -o yaml | kubectl apply -f -`);
+        console.log('    7. helm repo add datadog https://helm.datadoghq.com');
+        console.log(`    8. helm install datadog datadog/datadog -f helm/datadog-values.yaml -n ${projectName}`);
+        console.log('    9. kubectl apply -f k8s/ --recursive');
       } else {
         console.log('    3. docker compose up -d');
       }

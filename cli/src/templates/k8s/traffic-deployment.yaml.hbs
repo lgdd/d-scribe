@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: traffic
+  namespace: {{namespace}}
+  labels:
+    app: traffic
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: traffic
+  template:
+    metadata:
+      labels:
+        app: traffic
+    spec:
+      containers:
+        - name: traffic
+          image: {{image}}
+          imagePullPolicy: Never
+          args:
+            - "--headless"
+            - "-f"
+            - "/home/locust/locustfile.py"
+            - "--host"
+            - "http://{{firstServiceName}}:{{firstServicePort}}"
+            - "-u"
+            - "5"
+            - "-r"
+            - "1"
+          env:
+            - name: TARGET_HOST
+              value: "http://{{firstServiceName}}:{{firstServicePort}}"

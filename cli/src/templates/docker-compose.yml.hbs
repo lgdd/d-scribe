@@ -171,9 +171,9 @@ services:
   traffic:
     build: ./traffic
     container_name: {{projectName}}-traffic
-    command: locust --headless -f /home/locust/locustfile.py --host http://service-1:8080 -u 5 -r 1
+    command: locust --headless -f /home/locust/locustfile.py --host http://{{firstService.name}}:{{firstService.port}} -u 5 -r 1
     environment:
-      - TARGET_HOST=http://service-1:8080
+      - TARGET_HOST=http://{{firstService.name}}:{{firstService.port}}
     depends_on:
 {{#each services}}
       {{this.name}}:

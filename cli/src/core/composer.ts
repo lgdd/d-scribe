@@ -36,6 +36,7 @@ export function composeDockerCompose(
   const data = {
     projectName,
     services: plan.services,
+    firstService: plan.services[0],
     frontend: plan.frontend,
     features: plan.features,
     deps: plan.deps,
@@ -130,9 +131,17 @@ export function composeK8s(
     renderToFile(path.join(k8sDir, 'service.yaml.hbs'), depData, path.join(outputDir, 'deps', `${spec.serviceName}-service.yaml`));
   }
 
-  // Traffic
-  const trafficData = { ...baseData, name: 'traffic', image: `${projectName}/traffic:latest`, port: 8089, logSource: 'python' };
-  renderToFile(path.join(k8sDir, 'deployment.yaml.hbs'), trafficData, path.join(outputDir, 'traffic', 'traffic-deployment.yaml'));
+  // Traffic — uses a dedicated template to set the headless command pointing at the first service
+  const trafficData = {
+    ...baseData,
+    name: 'traffic',
+    image: `${projectName}/traffic:latest`,
+    port: 8089,
+    logSource: 'python',
+    firstServiceName: plan.services[0]?.name ?? 'service-1',
+    firstServicePort: plan.services[0]?.port ?? 8080,
+  };
+  renderToFile(path.join(k8sDir, 'traffic-deployment.yaml.hbs'), trafficData, path.join(outputDir, 'traffic', 'traffic-deployment.yaml'));
 
   // Ingress
   renderToFile(
@@ -141,10 +150,11 @@ export function composeK8s(
     path.join(outputDir, 'ingress.yaml'),
   );
 
-  // Datadog Helm values
+  // Datadog Helm values — rendered outside k8s/ so kubectl apply -f k8s/ --recursive
+  // does not try to apply the values file as a K8s manifest
   renderToFile(
     path.join(k8sDir, 'datadog-values.yaml.hbs'),
     { ...baseData },
-    path.join(outputDir, 'datadog', 'values.yaml'),
+    path.join(outputDir, '..', 'helm', 'datadog-values.yaml'),
   );
 }

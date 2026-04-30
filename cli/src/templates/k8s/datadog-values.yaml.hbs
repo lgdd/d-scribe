@@ -1,6 +1,9 @@
 datadog:
   apiKeyExistingSecret: datadog-secret
   site: {{ddSite}}
+  clusterName: {{namespace}}
+  kubelet:
+    tlsVerify: false
   env:
     - name: DD_ENV
       value: "{{ddEnv}}"
@@ -28,15 +31,6 @@ datadog:
 {{#unless (eq instrumentation "datadog")}}
   otelCollector:
     enabled: true
-  otlp:
-    receiver:
-      protocols:
-        grpc:
-          enabled: true
-          endpoint: "0.0.0.0:4317"
-        http:
-          enabled: true
-          endpoint: "0.0.0.0:4318"
 {{/unless}}
 
 clusterAgent:
