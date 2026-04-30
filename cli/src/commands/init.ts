@@ -56,6 +56,21 @@ export function registerInitCommand(program: Command): void {
         const src = fs.existsSync(templateSubdir) ? templateSubdir : frontendBase;
         const dest = path.join(outputDir, 'frontend');
         fs.copySync(src, dest, { filter: (s) => !path.basename(s).startsWith('module.json') });
+
+        // Render nginx.conf from template — the static file uses service-1 as a placeholder;
+        // the template variant resolves to the actual first service name and port
+        const nginxTplPath = path.join(dest, 'nginx.conf.hbs');
+        if (fs.existsSync(nginxTplPath)) {
+          renderToFile(
+            nginxTplPath,
+            {
+              firstServiceName: plan.services[0]?.name ?? 'service-1',
+              firstServicePort: plan.services[0]?.port ?? 8080,
+            },
+            path.join(dest, 'nginx.conf'),
+          );
+          fs.removeSync(nginxTplPath);
+        }
       }
 
       // Copy traffic
