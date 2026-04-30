@@ -278,15 +278,16 @@ describe('resolve — instrumentation mode', () => {
     expect(plan.instrumentation).toBe('otel');
   });
 
-  it('rejects otel on a backend lacking otel support', () => {
-    expect(() => resolve({
+  it('accepts otel for go:gin once support is declared', () => {
+    const plan = resolve({
       backends: ['go:gin'],
       features: [],
       deploy: 'compose',
       ddSite: 'datadoghq.com',
       serviceCount: 1,
       instrumentation: 'otel',
-    }, manifest)).toThrow(/go:gin/);
+    }, manifest);
+    expect(plan.instrumentation).toBe('otel');
   });
 
   it('rejects otel when a selected feature is not otel-compatible', () => {
@@ -311,15 +312,15 @@ describe('resolve — instrumentation mode', () => {
     }, manifest)).toThrow(/ddot.*k8s/i);
   });
 
-  it('aggregates multiple offenders in a single error', () => {
+  it('aggregates multiple feature offenders in a single error', () => {
     expect(() => resolve({
-      backends: ['go:gin'],
+      backends: ['node:express'],
       features: ['dbm:postgresql', 'apm:profiling'],
       deploy: 'compose',
       ddSite: 'datadoghq.com',
       serviceCount: 1,
       instrumentation: 'otel',
-    }, manifest)).toThrow(/go:gin[\s\S]*dbm:postgresql[\s\S]*apm:profiling/);
+    }, manifest)).toThrow(/dbm:postgresql[\s\S]*apm:profiling/);
   });
 
   it('rejects an unknown instrumentation value', () => {
@@ -332,5 +333,41 @@ describe('resolve — instrumentation mode', () => {
       // @ts-expect-error intentional invalid value
       instrumentation: 'bogus',
     }, manifest)).toThrow(/Unknown instrumentation mode/);
+  });
+
+  it('accepts ddot for go:gin on k8s', () => {
+    const plan = resolve({
+      backends: ['go:gin'],
+      features: [],
+      deploy: 'k8s',
+      ddSite: 'datadoghq.com',
+      serviceCount: 1,
+      instrumentation: 'ddot',
+    }, manifest);
+    expect(plan.instrumentation).toBe('ddot');
+  });
+
+  it('accepts ddot for ruby:rails on k8s', () => {
+    const plan = resolve({
+      backends: ['ruby:rails'],
+      features: [],
+      deploy: 'k8s',
+      ddSite: 'datadoghq.com',
+      serviceCount: 1,
+      instrumentation: 'ddot',
+    }, manifest);
+    expect(plan.instrumentation).toBe('ddot');
+  });
+
+  it('accepts ddot for php:laravel on k8s', () => {
+    const plan = resolve({
+      backends: ['php:laravel'],
+      features: [],
+      deploy: 'k8s',
+      ddSite: 'datadoghq.com',
+      serviceCount: 1,
+      instrumentation: 'ddot',
+    }, manifest);
+    expect(plan.instrumentation).toBe('ddot');
   });
 });
