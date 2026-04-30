@@ -18,5 +18,5 @@
   ],
   "java_version": "21",
   "spring_boot_version": "3.4.x",
-  "supported_instrumentation_modes": ["datadog", "ddot"]
+  "supported_instrumentation_modes": ["datadog", "ddot", "otel"]
 }
