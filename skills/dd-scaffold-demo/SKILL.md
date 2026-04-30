@@ -363,6 +363,8 @@ Map the confirmed choices from Steps 2-8 to CLI arguments and run:
 
 **IMPORTANT — `--services` is the count of backend services only.** The `--frontend` flag handles the frontend separately. If the user selected 3 backend services and 1 frontend, pass `--services 3 --frontend react:vite` — do NOT add the frontend to the services count.
 
+**IMPORTANT — `--backend` takes deduplicated values only.** List each unique backend spec once, even if multiple services share the same framework. The CLI distributes services across backends using round-robin. Example: 3 services all using `python:flask` → `--backend python:flask --services 3`, NOT `--backend python:flask,python:flask,python:flask --services 3`.
+
 ### Step 10: Read the generated context
 
 Read the generated `AGENTS.md` to understand the project structure, available patterns, and features configured.
