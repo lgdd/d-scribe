@@ -10,6 +10,7 @@
     "dist"
   ],
   "scripts": {
+    "prepack": "cp ../README.md README.md",
     "build": "tsup",
     "postbuild": "rm -rf dist/catalog dist/skills dist/templates; [ -d ../catalog ] && cp -r ../catalog dist/catalog || true; [ -d ../skills ] && cp -r ../skills dist/skills || true; [ -d src/templates ] && cp -r src/templates dist/templates || true",
     "dev": "tsx src/index.ts",
