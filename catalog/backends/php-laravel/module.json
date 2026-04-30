@@ -15,5 +15,5 @@
   ],
   "php_version": "8.4",
   "laravel_version": "12.x",
-  "supported_instrumentation_modes": ["datadog"]
+  "supported_instrumentation_modes": ["datadog", "ddot", "otel"]
 }
