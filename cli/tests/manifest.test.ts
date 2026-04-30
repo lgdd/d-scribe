@@ -112,10 +112,10 @@ describe('manifest.instrumentation', () => {
 });
 
 describe('backend.module.json supported_instrumentation_modes', () => {
-  // Phase 1: only node-express and python-flask have service-template-otel/
-  const otelReady = ['node-express', 'python-flask'];
+  // Phase 1: only node-express, python-flask, and python-django have service-template-otel/
+  const otelReady = ['node-express', 'python-flask', 'python-django'];
   // Tier-1 backends without otel templates yet — ddot only
-  const ddotOnly = ['java-spring', 'java-quarkus', 'python-django', 'dotnet-aspnetcore'];
+  const ddotOnly = ['java-spring', 'java-quarkus', 'dotnet-aspnetcore'];
   const datadogOnly = ['go-gin', 'ruby-rails', 'php-laravel'];
 
   for (const backend of otelReady) {
