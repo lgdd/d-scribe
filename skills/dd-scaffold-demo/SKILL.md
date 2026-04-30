@@ -419,6 +419,27 @@ Tell the user:
    - `dd-check-preflight` — to re-run the full validation cycle
    - Datadog-as-Code: `dd-add-monitor` → `dd-add-slo` → `dd-add-dashboard` — generate Terraform for monitors, SLOs, and dashboards
 7. Key talking points tailored to the prospect's pain points
+8. Estimated AI cost — read `skills/dd-scaffold-demo/references/pricing.md` (relative to project root), then:
+   a. Identify your own model name from self-knowledge (e.g., `claude-sonnet-4-6`).
+   b. Count what was built in this session: N backend services, frontend yes/no, M additional features selected in Step 4 (exclude baseline APM/Logs/Infra/RUM), whether preflight ran, whether telemetry ran.
+   c. Sum token estimates using the Token Unit Estimates table:
+      - total = 20K (base) + N × 60K (backends) + 30K if frontend + M × 10K (features) + 20K if preflight ran + 15K if telemetry ran
+   d. Split 70/30: input_tokens = total × 0.7, output_tokens = total × 0.3
+   e. Match your model name against the Model Pricing Table top-to-bottom (first match wins). Apply the ordering rules listed in the table header.
+   f. If matched: cost = (input_tokens × input_price + output_tokens × output_price) / 1,000,000. Print:
+      ```
+      💰 Estimated AI cost
+         Model:    <model-name>
+         Tokens:   ~<total>K  (<input>K input / <output>K output)
+         Cost:     ~$<amount>
+         Note:     Heuristic estimate — check your AI tool's cost display for the actual figure.
+      ```
+   g. If no match: print:
+      ```
+      💰 Estimated AI cost
+         Model:    <model-name>
+         Cost:     unable to estimate (model not in pricing table)
+      ```
 
 ## Notes
 
