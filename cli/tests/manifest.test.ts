@@ -113,9 +113,9 @@ describe('manifest.instrumentation', () => {
 
 describe('backend.module.json supported_instrumentation_modes', () => {
   // Phase 1 + java-spring: these have service-template-otel/
-  const otelReady = ['node-express', 'python-flask', 'python-django', 'java-spring', 'java-quarkus'];
+  const otelReady = ['node-express', 'python-flask', 'python-django', 'java-spring', 'java-quarkus', 'dotnet-aspnetcore'];
   // Tier-1 backends without otel templates yet — ddot only
-  const ddotOnly = ['dotnet-aspnetcore'];
+  const ddotOnly: string[] = [];
   const datadogOnly = ['go-gin', 'ruby-rails', 'php-laravel'];
 
   for (const backend of otelReady) {

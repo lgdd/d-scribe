@@ -16,5 +16,5 @@
   ],
   "dotnet_version": "9.0",
   "aspnetcore_version": "9.0",
-  "supported_instrumentation_modes": ["datadog", "ddot"]
+  "supported_instrumentation_modes": ["datadog", "ddot", "otel"]
 }
