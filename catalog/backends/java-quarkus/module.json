@@ -18,5 +18,5 @@
   ],
   "java_version": "21",
   "quarkus_version": "3.17.x",
-  "supported_instrumentation_modes": ["datadog", "ddot"]
+  "supported_instrumentation_modes": ["datadog", "ddot", "otel"]
 }
