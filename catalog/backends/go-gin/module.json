@@ -16,5 +16,5 @@
   ],
   "go_version": "1.23",
   "gin_version": "1.10.x",
-  "supported_instrumentation_modes": ["datadog"]
+  "supported_instrumentation_modes": ["datadog", "ddot", "otel"]
 }

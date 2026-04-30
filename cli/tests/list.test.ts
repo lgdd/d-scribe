@@ -41,7 +41,7 @@ describe('list backends — Modes column', () => {
     const nodeLine = out.split('\n').find(l => l.includes('node:express'));
     expect(nodeLine!).toContain('otel');
     const goLine = out.split('\n').find(l => l.includes('go:gin'));
-    expect(goLine!).not.toContain('otel');
+    expect(goLine!).toContain('otel');
   });
 });
 
@@ -50,7 +50,7 @@ describe('list backends — --instrumentation filter', () => {
     const out = run(['list', 'backends', '--instrumentation', 'otel']);
     expect(out).toContain('node:express');
     expect(out).toContain('python:flask');
-    expect(out).not.toContain('go:gin');
+    expect(out).toContain('go:gin');
     expect(out).not.toContain('ruby:rails');
   });
 
@@ -59,7 +59,7 @@ describe('list backends — --instrumentation filter', () => {
     const keys = JSON.parse(out) as string[];
     expect(keys).toContain('node:express');
     expect(keys).toContain('python:flask');
-    expect(keys).not.toContain('go:gin');
+    expect(keys).toContain('go:gin');
   });
 
   it('exits non-zero for unknown mode', () => {
